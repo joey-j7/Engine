@@ -56,21 +56,21 @@
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{BDD6857C-A90D-870D-52FA-6C103E10030F}</ProjectGuid>
-    <RootNamespace>Glad</RootNamespace>
+    <ProjectGuid>{F9765552-0107-4B4A-B6EB-9B315A2F02EF}</ProjectGuid>
+    <RootNamespace>ImGui</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <!-- Android -->
   <PropertyGroup Condition="'$(Platform)'=='ARM'" Label="Globals">
     <Keyword>Android</Keyword>
-    <RootNamespace>Glad</RootNamespace>
+    <RootNamespace>ImGui</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ApplicationType>Android</ApplicationType>
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='ARM64'" Label="Globals">
     <Keyword>Android</Keyword>
-    <RootNamespace>Glad</RootNamespace>
+    <RootNamespace>ImGui</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ApplicationType>Android</ApplicationType>
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
@@ -166,62 +166,78 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Release.props" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Release.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Release.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Release.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Dist.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Dist.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|Win32'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Dist.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Dist.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Dist.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Dist.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Dist.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Dist.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <!-- Windows
   <PropertyGroup>
-    <TargetName>Glad</TargetName>
+    <TargetName>ImGui</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup> -->
   <!-- Android
   <PropertyGroup Condition="'$(Configuration)'=='ARM'">
-    <TargetName>libGlad</TargetName>
+    <TargetName>libImGui</TargetName>
     <TargetExt>.a</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='ARM64'">
-    <TargetName>libGlad</TargetName>
+    <TargetName>libImGui</TargetName>
     <TargetExt>.a</TargetExt>
   </PropertyGroup> -->
   <PropertyGroup />
@@ -231,7 +247,6 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>include;</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -240,7 +255,6 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>include;</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -251,7 +265,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -266,7 +279,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -281,7 +293,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -296,7 +307,6 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -304,41 +314,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
+    <ClCompile />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\glad\glad.h" />
-    <ClInclude Include="include\KHR\khrplatform.h" />
+    <ClCompile Include="$(SolutionDir)Libraries\imgui\imgui.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\imgui\imgui_demo.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\imgui\imgui_draw.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\glad.c" />
+    <ClInclude Include="$(SolutionDir)Libraries\imgui\imconfig.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\imgui\imgui.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\imgui\imgui_internal.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\imgui\imstb_rectpack.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\imgui\imstb_textedit.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\imgui\imstb_truetype.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

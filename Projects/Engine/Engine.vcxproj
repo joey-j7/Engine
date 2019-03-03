@@ -455,7 +455,7 @@
     <ClInclude Include="Engine\KeyCodes.h" />
     <ClInclude Include="Engine\Layer.h" />
     <ClInclude Include="Engine\LayerStack.h" />
-    <ClInclude Include="Engine\Logger\CustomLogSink.h" />
+    <ClInclude Include="Engine\Logger\Sinks\engine_sink.h" />
     <ClInclude Include="Engine\Logger\Log.h" />
     <ClInclude Include="Engine\Math.h" />
     <ClInclude Include="Engine\MouseButtonCodes.h" />
@@ -505,16 +505,16 @@
     <ClCompile Include="Platform\Android\AndroidWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Libraries\Glad\Glad.vcxproj">
+    <ProjectReference Include="..\Libraries\Glad\Glad.vcxproj">
       <Project>{bdd6857c-a90d-870d-52fa-6c103e10030f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\GLFW\GLFW.vcxproj">
+    <ProjectReference Include="..\Libraries\GLFW\GLFW.vcxproj">
       <Project>{723a3aea-f1fa-4d55-8a7f-643a23051465}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\glm\GLM.vcxproj">
+    <ProjectReference Include="..\Libraries\glm\GLM.vcxproj">
       <Project>{7306780f-4071-4bfa-9d2b-e92363a4828b}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Libraries\imgui\ImGui.vcxproj">
+    <ProjectReference Include="..\Libraries\imgui\ImGui.vcxproj">
       <Project>{f9765552-0107-4b4a-b6eb-9b315a2f02ef}</Project>
     </ProjectReference>
   </ItemGroup>

@@ -20,14 +20,14 @@
     <ClInclude Include="Engine\Common.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Engine\Logger\Log.h" />
-    <ClInclude Include="Engine\Logger\CustomLogSink.h" />
     <ClInclude Include="Engine\DeltaTime.h" />
     <ClInclude Include="Engine\Timer.h" />
     <ClInclude Include="Engine\Renderer.h" />
     <ClInclude Include="Rendering\OpenGL\GLRenderer.h" />
     <ClInclude Include="Rendering\Vulkan\VkRenderer.h" />
-    <ClInclude Include="Platform\Windows\WindowsInput.h" />
-    <ClInclude Include="Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="Platform\Android\AndroidInput.h" />
+    <ClInclude Include="Platform\Android\AndroidWindow.h" />
+    <ClInclude Include="Engine\Logger\Sinks\engine_sink.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -39,8 +39,8 @@
     <ClCompile Include="Engine\DeltaTime.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLRenderer.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkRenderer.cpp" />
-    <ClCompile Include="Platform\Windows\WindowsInput.cpp" />
-    <ClCompile Include="Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="Engine\ImGui\ImGuiBuild.cpp" />
+    <ClCompile Include="Platform\Android\AndroidInput.cpp" />
+    <ClCompile Include="Platform\Android\AndroidWindow.cpp" />
   </ItemGroup>
 </Project>

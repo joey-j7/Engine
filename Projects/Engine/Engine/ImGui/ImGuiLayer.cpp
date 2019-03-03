@@ -54,7 +54,18 @@ namespace Engine {
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
+
+#ifdef CB_PLATFORM_WINDOWS
 		ImGui_ImplOpenGL3_Init("#version 410");
+#else 
+		ImGui_ImplOpenGL3_Init("#version 300 es");
+#endif
+
+#ifdef CB_PLATFORM_ANDROID
+		float scale = 3.0f;
+		io.FontGlobalScale *= scale;
+		style.ScaleAllSizes(scale);
+#endif
 	}
 
 	void ImGuiLayer::OnDetach()

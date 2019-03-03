@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Log.h"
 
-#include "CustomLogSink.h"
+#include "Engine/Logger/Sinks/engine_sink.h"
 
 namespace Engine {
 
@@ -13,16 +13,16 @@ namespace Engine {
 	{
 		spdlog::set_pattern("%^[%T] %n: %v%$");
 
-		m_CoreLogger = CustomLogSink_mt("Engine");
+		m_CoreLogger = EngineLogSink("Engine");
 		m_CoreLogger->set_level(spdlog::level::trace);
 
-		m_ClientLogger = CustomLogSink_mt("Game");
+		m_ClientLogger = EngineLogSink("Game");
 		m_ClientLogger->set_level(spdlog::level::trace);
 	}
 
-	void Log::AddScreenMessage(std::string message, float fTimer)
+	void Log::AddScreenMessage(const std::string& message, Color color, float fTimer)
 	{
-		m_ScreenLogger.push_back({ message, Color(1.0f), fTimer });
+		m_ScreenLogger.push_back({ message, color, fTimer });
 
 		if (m_ScreenLogger.size() > CB_MAX_LOG_MESSAGES)
 			m_ScreenLogger.erase(m_ScreenLogger.begin());

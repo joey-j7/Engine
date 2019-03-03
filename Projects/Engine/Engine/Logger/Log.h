@@ -11,7 +11,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
 
-#include "CustomLogSink.h"
+class engine_sink;
 
 namespace Engine {
 	struct ScreenMessage
@@ -23,15 +23,7 @@ namespace Engine {
 
 	class Engine_API Log
 	{
-#ifdef CB_PLATFORM_WINDOWS
-		friend class CustomLogSink<spdlog::details::console_stdout, spdlog::details::console_mutex>;
-		friend class CustomLogSink<spdlog::details::console_stdout, spdlog::details::console_nullmutex>;
-		friend class CustomLogSink<spdlog::details::console_stderr, spdlog::details::console_mutex>;
-		friend class CustomLogSink<spdlog::details::console_stderr, spdlog::details::console_nullmutex>;
-#elif CB_PLATFORM_ANDROID
-		friend class CustomLogSink<std::mutex>;
-		friend class CustomLogSink<spdlog::details::null_mutex>;
-#endif
+		friend class engine_sink;
 
 	public:
 		enum Type
@@ -48,10 +40,9 @@ namespace Engine {
 		template<typename... Args>
 		static void Add(Log::Type type, bool bIsCore, float fTimer, const char *fmt, const Args &... args);
 
+		static void AddScreenMessage(const std::string& message, Color color, float fTimer);
 		inline static std::vector<ScreenMessage>& GetScreenLogger() { return m_ScreenLogger; }
 	private:
-		static void AddScreenMessage(std::string message, float fTimer);
-
 		static std::shared_ptr<spdlog::logger> m_CoreLogger;
 		static std::shared_ptr<spdlog::logger> m_ClientLogger;
 
@@ -62,7 +53,6 @@ namespace Engine {
 	void Log::Add(Log::Type type, bool bIsCore, float fTimer, const char *fmt, const Args &... args)
 	{
 		spdlog::logger* pLogger = bIsCore ? m_CoreLogger.get() : m_ClientLogger.get();
-		Color color = Color(1.0f);
 
 		switch (type)
 		{
@@ -71,27 +61,24 @@ namespace Engine {
 			break;
 		case E_INFO:
 			pLogger->info(fmt, args...);
-			color = Color(0.584313725f, 0.701960784f, 0.941176471f, 1.0f);
 			break;
 		case E_WARN:
 			pLogger->warn(fmt, args...);
-			color = Color(0.980392157f, 0.901960784f, 0.352941176f, 1.0f);
 			break;
 		case E_ERROR:
 			pLogger->error(fmt, args...);
-			color = Color(0.941176471f, 0.352941176f, 0.352941176f, 1.0f);
 			break;
 		case E_FATAL:
 			pLogger->critical(fmt, args...);
-			color = Color(0.862745098f, 0.0784313725f, 0.0784313725f, 1.0f);
 			break;
 		default:
 			break;
 		}
 
+#ifndef CB_DIST
 		ScreenMessage& msg = m_ScreenLogger.back();
 		msg.Time.Init(fTimer);
-		msg.Color = color;
+#endif
 	}
 }
 

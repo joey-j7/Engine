@@ -59,7 +59,7 @@
         }
       },
       "SolutionConfiguration": "Debug",
-      "SolutionPlatform": "ARM64"
+      "SolutionPlatform": "ARM"
     },
     "Windows": {
       "Projects": {
