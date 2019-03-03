@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <UseMultiToolTask>true</UseMultiToolTask>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)Projects\Engine;$(SolutionDir)Libraries\PhysX\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\spdlog\include;$(SolutionDir)Libraries\Glad\include;$(SolutionDir)Libraries\imgui;$(SolutionDir)Libraries\GLFW\include;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CB_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>IF EXIST $(TargetDir)$(TargetName)$(TargetExt)\ (xcopy /Q /E /Y /I $(TargetDir)$(TargetName)$(TargetExt) "$(SolutionDir)Builds\Launcher\$(Platform)\$(Configuration)\" &gt; nul) ELSE (xcopy /Q /Y /I $(TargetDir)$(TargetName)$(TargetExt) "$(SolutionDir)Builds\Launcher\$(Platform)\$(Configuration)\" &gt; nul)</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalLibraryDirectories>$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
