@@ -264,6 +264,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -278,6 +279,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -294,6 +296,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -311,6 +314,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -326,6 +330,7 @@
     </Link>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|Win32'">
@@ -335,12 +340,13 @@
     </Link>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <PreprocessorDefinitions>GLFW_INCLUDE_ES3;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -353,8 +359,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">
     <ClCompile>
-      <PreprocessorDefinitions>GLFW_INCLUDE_ES3;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -367,8 +373,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <PreprocessorDefinitions>GLFW_INCLUDE_ES3;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -381,8 +387,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
-      <PreprocessorDefinitions>GLFW_INCLUDE_ES3;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -399,8 +405,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'">
     <ClCompile>
-      <PreprocessorDefinitions>GLFW_INCLUDE_ES3;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -417,8 +423,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
-      <PreprocessorDefinitions>GLFW_INCLUDE_ES3;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>

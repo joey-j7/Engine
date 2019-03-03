@@ -23,7 +23,7 @@
     <ClCompile />
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLFW_INCLUDE_NONE;CB_NAME=$(CB_NAME);CB_MAX_LOG_MESSAGES=$(CB_MAX_LOG_MESSAGES);CB_PLATFORM=$(CB_PLATFORM);CB_RENDERER_VULKAN=$(CB_RENDERER_VULKAN);CB_RENDERER_OPENGL=$(CB_RENDERER_OPENGL);CB_RENDERING_API=$(CB_RENDERING_API);_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CB_NAME=$(CB_NAME);CB_MAX_LOG_MESSAGES=$(CB_MAX_LOG_MESSAGES);CB_PLATFORM=$(CB_PLATFORM);CB_RENDERER_VULKAN=$(CB_RENDERER_VULKAN);CB_RENDERER_OPENGL=$(CB_RENDERER_OPENGL);CB_RENDERING_API=$(CB_RENDERING_API);_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>
