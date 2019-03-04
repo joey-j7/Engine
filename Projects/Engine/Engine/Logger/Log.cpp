@@ -19,7 +19,7 @@ namespace Engine {
 			m_CoreLogger->set_level(spdlog::level::trace);
 		}
 
-		if (!m_CoreLogger.get())
+		if (!m_ClientLogger.get())
 		{
 			m_ClientLogger = EngineLogSink("Game");
 			m_ClientLogger->set_level(spdlog::level::trace);
