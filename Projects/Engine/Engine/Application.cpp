@@ -29,7 +29,7 @@ namespace Engine {
 
 	Application::~Application()
 	{
-
+		s_Instance = nullptr;
 	}
 
 	void Application::PushLayer(Layer* layer)
@@ -49,6 +49,15 @@ namespace Engine {
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
+		EventDispatcher dispatcher1(e);
+		dispatcher1.Dispatch<WindowMinimizeEvent>(BIND_EVENT_FN(OnWindowMinimize));
+
+		EventDispatcher dispatcher2(e);
+		dispatcher2.Dispatch<WindowFocusEvent>(BIND_EVENT_FN(OnWindowFocus));
+
+		EventDispatcher dispatcher3(e);
+		dispatcher3.Dispatch<AppPauseEvent>(BIND_EVENT_FN(OnAppPause));
+
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
 		{
 			(*--it)->OnEvent(e);
@@ -61,19 +70,51 @@ namespace Engine {
 	{
 		while (m_Running)
 		{
-			m_DeltaTime->Update();
-			m_Renderer->Clear();
+			if (!m_Paused)
+			{
+				m_DeltaTime->Update();
+				m_Renderer->Clear();
 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
+				for (Layer* layer : m_LayerStack)
+					layer->OnUpdate();
 
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
-			m_ImGuiLayer->End();
+				m_ImGuiLayer->Begin();
+				for (Layer* layer : m_LayerStack)
+					layer->OnImGuiRender();
+				m_ImGuiLayer->End();
+			}
 
 			m_Window->OnUpdate();
 		}
+	}
+
+	bool Application::OnAppPause(AppPauseEvent& e)
+	{
+		m_Paused = e.IsPaused();
+		return true;
+	}
+
+	bool Application::OnWindowMinimize(WindowMinimizeEvent& e)
+	{
+		if (!e.IsMinimized())
+		{
+			m_Window->Reset();
+
+			// Reset layer
+			m_ImGuiLayer->OnDetach();
+			m_ImGuiLayer->OnAttach();
+		}
+
+		AppPauseEvent event(e.IsMinimized());
+		OnAppPause(event);
+		return true;
+	}
+
+	bool Application::OnWindowFocus(WindowFocusEvent& e)
+	{
+		AppPauseEvent event(!e.IsFocussed());
+		OnAppPause(event);
+		return true;
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& e)
@@ -81,5 +122,4 @@ namespace Engine {
 		m_Running = false;
 		return true;
 	}
-
 }

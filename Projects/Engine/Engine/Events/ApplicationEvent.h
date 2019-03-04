@@ -21,9 +21,53 @@ namespace Engine {
 		}
 
 		EVENT_CLASS_TYPE(WindowResize)
-		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	private:
 		unsigned int m_Width, m_Height;
+	};
+
+	class Engine_API WindowMinimizeEvent : public Event
+	{
+	public:
+		WindowMinimizeEvent(bool minimized)
+			: m_Minimized(minimized) {}
+
+		inline bool IsMinimized() const { return m_Minimized; }
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "WindowMinimizeEvent: " << m_Minimized;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(WindowMinimize)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	private:
+		bool m_Minimized = false;
+	};
+
+	class Engine_API WindowFocusEvent : public Event
+	{
+	public:
+		WindowFocusEvent(bool focussed)
+			: m_Focussed(focussed) {}
+
+		inline bool IsFocussed() const { return m_Focussed; }
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "WindowFocusEvent: " << m_Focussed;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(WindowFocus)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	private:
+		bool m_Focussed = false;
 	};
 
 	class Engine_API WindowCloseEvent : public Event
@@ -60,5 +104,27 @@ namespace Engine {
 
 		EVENT_CLASS_TYPE(AppRender)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+	};
+
+	class Engine_API AppPauseEvent : public Event
+	{
+	public:
+		AppPauseEvent(bool paused)
+			: m_Paused(paused) {}
+
+		inline bool IsPaused() const { return m_Paused; }
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "WindowPauseEvent: " << m_Paused;
+			return ss.str();
+		}
+
+		EVENT_CLASS_TYPE(AppPause)
+		EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
+	private:
+		bool m_Paused = false;
 	};
 }

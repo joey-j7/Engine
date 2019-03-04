@@ -13,8 +13,8 @@ namespace Engine {
 	enum class EventType
 	{
 		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
-		AppTick, AppUpdate, AppRender,
+		WindowClose, WindowResize, WindowMinimize, WindowFocus, WindowLostFocus, WindowMoved,
+		AppTick, AppUpdate, AppRender, AppPause,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};

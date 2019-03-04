@@ -27,6 +27,8 @@ namespace Engine {
 	// Interface representing a desktop system based Window
 	class Engine_API Window
 	{
+		friend class Application;
+
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
 
@@ -45,6 +47,10 @@ namespace Engine {
 		virtual void* GetNativeWindow() const = 0;
 
 		static Window* Create(const WindowProps& props = WindowProps());
+		virtual void Reset() = 0;
+
+	protected:
+		virtual void Shutdown() = 0;
 	};
 
 }

@@ -46,6 +46,9 @@ namespace Engine {
 
 		CB_CORE_INFO_T(5.0f, "Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
+		if (s_GLFWInitialized)
+			Shutdown();
+
 		if (!s_GLFWInitialized)
 		{
 			// TODO: glfwTerminate on system shutdown
@@ -88,6 +91,20 @@ namespace Engine {
 			data.Height = height;
 
 			WindowResizeEvent event(width, height);
+			data.EventCallback(event);
+		});
+
+		glfwSetWindowIconifyCallback(m_Window, [](GLFWwindow* window, int iconified)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			WindowMinimizeEvent event(iconified);
+			data.EventCallback(event);
+		});
+
+		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focussed)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			WindowFocusEvent event(focussed);
 			data.EventCallback(event);
 		});
 
@@ -171,9 +188,17 @@ namespace Engine {
 		});
 	}
 
+	void AndroidWindow::Reset()
+	{
+		Init(WindowProps(m_Data.Title, m_Data.Width, m_Data.Height));
+	}
+
 	void AndroidWindow::Shutdown()
 	{
+		glfwMakeContextCurrent(NULL);
 		glfwDestroyWindow(m_Window);
+
+		s_GLFWInitialized = false;
 	}
 
 	void AndroidWindow::OnUpdate()

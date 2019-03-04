@@ -65,6 +65,15 @@ namespace Engine {
 		float scale = 3.0f;
 		io.FontGlobalScale *= scale;
 		style.ScaleAllSizes(scale);
+
+		style.FramePadding = ImVec2(25.f, 25.f);
+		style.TouchExtraPadding = ImVec2(25.f, 25.f);
+		style.ScrollbarSize = 0.f;
+
+		io.ConfigFlags |= ImGuiConfigFlags_IsTouchScreen;
+
+		io.ConfigWindowsResizeFromEdges = false;
+		io.ConfigWindowsMoveFromTitleBarOnly = true;
 #endif
 	}
 

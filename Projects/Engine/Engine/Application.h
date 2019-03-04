@@ -29,7 +29,12 @@ namespace Engine {
 		inline Window& GetWindow() { return *m_Window; }
 
 		inline static Application& Get() { return *s_Instance; }
+
 	private:
+		bool OnAppPause(AppPauseEvent& e);
+
+		bool OnWindowMinimize(WindowMinimizeEvent& e);
+		bool OnWindowFocus(WindowFocusEvent& e);
 		bool OnWindowClose(WindowCloseEvent& e);
 
 		std::unique_ptr<Window> m_Window;
@@ -40,6 +45,8 @@ namespace Engine {
 		std::unique_ptr<DeltaTime> m_DeltaTime;
 
 		bool m_Running = true;
+		bool m_Paused = false;
+
 		LayerStack m_LayerStack;
 
 	private:

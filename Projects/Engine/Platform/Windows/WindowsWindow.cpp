@@ -59,7 +59,7 @@ namespace Engine {
 		glfwWindowHint(GLFW_CLIENT_API, CB_GLFW_API);
 #endif
 
-		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		m_Window = glfwCreateWindow((int)m_Data.Width, (int)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
 
 #if CB_RENDERING_API == CB_RENDERER_OPENGL
@@ -78,6 +78,20 @@ namespace Engine {
 			data.Height = height;
 
 			WindowResizeEvent event(width, height);
+			data.EventCallback(event);
+		});
+
+		glfwSetWindowIconifyCallback(m_Window, [](GLFWwindow* window, int iconified)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			WindowMinimizeEvent event(iconified);
+			data.EventCallback(event);
+		});
+
+		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focussed)
+		{
+			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+			WindowFocusEvent event(focussed);
 			data.EventCallback(event);
 		});
 
@@ -185,6 +199,11 @@ namespace Engine {
 	bool WindowsWindow::IsVSync() const
 	{
 		return m_Data.VSync;
+	}
+
+	void WindowsWindow::Reset()
+	{
+		Init(WindowProps(m_Data.Title, m_Data.Width, m_Data.Height));
 	}
 
 }

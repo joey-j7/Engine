@@ -21,69 +21,78 @@
     <ClInclude Include="include\GLFW\glfw3native.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\glfw\src\internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\glfw\src\android_joystick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Libraries\glfw\src\android_platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\context.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egl_context.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\egl_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\init.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\init.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\input.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\input.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\monitor.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\monitor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\vulkan.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\vulkan.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\wgl_context.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\window.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32_init.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\android_init.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32_joystick.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\android_joystick.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32_monitor.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\android_monitor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32_time.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\android_window.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32_window.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\posix_thread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\window.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\posix_time.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\osmesa_context.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\wgl_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\android_init.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\win32_init.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\android_joystick.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\win32_joystick.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\android_monitor.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\win32_monitor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\android_window.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\win32_thread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\posix_thread.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\win32_time.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\posix_time.c">
+    <ClCompile Include="$(SolutionDir)Libraries\glfw\src\win32_window.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\win32_thread.c">
+    <ClCompile Include="..\..\..\Libraries\glfw\src\osmesa_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

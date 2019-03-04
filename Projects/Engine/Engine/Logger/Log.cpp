@@ -13,11 +13,17 @@ namespace Engine {
 	{
 		spdlog::set_pattern("%^[%T] %n: %v%$");
 
-		m_CoreLogger = EngineLogSink("Engine");
-		m_CoreLogger->set_level(spdlog::level::trace);
+		if (!m_CoreLogger.get())
+		{
+			m_CoreLogger = EngineLogSink("Engine");
+			m_CoreLogger->set_level(spdlog::level::trace);
+		}
 
-		m_ClientLogger = EngineLogSink("Game");
-		m_ClientLogger->set_level(spdlog::level::trace);
+		if (!m_CoreLogger.get())
+		{
+			m_ClientLogger = EngineLogSink("Game");
+			m_ClientLogger->set_level(spdlog::level::trace);
+		}
 	}
 
 	void Log::AddScreenMessage(const std::string& message, Color color, float fTimer)
