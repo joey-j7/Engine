@@ -1,24 +1,25 @@
 #pragma once
 
-#include "Engine/Window.h"
-
-#if CB_RENDERING_API == CB_RENDERER_VULKAN
-#define GLFW_INCLUDE_VULKAN
-#endif
-
-#include <GLFW/glfw3.h>
+#include "pch.h"
+#include "Platform/Window.h"
 
 namespace Engine {
-	class AndroidWindow : public Window
+
+	class GLFWWindow : public Window
 	{
 	public:
-		AndroidWindow(const WindowProps& props);
-		virtual ~AndroidWindow();
+		GLFWWindow(const std::shared_ptr<RenderContextData>& contextData, const WindowProps& props);
+		virtual ~GLFWWindow();
 
 		void OnUpdate() override;
 
 		inline unsigned int GetWidth() const override { return m_Data.Width; }
 		inline unsigned int GetHeight() const override { return m_Data.Height; }
+
+		inline void* GetWindow() override
+		{
+			return m_Window;
+		}
 
 		// Window attributes
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
@@ -33,18 +34,7 @@ namespace Engine {
 		virtual void Shutdown() override;
 
 	private:
-		GLFWwindow* m_Window;
-
-		struct WindowData
-		{
-			std::string Title;
-			unsigned int Width, Height;
-			bool VSync;
-
-			EventCallbackFn EventCallback;
-		};
-
-		WindowData m_Data;
+		GLFWwindow* m_Window = nullptr;
 	};
 
 }

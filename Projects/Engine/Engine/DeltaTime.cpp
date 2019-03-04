@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "DeltaTime.h"
 
-#include "GLFW/glfw3.h"
-
 void DeltaTime::Update()
 {
 	m_CurrentTime = glfwGetTime();

@@ -144,21 +144,21 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-21</AndroidAPILevel>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-21</AndroidAPILevel>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-21</AndroidAPILevel>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -219,26 +219,26 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'">
     <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Engine.props" />
     <Import Project="..\..\Properties\Android.props" />
+    <Import Project="..\..\Properties\Engine.props" />
     <Import Project="..\..\Properties\Dist.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|Win32'">
     <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Engine.props" />
     <Import Project="..\..\Properties\Windows.props" />
+    <Import Project="..\..\Properties\Engine.props" />
     <Import Project="..\..\Properties\Dist.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Engine.props" />
     <Import Project="..\..\Properties\Windows.props" />
+    <Import Project="..\..\Properties\Engine.props" />
     <Import Project="..\..\Properties\Dist.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">
     <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Engine.props" />
     <Import Project="..\..\Properties\Android.props" />
+    <Import Project="..\..\Properties\Engine.props" />
     <Import Project="..\..\Properties\Dist.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -264,12 +264,14 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib\;$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -279,12 +281,14 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib32\;$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -296,13 +300,15 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib32\;$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -314,39 +320,45 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib\;$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <Link>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib\;$(SolutionDir)Libraries\PhysX\libs\$(CB_BUILD_MODE);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|Win32'">
     <Link>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib32\;$(SolutionDir)Libraries\PhysX\libs\$(CB_BUILD_MODE);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -360,7 +372,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -374,7 +386,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -388,7 +400,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -406,7 +418,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_DIST;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -424,7 +436,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CB_RELEASE;GLFW_INCLUDE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <PostBuildEvent>
@@ -459,20 +471,16 @@
     <ClInclude Include="Engine\Logger\Log.h" />
     <ClInclude Include="Engine\Math.h" />
     <ClInclude Include="Engine\MouseButtonCodes.h" />
-    <ClInclude Include="Engine\Renderer.h" />
+    <ClInclude Include="Platform\GLFW\GLFWInput.h" />
+    <ClInclude Include="Platform\GLFW\GLFWWindow.h" />
+    <ClInclude Include="Rendering\RenderContext.h" />
+    <ClInclude Include="Rendering\Renderer.h" />
     <ClInclude Include="Engine\Timer.h" />
-    <ClInclude Include="Engine\Window.h" />
+    <ClInclude Include="Platform\Window.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rendering\OpenGL\GLRenderer.h" />
+    <ClInclude Include="Rendering\RenderContextData.h" />
     <ClInclude Include="Rendering\Vulkan\VkRenderer.h" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Platform)'=='Win32' OR '$(Platform)'=='x64'">
-    <ClInclude Include="Platform\Windows\WindowsInput.h" />
-    <ClInclude Include="Platform\Windows\WindowsWindow.h" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Platform)'=='ARM' OR '$(Platform)'=='ARM64'">
-    <ClInclude Include="Platform\Android\AndroidInput.h" />
-    <ClInclude Include="Platform\Android\AndroidWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application.cpp" />
@@ -493,16 +501,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Platform\GLFW\GLFWInput.cpp" />
+    <ClCompile Include="Platform\GLFW\GLFWWindow.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLRenderer.cpp" />
+    <ClCompile Include="Rendering\RenderContext.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkRenderer.cpp" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Platform)'=='Win32' OR '$(Platform)'=='x64'">
-    <ClCompile Include="Platform\Windows\WindowsInput.cpp" />
-    <ClCompile Include="Platform\Windows\WindowsWindow.cpp" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Platform)'=='ARM' OR '$(Platform)'=='ARM64'">
-    <ClCompile Include="Platform\Android\AndroidInput.cpp" />
-    <ClCompile Include="Platform\Android\AndroidWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Libraries\Glad\Glad.vcxproj">

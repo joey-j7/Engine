@@ -12,7 +12,7 @@
       <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>GLESv3;m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>vulkan;GLESv3;m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

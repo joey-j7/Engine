@@ -144,21 +144,21 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-21</AndroidAPILevel>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-21</AndroidAPILevel>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-21</AndroidAPILevel>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -219,26 +219,26 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'">
     <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
     <Import Project="..\..\Properties\Android.props" />
+    <Import Project="..\..\Properties\Launcher.props" />
     <Import Project="..\..\Properties\Dist.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|Win32'">
     <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
     <Import Project="..\..\Properties\Windows.props" />
+    <Import Project="..\..\Properties\Launcher.props" />
     <Import Project="..\..\Properties\Dist.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
     <Import Project="..\..\Properties\Windows.props" />
+    <Import Project="..\..\Properties\Launcher.props" />
     <Import Project="..\..\Properties\Dist.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">
     <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
     <Import Project="..\..\Properties\Android.props" />
+    <Import Project="..\..\Properties\Launcher.props" />
     <Import Project="..\..\Properties\Dist.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -265,7 +265,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>opengl32.lib;FastXml_static_32.lib;LowLevel_static_32.lib;LowLevelAABB_static_32.lib;LowLevelDynamics_static_32.lib;PhysX_32.lib;PhysXCharacterKinematic_static_32.lib;PhysXCommon_32.lib;PhysXCooking_32.lib;PhysXExtensions_static_32.lib;PhysXFoundation_32.lib;PhysXPvdSDK_static_32.lib;PhysXTask_static_32.lib;PhysXVehicle_static_32.lib;SceneQuery_static_32.lib;SimulationController_static_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -278,7 +278,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>opengl32.lib;FastXml_static_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -294,7 +294,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>opengl32.lib;FastXml_static_32.lib;LowLevel_static_32.lib;LowLevelAABB_static_32.lib;LowLevelDynamics_static_32.lib;PhysX_32.lib;PhysXCharacterKinematic_static_32.lib;PhysXCommon_32.lib;PhysXCooking_32.lib;PhysXExtensions_static_32.lib;PhysXFoundation_32.lib;PhysXPvdSDK_static_32.lib;PhysXTask_static_32.lib;PhysXVehicle_static_32.lib;SceneQuery_static_32.lib;SimulationController_static_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -310,19 +310,19 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>opengl32.lib;FastXml_static_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|Win32'">
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>opengl32.lib;FastXml_static_32.lib;LowLevel_static_32.lib;LowLevelAABB_static_32.lib;LowLevelDynamics_static_32.lib;PhysX_32.lib;PhysXCharacterKinematic_static_32.lib;PhysXCommon_32.lib;PhysXCooking_32.lib;PhysXExtensions_static_32.lib;PhysXFoundation_32.lib;PhysXPvdSDK_static_32.lib;PhysXTask_static_32.lib;PhysXVehicle_static_32.lib;SceneQuery_static_32.lib;SimulationController_static_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>opengl32.lib;FastXml_static_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -340,7 +340,8 @@
     <Link />
     <Link />
     <Link>
-      <LibraryDependencies>GLESv3;m;PhysX_static;PhysXCharacterKinematic_static;PhysXCommon_static;PhysXCooking_static;PhysXExtensions;PhysXFoundation_static;PhysXPvdSDK_static;PhysXVehicle_static;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>VkLayer_core_validation;VkLayer_object_tracker;VkLayer_parameter_validation;VkLayer_threading;VkLayer_unique_objects;GLESv3;m;PhysX_static;PhysXCharacterKinematic_static;PhysXCommon_static;PhysXCooking_static;PhysXExtensions;PhysXFoundation_static;PhysXPvdSDK_static;PhysXVehicle_static;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>$(ANDROID_NDK)\sources\third_party\vulkan\src\build-android\jniLibs\arm64-v8a\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'">
@@ -383,6 +384,7 @@
     </PostBuildEvent>
     <Link>
       <LibraryDependencies>GLESv3;m;PhysX_static;PhysXCharacterKinematic_static;PhysXCommon_static;PhysXCooking_static;PhysXExtensions;PhysXFoundation_static;PhysXPvdSDK_static;PhysXVehicle_static;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>$(ANDROID_NDK)\sources\third_party\vulkan\src\build-android\jniLibs\armeabi-v7a\;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">

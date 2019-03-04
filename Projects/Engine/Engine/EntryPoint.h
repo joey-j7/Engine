@@ -3,7 +3,11 @@
 extern Engine::Application* Engine::CreateApplication();
 Engine::Application* app = nullptr;
 
+#ifdef CB_PLATFORM_WINDOWS
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#else
 int main(int argc, char** argv)
+#endif
 {
 	if (!app)
 	{

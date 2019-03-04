@@ -2,9 +2,9 @@
 
 #include "Engine/Input.h"
 
-namespace Engine {
-
-	class WindowsInput : public Input
+namespace Engine
+{
+	class GLFWInput : public Input
 	{
 	protected:
 		virtual bool IsKeyPressedImpl(int keycode) override;
@@ -14,5 +14,4 @@ namespace Engine {
 		virtual float GetMouseXImpl() override;
 		virtual float GetMouseYImpl() override;
 	};
-
 }

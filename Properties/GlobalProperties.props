@@ -8,7 +8,7 @@
     <CB_MAX_LOG_MESSAGES>25</CB_MAX_LOG_MESSAGES>
     <CB_RENDERER_OPENGL>0</CB_RENDERER_OPENGL>
     <CB_RENDERER_VULKAN>1</CB_RENDERER_VULKAN>
-    <CB_RENDERING_API>$(CB_RENDERER_OPENGL)</CB_RENDERING_API>
+    <CB_RENDERING_API>$(CB_RENDERER_VULKAN)</CB_RENDERING_API>
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>GlobalProperties</_PropertySheetDisplayName>
@@ -26,8 +26,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CB_NAME=$(CB_NAME);CB_MAX_LOG_MESSAGES=$(CB_MAX_LOG_MESSAGES);CB_PLATFORM=$(CB_PLATFORM);CB_RENDERER_VULKAN=$(CB_RENDERER_VULKAN);CB_RENDERER_OPENGL=$(CB_RENDERER_OPENGL);CB_RENDERING_API=$(CB_RENDERING_API);_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)Libraries\PhysX\libs\$(CB_BUILD_MODE);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>

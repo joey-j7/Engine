@@ -1,8 +1,5 @@
 #include "pch.h"
 #include "Application.h"
-
-#include <glad/glad.h>
-
 #include "Input.h"
 
 namespace Engine {
@@ -16,10 +13,9 @@ namespace Engine {
 		CB_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
-		m_Window = std::unique_ptr<Window>(Window::Create());
-		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-
-		m_Renderer = std::unique_ptr<Renderer>(Renderer::Create());
+		m_RenderContext = std::make_unique<RenderContext>();
+		m_RenderContext->Init();
+		m_RenderContext->GetWindow().SetEventCallback(BIND_EVENT_FN(OnEvent));
 		
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -73,7 +69,7 @@ namespace Engine {
 			if (!m_Paused)
 			{
 				m_DeltaTime->Update();
-				m_Renderer->Clear();
+				m_RenderContext->GetRenderer().Clear();
 
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate();
@@ -84,7 +80,7 @@ namespace Engine {
 				m_ImGuiLayer->End();
 			}
 
-			m_Window->OnUpdate();
+			m_RenderContext->GetWindow().OnUpdate();
 		}
 	}
 
@@ -98,7 +94,7 @@ namespace Engine {
 	{
 		if (!e.IsMinimized())
 		{
-			m_Window->Reset();
+			m_RenderContext->GetWindow().Reset();
 
 			// Reset layer
 			m_ImGuiLayer->OnDetach();

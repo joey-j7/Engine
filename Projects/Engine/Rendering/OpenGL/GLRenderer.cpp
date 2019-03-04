@@ -3,14 +3,13 @@
 #if CB_RENDERING_API == CB_RENDERER_OPENGL
 
 #include "GLRenderer.h"
-#include <glad/glad.h>
 
 namespace Engine {
 	const char* Renderer::m_Name = "OpenGL";
 
-	Renderer* Renderer::Create()
+	Renderer* Renderer::Create(const std::shared_ptr<RenderContextData>& contextData)
 	{
-		return new GLRenderer();
+		return new GLRenderer(contextData);
 	}
 
 	void GLRenderer::Clear()

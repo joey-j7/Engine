@@ -2,9 +2,12 @@
 
 #include <string>
 #include <functional>
+#include <memory>
 
 #include "Engine/Core.h"
 #include "Engine/Events/Event.h"
+
+#include "Rendering/RenderContextData.h"
 
 namespace Engine {
 
@@ -32,12 +35,24 @@ namespace Engine {
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
 
+		struct Data
+		{
+			std::string Title;
+			unsigned int Width, Height;
+			bool VSync;
+
+			EventCallbackFn EventCallback;
+		};
+
+		Window(const std::shared_ptr<RenderContextData>& contextData) { m_ContextData = contextData; }
 		virtual ~Window() {}
 
 		virtual void OnUpdate() = 0;
 
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;
+
+		virtual void* GetWindow() { return nullptr; }
 
 		// Window attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
@@ -46,11 +61,14 @@ namespace Engine {
 
 		virtual void* GetNativeWindow() const = 0;
 
-		static Window* Create(const WindowProps& props = WindowProps());
+		static Window* Create(const std::shared_ptr<RenderContextData>& contextData, const WindowProps& props = WindowProps());
 		virtual void Reset() = 0;
 
 	protected:
 		virtual void Shutdown() = 0;
+
+		Window::Data m_Data;
+		std::shared_ptr<RenderContextData> m_ContextData;
 	};
 
 }

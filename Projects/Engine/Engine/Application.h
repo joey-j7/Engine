@@ -2,8 +2,7 @@
 
 #include "Core.h"
 
-#include "Window.h"
-#include "Renderer.h"
+#include "Rendering/RenderContext.h"
 
 #include "Engine/LayerStack.h"
 #include "Engine/Events/Event.h"
@@ -26,8 +25,7 @@ namespace Engine {
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
-		inline Window& GetWindow() { return *m_Window; }
-
+		inline RenderContext& GetRenderContext() { return *m_RenderContext; }
 		inline static Application& Get() { return *s_Instance; }
 
 	private:
@@ -37,9 +35,7 @@ namespace Engine {
 		bool OnWindowFocus(WindowFocusEvent& e);
 		bool OnWindowClose(WindowCloseEvent& e);
 
-		std::unique_ptr<Window> m_Window;
-		std::unique_ptr<Renderer> m_Renderer;
-
+		std::shared_ptr<RenderContext> m_RenderContext;
 		ImGuiLayer* m_ImGuiLayer;
 
 		std::unique_ptr<DeltaTime> m_DeltaTime;
