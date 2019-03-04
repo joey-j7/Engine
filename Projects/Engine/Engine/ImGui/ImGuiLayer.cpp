@@ -79,13 +79,6 @@ namespace Engine {
 
 		glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow* window, int width, int height)
 		{
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
-			data.Width = width;
-			data.Height = height;
-
-			WindowResizeEvent event(width, height);
-			data.EventCallback(event);
-
 			RenderContext& context = Application::Get().GetRenderContext();
 			RenderContextData& contextData = context.GetData();
 
