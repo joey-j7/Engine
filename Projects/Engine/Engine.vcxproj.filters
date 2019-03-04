@@ -30,6 +30,11 @@
     <ClInclude Include="Rendering\RenderContext.h" />
     <ClInclude Include="Platform\GLFW\GLFWInput.h" />
     <ClInclude Include="Platform\GLFW\GLFWWindow.h" />
+    <ClInclude Include="Engine\Resources\ResourceManager.h" />
+    <ClInclude Include="Engine\Resources\ResourceType.h" />
+    <ClInclude Include="Rendering\Resources\RenderResource.h" />
+    <ClInclude Include="Rendering\Resources\ShaderResource.h" />
+    <ClInclude Include="Rendering\Resources\TextureResource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -45,5 +50,7 @@
     <ClCompile Include="Rendering\RenderContext.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWInput.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWWindow.cpp" />
+    <ClCompile Include="Engine\Resources\ResourceManager.cpp" />
+    <ClCompile Include="Engine\Resources\ResourceType.cpp" />
   </ItemGroup>
 </Project>

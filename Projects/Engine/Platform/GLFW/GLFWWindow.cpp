@@ -6,6 +6,10 @@
 #include "Engine/Events/MouseEvent.h"
 #include "Engine/Events/KeyEvent.h"
 
+#if CB_RENDERING_API == CB_RENDERER_OPENGL
+#include <glad/glad.h>
+#endif
+
 namespace Engine {
 
 	static bool s_GLFWInitialized = false;

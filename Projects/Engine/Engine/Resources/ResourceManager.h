@@ -15,6 +15,6 @@ public:
 	T* Add(const std::string& filePath);
 	bool Remove(const std::string& filePath);
 
-private:
+protected:
 	std::unordered_map<std::string, T*> m_Resources;
 };

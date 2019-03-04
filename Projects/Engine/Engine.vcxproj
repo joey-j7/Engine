@@ -471,6 +471,8 @@
     <ClInclude Include="Engine\Logger\Log.h" />
     <ClInclude Include="Engine\Math.h" />
     <ClInclude Include="Engine\MouseButtonCodes.h" />
+    <ClInclude Include="Engine\Resources\ResourceManager.h" />
+    <ClInclude Include="Engine\Resources\ResourceType.h" />
     <ClInclude Include="Platform\GLFW\GLFWInput.h" />
     <ClInclude Include="Platform\GLFW\GLFWWindow.h" />
     <ClInclude Include="Rendering\RenderContext.h" />
@@ -480,6 +482,9 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rendering\OpenGL\GLRenderer.h" />
     <ClInclude Include="Rendering\RenderContextData.h" />
+    <ClInclude Include="Rendering\Resources\RenderResource.h" />
+    <ClInclude Include="Rendering\Resources\ShaderResource.h" />
+    <ClInclude Include="Rendering\Resources\TextureResource.h" />
     <ClInclude Include="Rendering\Vulkan\VkRenderer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -490,6 +495,8 @@
     <ClCompile Include="Engine\Layer.cpp" />
     <ClCompile Include="Engine\LayerStack.cpp" />
     <ClCompile Include="Engine\Logger\Log.cpp" />
+    <ClCompile Include="Engine\Resources\ResourceManager.cpp" />
+    <ClCompile Include="Engine\Resources\ResourceType.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">Create</PrecompiledHeader>

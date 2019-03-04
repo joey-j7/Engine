@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ResourceType.h"
 
 ResourceType::ResourceType(const std::string& filePath)

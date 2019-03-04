@@ -64,7 +64,7 @@ namespace Engine {
 
 		// Setup Platform/Renderer bindings
 #if CB_RENDERING_API == CB_RENDERER_OPENGL
-		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 #ifdef CB_PLATFORM_WINDOWS
 		ImGui_ImplOpenGL3_Init("#version 410");
 #else 

@@ -10,7 +10,7 @@ class ResourceType
 public:
 	ResourceType(const std::string& filePath);
 
-private:
+protected:
 	std::string m_FilePath = "";
 	uint32_t m_ReferenceCount = 0;
 };
