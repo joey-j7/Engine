@@ -47,7 +47,6 @@ namespace Engine {
 
 		if (!s_GLFWInitialized)
 		{
-			// TODO: glfwTerminate on system shutdown
 			int success = glfwInit(); (void)success;
 			CB_CORE_ASSERT(success, "Could not intialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
@@ -202,6 +201,7 @@ namespace Engine {
 	void GLFWWindow::Shutdown()
 	{
 		glfwDestroyWindow(m_Window);
+		glfwTerminate();
 	}
 
 	void GLFWWindow::OnUpdate()

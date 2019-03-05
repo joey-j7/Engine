@@ -1,10 +1,12 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <cstdio>
 
 #include <string>
 #include <sstream>

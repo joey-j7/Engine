@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Application.h"
 #include "Input.h"
+#include "Platform/FileLoader.h"
 
 namespace Engine {
 
@@ -16,7 +17,7 @@ namespace Engine {
 		m_RenderContext = std::make_unique<RenderContext>();
 		m_RenderContext->Init();
 		m_RenderContext->GetWindow().SetEventCallback(BIND_EVENT_FN(OnEvent));
-		
+
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 

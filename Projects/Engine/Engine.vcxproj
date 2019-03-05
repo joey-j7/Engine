@@ -473,6 +473,7 @@
     <ClInclude Include="Engine\MouseButtonCodes.h" />
     <ClInclude Include="Engine\Resources\ResourceManager.h" />
     <ClInclude Include="Engine\Resources\ResourceType.h" />
+    <ClInclude Include="Platform\FileLoader.h" />
     <ClInclude Include="Platform\GLFW\GLFWInput.h" />
     <ClInclude Include="Platform\GLFW\GLFWWindow.h" />
     <ClInclude Include="Rendering\RenderContext.h" />
@@ -482,6 +483,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Rendering\OpenGL\GLRenderer.h" />
     <ClInclude Include="Rendering\RenderContextData.h" />
+    <ClInclude Include="Rendering\Resources\ModelResource.h" />
     <ClInclude Include="Rendering\Resources\RenderResource.h" />
     <ClInclude Include="Rendering\Resources\ShaderResource.h" />
     <ClInclude Include="Rendering\Resources\TextureResource.h" />
@@ -489,6 +491,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application.cpp" />
+    <ClCompile Include="Engine\Common.cpp" />
     <ClCompile Include="Engine\DeltaTime.cpp" />
     <ClCompile Include="Engine\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="Engine\ImGui\ImGuiLayer.cpp" />
@@ -508,8 +511,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Platform\Android\AndFileLoader.cpp" />
+    <ClCompile Include="Platform\FileLoader.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWInput.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWWindow.cpp" />
+    <ClCompile Include="Platform\Windows\WinFileLoader.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLRenderer.cpp" />
     <ClCompile Include="Rendering\RenderContext.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkRenderer.cpp" />

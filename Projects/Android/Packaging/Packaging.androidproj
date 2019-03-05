@@ -97,6 +97,12 @@
     <ProjectReference Include="..\..\Launcher\Launcher.vcxproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(SolutionDir)Content\**">
+	  <Link>assets\Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="res\values\styles.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>

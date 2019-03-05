@@ -5,5 +5,8 @@
 class ShaderResource : public RenderResource
 {
 public:
-	ShaderResource(const std::string& filePath) : RenderResource(filePath) {};
+	ShaderResource(const std::string& filePath) : RenderResource(filePath)
+	{
+		m_SupportedExtensions = { "glsl" };
+	};
 };
