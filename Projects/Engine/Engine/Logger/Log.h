@@ -1,17 +1,13 @@
 #pragma once
 
-#include "../Core.h"
-
-#include "Engine/Math.h"
+#include "Engine/Core.h"
 #include "Engine/Timer.h"
+#include "Engine/Math.h"
 
-#include <vector>
+#include <chrono>
 #include <string>
 
 #include "spdlog/spdlog.h"
-#include "spdlog/fmt/ostr.h"
-
-class engine_sink;
 
 namespace Engine {
 	struct ScreenMessage
@@ -23,8 +19,6 @@ namespace Engine {
 
 	class Engine_API Log
 	{
-		friend class engine_sink;
-
 	public:
 		enum Type
 		{
@@ -35,59 +29,96 @@ namespace Engine {
 			E_FATAL
 		};
 
-		static void Init();
-
 		template<typename... Args>
-		static void Add(Log::Type type, bool bIsCore, float fTimer, const char *fmt, const Args &... args);
+		static void Add(Log::Type type, bool bIsCore, float fTimer, const char* fmt, const Args &... args);
 
-		static void AddScreenMessage(const std::string& message, Color color, float fTimer);
 		inline static std::vector<ScreenMessage>& GetScreenLogger() { return m_ScreenLogger; }
-	private:
-		static std::shared_ptr<spdlog::logger> m_CoreLogger;
-		static std::shared_ptr<spdlog::logger> m_ClientLogger;
 
+	private:
+		static void AddScreenMessage(const std::string& message, Color color, float fTimer);
 		static std::vector<ScreenMessage> m_ScreenLogger;
 	};
 
 	template<typename... Args>
-	void Log::Add(Log::Type type, bool bIsCore, float fTimer, const char *fmt, const Args &... args)
+	void Log::Add(Log::Type type, bool isCore, float timer, const char* fmt, const Args &... args)
 	{
-		spdlog::logger* pLogger = bIsCore ? m_CoreLogger.get() : m_ClientLogger.get();
+#ifndef CB_DIST
+		Color col = Color(1.0f);
 
 		switch (type)
 		{
-		case E_TRACE:
-			pLogger->trace(fmt, args...);
-			break;
-		case E_INFO:
-			pLogger->info(fmt, args...);
-			break;
-		case E_WARN:
-			pLogger->warn(fmt, args...);
+		case E_FATAL:
+			col = Color(0.862745098f, 0.0784313725f, 0.0784313725f, 1.0f);
 			break;
 		case E_ERROR:
-			pLogger->error(fmt, args...);
+			col = Color(0.941176471f, 0.352941176f, 0.352941176f, 1.0f);
 			break;
-		case E_FATAL:
-			pLogger->critical(fmt, args...);
+		case E_WARN:
+			col = Color(0.980392157f, 0.901960784f, 0.352941176f, 1.0f);
 			break;
+		case E_INFO:
+			col = Color(0.584313725f, 0.701960784f, 0.941176471f, 1.0f);
+			break;
+		case E_TRACE:
 		default:
 			break;
 		}
 
-#ifndef CB_DIST
-		ScreenMessage& msg = m_ScreenLogger.back();
-		msg.Time.Init(fTimer);
+		/* Get time */
+		std::time_t t = std::chrono::system_clock::to_time_t(
+			std::chrono::system_clock::now()
+		);
+
+#ifdef _WIN32
+		std::tm tm;
+		localtime_s(&tm, &t);
+#else
+		std::tm tm;
+		localtime_r(&t, &tm);
+#endif
+
+		/* Format time */
+		std::string hour = std::to_string(tm.tm_hour);
+		std::string min = std::to_string(tm.tm_min);
+		std::string sec = std::to_string(tm.tm_sec);
+
+		if (hour.length() < 2) hour = "0" + hour;
+		if (min.length() < 2) min = "0" + min;
+		if (sec.length() < 2) sec = "0" + sec;
+
+		/* Format message */
+		std::string message = "";
+		std::string name = ((isCore) ? "CORE" : "ENGINE");
+		std::string time = hour + ":" + min + ":" + sec;
+
+		fmt::memory_buffer formatted;
+
+		try
+		{
+			fmt::format_to(formatted, fmt, args...);
+			size_t s = formatted.size();
+
+			if (s == formatted.capacity())
+				formatted.resize(s + 1);
+
+			formatted.data()[s] = '\0';
+		}
+		catch (...) {}
+
+		/* Compose and add to screen */
+		message = "[" + time + "][" + name + "]";
+		message += formatted.data();
+		AddScreenMessage(message, col, timer);
 #endif
 	}
 }
 
 // Core log macros
 #define CB_CORE_TRACE(...)			::Engine::Log::Add(::Engine::Log::Type::E_TRACE,true, 2.0f, __VA_ARGS__)
-#define CB_CORE_INFO(...)			::Engine::Log::Add(::Engine::Log::Type::E_INFO,	true, 2.0f, __VA_ARGS__)
-#define CB_CORE_WARN(...)			::Engine::Log::Add(::Engine::Log::Type::E_WARN,	true, 2.0f, __VA_ARGS__)
-#define CB_CORE_ERROR(...)			::Engine::Log::Add(::Engine::Log::Type::E_ERROR,true, 2.0f, __VA_ARGS__)
-#define CB_CORE_FATAL(...)			::Engine::Log::Add(::Engine::Log::Type::E_FATAL,true, 2.0f, __VA_ARGS__)
+#define CB_CORE_INFO(...)			::Engine::Log::Add(::Engine::Log::Type::E_INFO,	true, 5.0f, __VA_ARGS__)
+#define CB_CORE_WARN(...)			::Engine::Log::Add(::Engine::Log::Type::E_WARN,	true, 5.0f, __VA_ARGS__)
+#define CB_CORE_ERROR(...)			::Engine::Log::Add(::Engine::Log::Type::E_ERROR,true, 5.0f, __VA_ARGS__)
+#define CB_CORE_FATAL(...)			::Engine::Log::Add(::Engine::Log::Type::E_FATAL,true, 5.0f, __VA_ARGS__)
 
 #define CB_CORE_TRACE_T(t, ...)		::Engine::Log::Add(::Engine::Log::Type::E_TRACE,true, t, __VA_ARGS__)
 #define CB_CORE_INFO_T(t, ...)		::Engine::Log::Add(::Engine::Log::Type::E_INFO,	true, t, __VA_ARGS__)
@@ -103,10 +134,10 @@ namespace Engine {
 
 // Client log macros
 #define CB_TRACE(...)				::Engine::Log::Add(::Engine::Log::Type::E_TRACE,false, 1.0f, __VA_ARGS__)
-#define CB_INFO(...)				::Engine::Log::Add(::Engine::Log::Type::E_INFO,	false, 1.0f, __VA_ARGS__)
-#define CB_WARN(...)				::Engine::Log::Add(::Engine::Log::Type::E_WARN,	false, 1.0f, __VA_ARGS__)
-#define CB_ERROR(...)				::Engine::Log::Add(::Engine::Log::Type::E_ERROR,false, 1.0f, __VA_ARGS__)
-#define CB_FATAL(...)				::Engine::Log::Add(::Engine::Log::Type::E_FATAL,false, 1.0f, __VA_ARGS__)
+#define CB_INFO(...)				::Engine::Log::Add(::Engine::Log::Type::E_INFO,	false, 5.0f, __VA_ARGS__)
+#define CB_WARN(...)				::Engine::Log::Add(::Engine::Log::Type::E_WARN,	false, 5.0f, __VA_ARGS__)
+#define CB_ERROR(...)				::Engine::Log::Add(::Engine::Log::Type::E_ERROR,false, 5.0f, __VA_ARGS__)
+#define CB_FATAL(...)				::Engine::Log::Add(::Engine::Log::Type::E_FATAL,false, 5.0f, __VA_ARGS__)
 
 #define CB_TRACE_T(t, ...)			::Engine::Log::Add(::Engine::Log::Type::E_TRACE,false, t, __VA_ARGS__)
 #define CB_INFO_T(t, ...)			::Engine::Log::Add(::Engine::Log::Type::E_INFO,	false, t, __VA_ARGS__)

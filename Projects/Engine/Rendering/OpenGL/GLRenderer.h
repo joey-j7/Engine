@@ -5,7 +5,7 @@
 #include "Rendering/Renderer.h"
 
 namespace Engine {
-	class GLRenderer : public Renderer
+	class Engine_API GLRenderer : public Renderer
 	{
 	public:
 		GLRenderer(const std::shared_ptr<RenderContextData>& contextData) : Renderer(contextData) {};

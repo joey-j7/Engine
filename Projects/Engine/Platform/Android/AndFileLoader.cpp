@@ -46,7 +46,7 @@ namespace Engine
 
 			if (!asset)
 			{
-				CB_CORE_ERROR_T(5.0f, "Could not open file at path {0}!", filePath);
+				CB_CORE_ERROR("Could not open file at path {0}!", filePath);
 				return {};
 			}
 
@@ -58,7 +58,7 @@ namespace Engine
 			AAsset_read(asset, fileContent.data(), fileLength);
 			AAsset_close(asset);
 
-			CB_CORE_INFO_T(5.0f, "Loaded file at path {0}", filePath);
+			CB_CORE_INFO("Loaded file at path {0}", filePath);
 
 			return fileContent;
 		}

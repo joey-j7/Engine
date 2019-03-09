@@ -3,14 +3,18 @@
 #include <string>
 #include <stdint.h>
 
-class ResourceType
+namespace Engine
 {
-public:
-	ResourceType(const std::string& filePath);
+	class Engine_API ResourceType
+	{
+	public:
+		ResourceType(const std::string& filePath);
 
-protected:
-	std::string m_FilePath = "";
-	std::vector<std::string> m_SupportedExtensions;
+		void Add() { m_ReferenceCount++; };
+		void Remove() { if (m_ReferenceCount > 0) m_ReferenceCount--; };
 
-	uint32_t m_ReferenceCount = 0;
-};
+	protected:
+		std::string m_FilePath = "";
+		uint32_t m_ReferenceCount = 0;
+	};
+}

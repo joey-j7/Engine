@@ -5,7 +5,7 @@
 
 namespace Engine
 {
-	class FileLoader
+	class Engine_API FileLoader
 	{
 	public:
 		enum Type
@@ -21,6 +21,9 @@ namespace Engine
 
 		// Reads the entire file to memory
 		static std::vector<char> Read(std::string filePath, Type type = E_CONTENT);
+
+		static std::string GetPath(std::string filePath, Type type);
+		static std::string GetExtension(const std::string& filePath);
 
 	private:
 		static std::vector<char> ReadStream(std::string filePath, Type type);

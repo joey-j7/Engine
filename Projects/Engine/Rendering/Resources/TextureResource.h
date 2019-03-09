@@ -2,11 +2,13 @@
 
 #include "Rendering/Resources/RenderResource.h"
 
-class TextureResource : public RenderResource
+namespace Engine
 {
-public:
-	TextureResource(const std::string& filePath) : RenderResource(filePath)
+	class Engine_API TextureResource : public RenderResource
 	{
-		m_SupportedExtensions = { "png", "jpg" };
+	public:
+		TextureResource(const std::string& filePath) : RenderResource(filePath)
+		{
+		};
 	};
-};
+}

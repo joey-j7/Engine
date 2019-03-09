@@ -5,7 +5,7 @@
 
 namespace Engine {
 
-	class GLFWWindow : public Window
+	class Engine_API GLFWWindow : public Window
 	{
 	public:
 		GLFWWindow(const std::shared_ptr<RenderContextData>& contextData, const WindowProps& props);

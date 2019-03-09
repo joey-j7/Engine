@@ -1,30 +1,8 @@
 #include "pch.h"
 #include "Log.h"
 
-#include "Engine/Logger/Sinks/engine_sink.h"
-
 namespace Engine {
-
-	std::shared_ptr<spdlog::logger> Log::m_CoreLogger;
-	std::shared_ptr<spdlog::logger> Log::m_ClientLogger;
-	std::vector<ScreenMessage>		Log::m_ScreenLogger;
-
-	void Log::Init()
-	{
-		spdlog::set_pattern("%^[%T] %n: %v%$");
-
-		if (!m_CoreLogger.get())
-		{
-			m_CoreLogger = EngineLogSink("Engine");
-			m_CoreLogger->set_level(spdlog::level::trace);
-		}
-
-		if (!m_ClientLogger.get())
-		{
-			m_ClientLogger = EngineLogSink("Game");
-			m_ClientLogger->set_level(spdlog::level::trace);
-		}
-	}
+	std::vector<ScreenMessage> Log::m_ScreenLogger;
 
 	void Log::AddScreenMessage(const std::string& message, Color color, float fTimer)
 	{

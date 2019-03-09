@@ -4,7 +4,7 @@
 
 namespace Engine
 {
-	class GLFWInput : public Input
+	class Engine_API GLFWInput : public Input
 	{
 	protected:
 		virtual bool IsKeyPressedImpl(int keycode) override;

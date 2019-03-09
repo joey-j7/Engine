@@ -1,5 +1,8 @@
 #pragma once
 
+#pragma warning(disable : 4275)
+#pragma warning(disable : 4251)
+
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -7,6 +10,7 @@
 #include <algorithm>
 #include <functional>
 #include <cstdio>
+#include <chrono>
 
 #include <string>
 #include <sstream>

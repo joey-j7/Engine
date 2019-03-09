@@ -40,28 +40,6 @@ public:
 		fmt::memory_buffer formatted;
 		this->formatter_->format(msg, formatted);
 
-		Color col = Color(1.0f);
-
-		switch (msg.level)
-		{
-		case spdlog::level::critical:
-			col = Color(0.862745098f, 0.0784313725f, 0.0784313725f, 1.0f);
-			break;
-		case spdlog::level::err:
-			col = Color(0.941176471f, 0.352941176f, 0.352941176f, 1.0f);
-			break;
-		case spdlog::level::warn:
-			col = Color(0.980392157f, 0.901960784f, 0.352941176f, 1.0f);
-			break;
-		case spdlog::level::info:
-			col = Color(0.584313725f, 0.701960784f, 0.941176471f, 1.0f);
-			break;
-		case spdlog::level::trace:
-		default:
-			break;
-		}
-
-		Engine::Log::AddScreenMessage(std::string(formatted.data()), col, 1.0f);
 #endif
 	}
 

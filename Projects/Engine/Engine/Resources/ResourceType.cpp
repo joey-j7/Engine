@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "ResourceType.h"
 
-ResourceType::ResourceType(const std::string& filePath)
+namespace Engine
 {
-	m_FilePath = filePath;
+	ResourceType::ResourceType(const std::string& filePath)
+	{
+		m_FilePath = filePath;
+	}
 }

@@ -11,9 +11,7 @@ int main(int argc, char** argv)
 {
 	if (!app)
 	{
-		Engine::Log::Init();
-		CB_CORE_INFO_T(5.0f, "Engine initialized on platform {0}", TOSTRING(CB_PLATFORM));
-
+		CB_CORE_INFO("Engine initialized on platform {0}", TOSTRING(CB_PLATFORM));
 		app = Engine::CreateApplication();
 	}
 

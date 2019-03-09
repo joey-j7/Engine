@@ -58,7 +58,6 @@ namespace Engine {
 		Application& app = Application::Get();
 		RenderContext& renderContext = app.GetRenderContext();
 		Window& window = renderContext.GetWindow();
-		Renderer& renderer = renderContext.GetRenderer();
 		RenderContextData& contextData = renderContext.GetData();
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(window.GetNativeWindow());
 
@@ -233,9 +232,15 @@ namespace Engine {
 
 			for (uint32_t i = 0; i < logger.size(); ++i)
 			{
-				ImGui::TextColored(ImVec4(logger[i].Color.r, logger[i].Color.g, logger[i].Color.b, logger[i].Color.z), logger[i].Message.c_str());
+				ScreenMessage& log = logger[i];
+				const char* message = log.Message.c_str();
 
-				if (logger[i].Time.Run())
+				ImGui::TextColored(
+					ImVec4(log.Color.r, log.Color.g, log.Color.b, log.Color.z),
+					message
+				);
+
+				if (log.Time.Run())
 				{
 					logger.erase(logger.begin() + i);
 				}
@@ -265,10 +270,8 @@ namespace Engine {
 		Application& app = Application::Get();
 		RenderContext& renderContext = app.GetRenderContext();
 		Window& window = renderContext.GetWindow();
-		Renderer& renderer = renderContext.GetRenderer();
-		RenderContextData& contextData = renderContext.GetData();
 
-		io.DisplaySize = ImVec2(window.GetWidth(), window.GetHeight());
+		io.DisplaySize = ImVec2((float)window.GetWidth(), (float)window.GetHeight());
 
 		// Rendering
 		ImGui::Render();

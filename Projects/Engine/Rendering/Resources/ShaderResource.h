@@ -2,11 +2,13 @@
 
 #include "Rendering/Resources/RenderResource.h"
 
-class ShaderResource : public RenderResource
+namespace Engine
 {
-public:
-	ShaderResource(const std::string& filePath) : RenderResource(filePath)
+	class Engine_API ShaderResource : public RenderResource
 	{
-		m_SupportedExtensions = { "glsl" };
+	public:
+		ShaderResource(const std::string& filePath) : RenderResource(filePath)
+		{
+		};
 	};
-};
+}

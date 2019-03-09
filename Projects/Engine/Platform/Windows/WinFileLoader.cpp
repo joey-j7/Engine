@@ -11,7 +11,7 @@ namespace Engine
 		char* res = _fullpath(workDir, ".\\", _MAX_PATH);
 
 		if (res == NULL)
-			CB_CORE_ERROR_T(5.0f, "Could not find working directory!");
+			CB_CORE_ERROR("Could not find working directory!");
 
 		m_WorkingDirectory[E_INTERNAL] = workDir;
 		m_WorkingDirectory[E_EXTERNAL] = workDir;

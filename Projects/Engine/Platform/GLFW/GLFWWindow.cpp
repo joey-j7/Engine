@@ -40,8 +40,6 @@ namespace Engine {
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-		CB_CORE_INFO_T(5.0f, "Creating window {0} ({1} x {2})", props.Title, props.Width, props.Height);
-
 		if (s_GLFWInitialized)
 			Shutdown();
 
@@ -196,6 +194,8 @@ namespace Engine {
 			MouseMovedEvent event((float)xPos, (float)yPos);
 			data.EventCallback(event);
 		});
+
+		CB_CORE_INFO("Created window {0} with dimensions ({1} x {2})", props.Title, props.Width, props.Height);
 	}
 
 	void GLFWWindow::Shutdown()

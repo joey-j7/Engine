@@ -2,11 +2,13 @@
 
 #include "Rendering/Resources/RenderResource.h"
 
-class ModelResource : public RenderResource
+namespace Engine
 {
-public:
-	ModelResource(const std::string& filePath) : RenderResource(filePath)
+	class Engine_API ModelResource : public RenderResource
 	{
-		m_SupportedExtensions = { "fbx", "obj", "vox" };
-	}
-};
+	public:
+		ModelResource(const std::string& filePath) : RenderResource(filePath)
+		{
+		}
+	};
+}

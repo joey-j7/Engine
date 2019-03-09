@@ -37,6 +37,7 @@
     <ClInclude Include="Rendering\Resources\TextureResource.h" />
     <ClInclude Include="Rendering\Resources\ModelResource.h" />
     <ClInclude Include="Platform\FileLoader.h" />
+    <ClInclude Include="Engine\Resources\ResourceDatabase.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -58,5 +59,7 @@
     <ClCompile Include="Platform\Windows\WinFileLoader.cpp" />
     <ClCompile Include="Platform\Android\AndFileLoader.cpp" />
     <ClCompile Include="Engine\Common.cpp" />
+    <ClCompile Include="Rendering\Renderer.cpp" />
+    <ClCompile Include="Engine\Resources\ResourceDatabase.cpp" />
   </ItemGroup>
 </Project>

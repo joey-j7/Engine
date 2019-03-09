@@ -331,6 +331,7 @@
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
       <AdditionalIncludeDirectories>$(ANDROID_NDK)\sources\android\native_app_glue;$(SolutionDir)Projects\Engine;$(SolutionDir)Libraries\spdlog\include;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <PostBuildEvent>
       <Command>
@@ -348,6 +349,7 @@
     <Link />
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <PostBuildEvent>
       <Command>
@@ -363,6 +365,7 @@
     <Link />
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <PostBuildEvent>
       <Command>
@@ -377,6 +380,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <PostBuildEvent>
       <Command>
@@ -390,6 +394,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <PostBuildEvent>
       <Command>
@@ -402,6 +407,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <PostBuildEvent>
       <Command>
