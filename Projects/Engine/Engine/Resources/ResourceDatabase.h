@@ -29,6 +29,7 @@ namespace Engine
 		ResourceManager<T>* Get();
 
 		ResourceType* Load(const std::string& filePath, FileLoader::Type pathType);
+		bool Unload(ResourceType* resource);
 
 	protected:
 		std::unordered_map<size_t, ResourceManagerBase*> m_Managers;

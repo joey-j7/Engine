@@ -11,24 +11,34 @@
 
 #include "glad/glad.h"
 
+#include "Engine/Application.h"
+#include "Rendering/RenderContext.h"
+
 namespace Engine
 {
 	GLShader::GLShader(const Shader::Descriptor& descriptor) : Shader(descriptor)
 	{
+#define LOAD_SHADER(x) m_Resources.push_back(static_cast<ShaderResource*>(Application::Get().GetRenderContext().GetRenderer().Load(x)))
+
 		m_Handle = glCreateProgram();
 
-		if (descriptor.Compute)
-			glAttachShader(m_Handle, descriptor.Compute->GetHandle());
-		if (descriptor.Pixel)
-			glAttachShader(m_Handle, descriptor.Pixel->GetHandle());
-		if (descriptor.Geometry)
-			glAttachShader(m_Handle, descriptor.Geometry->GetHandle());
-		if (descriptor.TessControl)
-			glAttachShader(m_Handle, descriptor.TessControl->GetHandle());
-		if (descriptor.TessEvaluation)
-			glAttachShader(m_Handle, descriptor.TessEvaluation->GetHandle());
-		if (descriptor.Vertex)
-			glAttachShader(m_Handle, descriptor.Vertex->GetHandle());
+		if (!descriptor.Compute.empty())
+			LOAD_SHADER(descriptor.Compute);
+		if (!descriptor.Pixel.empty())
+			LOAD_SHADER(descriptor.Pixel);
+		if (!descriptor.Geometry.empty())
+			LOAD_SHADER(descriptor.Geometry);
+		if (!descriptor.TessControl.empty())
+			LOAD_SHADER(descriptor.TessControl);
+		if (!descriptor.TessEvaluation.empty())
+			LOAD_SHADER(descriptor.TessEvaluation);
+		if (!descriptor.Vertex.empty())
+			LOAD_SHADER(descriptor.Vertex);
+
+		for (ShaderResource* resource : m_Resources)
+		{
+			glAttachShader(m_Handle, resource->GetHandle());
+		}
 
 		glLinkProgram(m_Handle);
 
@@ -58,6 +68,11 @@ namespace Engine
 	{
 		glDeleteProgram(m_Handle);
 		CB_CORE_INFO("Succesfully deleted shader program {0}", m_Handle);
+
+		for (ShaderResource* resource : m_Resources)
+		{
+			Application::Get().GetRenderContext().GetRenderer().Unload(resource);
+		}
 	}
 }
 

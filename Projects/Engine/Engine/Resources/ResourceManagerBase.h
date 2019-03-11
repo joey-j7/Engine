@@ -10,7 +10,7 @@ namespace Engine
 		virtual ~ResourceManagerBase() {};
 
 		virtual ResourceType* Add(const std::string& filePath) = 0;
-		virtual bool Remove(const std::string& filePath) = 0;
+		virtual bool Remove(ResourceType* resource) = 0;
 
 		bool Supports(const std::string& extension)
 		{

@@ -8,5 +8,6 @@ namespace Engine
 	ResourceType::ResourceType(const std::string& filePath)
 	{
 		m_FilePath = filePath;
+		m_Extension = FileLoader::GetExtension(filePath);
 	}
 }

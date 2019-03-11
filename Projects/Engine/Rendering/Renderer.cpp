@@ -29,4 +29,9 @@ namespace Engine
 		CB_CORE_WARN("Tried to load an unsupported file {0}", filePath);
 		return nullptr;
 	}
+
+	bool Renderer::Unload(RenderResource* resource)
+	{
+		return m_pDatabase->Unload(resource);
+	}
 }

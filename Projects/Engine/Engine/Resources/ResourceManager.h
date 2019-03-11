@@ -19,7 +19,7 @@ namespace Engine
 		~ResourceManager();
 
 		virtual ResourceType* Add(const std::string& filePath) override;
-		virtual bool Remove(const std::string& filePath) override;
+		virtual bool Remove(ResourceType* resource) override;
 
 		void SetFunctions(std::function<void(T*)> load, std::function<void(T*)> unload)
 		{
@@ -65,9 +65,9 @@ namespace Engine
 	}
 
 	template<class T>
-	bool ResourceManager<T>::Remove(const std::string& filePath)
+	bool ResourceManager<T>::Remove(ResourceType* resource)
 	{
-		auto it = m_Resources.find(filePath);
+		auto it = m_Resources.find(resource->GetFilePath());
 
 		if (it != m_Resources.end())
 		{

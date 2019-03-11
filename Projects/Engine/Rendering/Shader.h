@@ -11,12 +11,12 @@ namespace Engine
 	public:
 		struct Descriptor
 		{
-			ShaderResource* Vertex = nullptr;
-			ShaderResource* Pixel = nullptr;
-			ShaderResource* Geometry = nullptr;
-			ShaderResource* Compute = nullptr;
-			ShaderResource* TessControl = nullptr;
-			ShaderResource* TessEvaluation = nullptr;
+			std::string Vertex = "";
+			std::string Pixel = "";
+			std::string Geometry = "";
+			std::string Compute = "";
+			std::string TessControl = "";
+			std::string TessEvaluation = "";
 		};
 
 		Shader(const Descriptor& descriptor)
@@ -34,5 +34,6 @@ namespace Engine
 		uint32_t m_Handle = UINT_MAX;
 
 		bool m_Linked = false;
+		std::vector<ShaderResource*> m_Resources;
 	};
 }

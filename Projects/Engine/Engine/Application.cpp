@@ -25,12 +25,9 @@ namespace Engine {
 
 		FileLoader::Init();
 
-		ResourceType* vs = m_RenderContext->GetRenderer().Load("default.vs.glsl");
-		ResourceType* ps = m_RenderContext->GetRenderer().Load("default.ps.glsl");
-		
 		Shader::Descriptor shaderDesc;
-		shaderDesc.Vertex = static_cast<ShaderResource*>(vs);
-		shaderDesc.Pixel = static_cast<ShaderResource*>(ps);
+		shaderDesc.Vertex = "default.vs.glsl";
+		shaderDesc.Pixel = "default.ps.glsl";
 		m_RenderContext->GetRenderer().GetRenderDevice().CreateShaderProgram(shaderDesc);
 
 		m_ImGuiLayer = new ImGuiLayer();
@@ -41,7 +38,7 @@ namespace Engine {
 
 	Application::~Application()
 	{
-		s_Instance = nullptr;
+		// s_Instance = nullptr;
 	}
 
 	void Application::PushLayer(Layer* layer)

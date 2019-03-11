@@ -35,4 +35,22 @@ namespace Engine
 		CB_CORE_WARN("There are no resource managers with support for type \"{0]\", file: \"{1}\"", extension, filePath);
 		return nullptr;
 	}
+
+	bool ResourceDatabase::Unload(ResourceType* resource)
+	{
+		const std::string& extension = resource->GetExtension();
+
+		for (auto& manager : m_Managers)
+		{
+			ResourceManagerBase* resourceManager = manager.second;
+
+			if (resourceManager->Supports(extension))
+			{
+				return resourceManager->Remove(resource);
+			}
+		}
+
+		return false;
+	}
+
 }
