@@ -24,6 +24,15 @@ namespace Engine
 	{
 		return ReadStream(filePath, type, addNull);
 	}
+
+	bool FileLoader::Exists(const std::string& filePath, Type type /*= E_CONTENT*/)
+	{
+		// Retrieve full absolute path
+		std::string path = GetPath(filePath, type);
+
+		struct stat buffer;
+		return (stat(path.c_str(), &buffer) == 0);
+	}
 }
 
 #endif

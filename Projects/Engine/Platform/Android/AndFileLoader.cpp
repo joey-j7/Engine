@@ -40,8 +40,8 @@ namespace Engine
 	char* FileLoader::Read(const std::string& filePath, Type type, bool addNull)
 	{
 		// Read apk asset
-		if (type == E_CONTENT)
-		{
+		//if (type == E_CONTENT)
+		//{
 			AAsset* asset = AAssetManager_open(m_AssetManager, (m_WorkingDirectory[type] + filePath).c_str(), AASSET_MODE_STREAMING);
 
 			if (!asset)
@@ -63,9 +63,28 @@ namespace Engine
 			CB_CORE_INFO("Loaded file at path \"{0}\"", filePath);
 
 			return fileContent;
-		}
+		//}
 
 		return ReadStream(filePath, type, addNull);
+	}
+
+	bool FileLoader::Exists(const std::string& filePath, Type type /*= E_CONTENT*/)
+	{
+		// Retrieve full absolute path
+		std::string path = GetPath(filePath, type);
+		
+		// Read apk asset
+		if (type == E_CONTENT)
+		{
+			AAsset* asset = AAssetManager_open(m_AssetManager, (m_WorkingDirectory[type] + filePath).c_str(), AASSET_MODE_STREAMING);
+			bool isValid = asset;
+			AAsset_close(asset);
+
+			return isValid;
+		}
+
+		struct stat buffer;
+		return (stat(path.c_str(), &buffer) == 0);
 	}
 }
 

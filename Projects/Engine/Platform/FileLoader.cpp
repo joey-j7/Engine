@@ -6,15 +6,6 @@
 namespace Engine {
 	std::string FileLoader::m_DefaultSeperator = "/";
 
-	bool FileLoader::Exists(const std::string& filePath, Type type /*= E_CONTENT*/)
-	{
-		// Retrieve full absolute path
-		std::string path = GetPath(filePath, type);
-
-		struct stat buffer;
-		return (stat(path.c_str(), &buffer) == 0);
-	}
-
 	std::string FileLoader::GetPath(const std::string& filePath, Type type)
 	{
 		std::string path = filePath;
