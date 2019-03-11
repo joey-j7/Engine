@@ -14,9 +14,7 @@ namespace Engine
 
 		uint32_t GetHandle() const { return m_Handle; }
 		virtual void SetHandle(uint32_t handle) {
-			assert(_CrtCheckMemory());
 			m_Handle = handle;
-			assert(_CrtCheckMemory());
 		}
 
 	protected:
