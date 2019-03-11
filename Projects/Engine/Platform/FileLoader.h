@@ -20,13 +20,14 @@ namespace Engine
 		static void Init();
 
 		// Reads the entire file to memory
-		static std::vector<char> Read(std::string filePath, Type type = E_CONTENT);
+		static char* Read(const std::string& filePath, Type type = E_CONTENT, bool addNull = false);
+		static bool Exists(const std::string& filePath, Type type = E_CONTENT);
 
-		static std::string GetPath(std::string filePath, Type type);
+		static std::string GetPath(const std::string& filePath, Type type);
 		static std::string GetExtension(const std::string& filePath);
 
 	private:
-		static std::vector<char> ReadStream(std::string filePath, Type type);
+		static char* ReadStream(const std::string& filePath, Type type, bool addNull = false);
 
 		static std::unordered_map<Type, std::string> m_WorkingDirectory;
 		static std::string m_DefaultSeperator;

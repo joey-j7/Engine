@@ -6,6 +6,7 @@
 
 #include "Platform/FileLoader.h"
 
+#include "Engine/Resources/ResourceManagerBase.h"
 #include "Engine/Resources/ResourceManager.h"
 #include "Engine/Resources/ResourceType.h"
 
@@ -19,6 +20,7 @@ namespace Engine
 	{
 	public:
 		ResourceDatabase() { };
+		~ResourceDatabase();
 
 		template <typename T>
 		ResourceManager<T>* Add(const std::vector<std::string>& supportedExtensions);
@@ -29,7 +31,7 @@ namespace Engine
 		ResourceType* Load(const std::string& filePath, FileLoader::Type pathType);
 
 	protected:
-		std::unordered_map<size_t, ResourceManager<ResourceType>*> m_Managers;
+		std::unordered_map<size_t, ResourceManagerBase*> m_Managers;
 	};
 
 	template <typename T>

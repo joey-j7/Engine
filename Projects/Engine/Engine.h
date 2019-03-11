@@ -9,7 +9,8 @@
 #include "Engine/KeyCodes.h"
 #include "Engine/MouseButtonCodes.h"
 
-#include "Engine/ImGui/ImGuiLayer.h"
+#include "Engine/Layers/ImGui/ImGuiLayer.h"
+#include "Engine/Layers/Rendering/RenderLayer3D.h"
 
 // ---Entry Point---------------------
 #include "Engine/EntryPoint.h"

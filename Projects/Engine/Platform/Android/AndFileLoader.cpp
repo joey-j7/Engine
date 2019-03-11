@@ -37,7 +37,7 @@ namespace Engine
 		m_WorkingDirectory[E_CONTENT] = "Content/";
 	}
 
-	std::vector<char> FileLoader::Read(std::string filePath, Type type)
+	char* FileLoader::Read(const std::string& filePath, Type type, bool addNull)
 	{
 		// Read apk asset
 		if (type == E_CONTENT)
@@ -46,24 +46,26 @@ namespace Engine
 
 			if (!asset)
 			{
-				CB_CORE_ERROR("Could not open file at path {0}!", filePath);
+				CB_CORE_ERROR("Could not open file at path \"{0}\"!", filePath);
 				return {};
 			}
 
 			size_t fileLength = AAsset_getLength(asset);
 
-			std::vector<char> fileContent;
-			fileContent.resize(fileLength);
+			char* fileContent = new char[addNull ? fileLength + 1 : fileLength];
 
-			AAsset_read(asset, fileContent.data(), fileLength);
+			AAsset_read(asset, fileContent, fileLength);
 			AAsset_close(asset);
 
-			CB_CORE_INFO("Loaded file at path {0}", filePath);
+			if (addNull)
+				fileContent[fileLength] = '\0';
+
+			CB_CORE_INFO("Loaded file at path \"{0}\"", filePath);
 
 			return fileContent;
 		}
 
-		return ReadStream(filePath, type);
+		return ReadStream(filePath, type, addNull);
 	}
 }
 

@@ -1,13 +1,24 @@
 #include "pch.h"
 
 #include "FileLoader.h"
+#include <sys/stat.h>
 
 namespace Engine {
 	std::string FileLoader::m_DefaultSeperator = "/";
 
-	std::string FileLoader::GetPath(std::string filePath, Type type)
+	bool FileLoader::Exists(const std::string& filePath, Type type /*= E_CONTENT*/)
 	{
-		return m_WorkingDirectory[type] + ReplaceAll(filePath, "/", m_DefaultSeperator);
+		// Retrieve full absolute path
+		std::string path = GetPath(filePath, type);
+
+		struct stat buffer;
+		return (stat(path.c_str(), &buffer) == 0);
+	}
+
+	std::string FileLoader::GetPath(const std::string& filePath, Type type)
+	{
+		std::string path = filePath;
+		return m_WorkingDirectory[type] + ReplaceAll(path, "/", m_DefaultSeperator);
 	}
 
 	std::string FileLoader::GetExtension(const std::string& filePath)
@@ -22,27 +33,33 @@ namespace Engine {
 		return("");
 	}
 
-	std::vector<char> FileLoader::ReadStream(std::string filePath, Type type)
+	char* FileLoader::ReadStream(const std::string& filePath, Type type, bool addNull)
 	{
 		// Retrieve full absolute path
-		filePath = GetPath(filePath, type);
+		std::string path = GetPath(filePath, type);
 
-		std::ifstream ifs(filePath.c_str(), std::ios::binary | std::ios::ate);
+		std::ifstream ifs(path.c_str(), std::ios::binary | std::ios::ate);
 
 		if (ifs.is_open())
 		{
 			std::ifstream::pos_type pos = ifs.tellg();
-			std::vector<char> result(pos);
+
+			ifs.seekg(0, std::ios::end);
+			int length = static_cast<int>(ifs.tellg());
+			char* result = new char[addNull ? length + 1 : length];
 
 			ifs.seekg(0, std::ios::beg);
-			ifs.read(result.data(), pos);
+			ifs.read(result, pos);
 			ifs.close();
 
-			CB_CORE_INFO("Loaded file at path {0}", filePath);
+			if (addNull)
+				result[length] = '\0';
+
+			CB_CORE_INFO("Loaded file at path \"{0}\"", path);
 			return result;
 		}
 
-		CB_CORE_ERROR("Could not open file at path {0}!", filePath);
+		CB_CORE_ERROR("Could not open file at path \"{0}\"!", path);
 		return {};
 	}
 

@@ -468,22 +468,27 @@
     <ClInclude Include="Engine\Events\Event.h" />
     <ClInclude Include="Engine\Events\KeyEvent.h" />
     <ClInclude Include="Engine\Events\MouseEvent.h" />
-    <ClInclude Include="Engine\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="Engine\Layers\ImGui\ImGuiLayer.h" />
     <ClInclude Include="Engine\Input.h" />
     <ClInclude Include="Engine\KeyCodes.h" />
     <ClInclude Include="Engine\Layer.h" />
     <ClInclude Include="Engine\LayerStack.h" />
+    <ClInclude Include="Engine\Layers\Rendering\RenderLayer3D.h" />
     <ClInclude Include="Engine\Logger\Sinks\engine_sink.h" />
     <ClInclude Include="Engine\Logger\Log.h" />
     <ClInclude Include="Engine\Math.h" />
     <ClInclude Include="Engine\MouseButtonCodes.h" />
     <ClInclude Include="Engine\Resources\ResourceDatabase.h" />
     <ClInclude Include="Engine\Resources\ResourceManager.h" />
+    <ClInclude Include="Engine\Resources\ResourceManagerBase.h" />
     <ClInclude Include="Engine\Resources\ResourceType.h" />
     <ClInclude Include="Platform\FileLoader.h" />
     <ClInclude Include="Platform\GLFW\GLFWInput.h" />
     <ClInclude Include="Platform\GLFW\GLFWWindow.h" />
+    <ClInclude Include="Rendering\OpenGL\GLRenderDevice.h" />
+    <ClInclude Include="Rendering\OpenGL\GLShader.h" />
     <ClInclude Include="Rendering\RenderContext.h" />
+    <ClInclude Include="Rendering\RenderDevice.h" />
     <ClInclude Include="Rendering\Renderer.h" />
     <ClInclude Include="Engine\Timer.h" />
     <ClInclude Include="Platform\Window.h" />
@@ -494,14 +499,15 @@
     <ClInclude Include="Rendering\Resources\RenderResource.h" />
     <ClInclude Include="Rendering\Resources\ShaderResource.h" />
     <ClInclude Include="Rendering\Resources\TextureResource.h" />
+    <ClInclude Include="Rendering\Shader.h" />
     <ClInclude Include="Rendering\Vulkan\VkRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application.cpp" />
     <ClCompile Include="Engine\Common.cpp" />
     <ClCompile Include="Engine\DeltaTime.cpp" />
-    <ClCompile Include="Engine\ImGui\ImGuiBuild.cpp" />
-    <ClCompile Include="Engine\ImGui\ImGuiLayer.cpp" />
+    <ClCompile Include="Engine\Layers\ImGui\ImGuiBuild.cpp" />
+    <ClCompile Include="Engine\Layers\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="Engine\Layer.cpp" />
     <ClCompile Include="Engine\LayerStack.cpp" />
     <ClCompile Include="Engine\Logger\Log.cpp" />
@@ -524,8 +530,11 @@
     <ClCompile Include="Platform\GLFW\GLFWInput.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWWindow.cpp" />
     <ClCompile Include="Platform\Windows\WinFileLoader.cpp" />
+    <ClCompile Include="Rendering\OpenGL\GLRenderDevice.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLRenderer.cpp" />
+    <ClCompile Include="Rendering\OpenGL\GLShader.cpp" />
     <ClCompile Include="Rendering\RenderContext.cpp" />
+    <ClCompile Include="Rendering\RenderDevice.cpp" />
     <ClCompile Include="Rendering\Renderer.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkRenderer.cpp" />
   </ItemGroup>

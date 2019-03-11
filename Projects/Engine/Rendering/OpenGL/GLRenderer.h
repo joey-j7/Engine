@@ -8,7 +8,7 @@ namespace Engine {
 	class Engine_API GLRenderer : public Renderer
 	{
 	public:
-		GLRenderer(const std::shared_ptr<RenderContextData>& contextData) : Renderer(contextData) {};
+		GLRenderer(const std::shared_ptr<RenderContextData>& contextData);
 		virtual void Clear() override;
 	};
 }

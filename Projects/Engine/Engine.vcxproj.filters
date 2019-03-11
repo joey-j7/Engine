@@ -6,7 +6,6 @@
     <ClInclude Include="Engine\Events\Event.h" />
     <ClInclude Include="Engine\Events\KeyEvent.h" />
     <ClInclude Include="Engine\Events\MouseEvent.h" />
-    <ClInclude Include="Engine\ImGui\ImGuiLayer.h" />
     <ClInclude Include="Engine\Application.h" />
     <ClInclude Include="Engine\Core.h" />
     <ClInclude Include="Engine\EntryPoint.h" />
@@ -38,10 +37,16 @@
     <ClInclude Include="Rendering\Resources\ModelResource.h" />
     <ClInclude Include="Platform\FileLoader.h" />
     <ClInclude Include="Engine\Resources\ResourceDatabase.h" />
+    <ClInclude Include="Engine\Layers\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="Engine\Layers\Rendering\RenderLayer3D.h" />
+    <ClInclude Include="Rendering\RenderDevice.h" />
+    <ClInclude Include="Rendering\OpenGL\GLRenderDevice.h" />
+    <ClInclude Include="Rendering\Shader.h" />
+    <ClInclude Include="Rendering\OpenGL\GLShader.h" />
+    <ClInclude Include="Engine\Resources\ResourceManagerBase.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Engine\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="Engine\Application.cpp" />
     <ClCompile Include="Engine\Layer.cpp" />
     <ClCompile Include="Engine\LayerStack.cpp" />
@@ -49,7 +54,6 @@
     <ClCompile Include="Engine\DeltaTime.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLRenderer.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkRenderer.cpp" />
-    <ClCompile Include="Engine\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="Rendering\RenderContext.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWInput.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWWindow.cpp" />
@@ -61,5 +65,10 @@
     <ClCompile Include="Engine\Common.cpp" />
     <ClCompile Include="Rendering\Renderer.cpp" />
     <ClCompile Include="Engine\Resources\ResourceDatabase.cpp" />
+    <ClCompile Include="Engine\Layers\ImGui\ImGuiBuild.cpp" />
+    <ClCompile Include="Engine\Layers\ImGui\ImGuiLayer.cpp" />
+    <ClCompile Include="Rendering\OpenGL\GLRenderDevice.cpp" />
+    <ClCompile Include="Rendering\OpenGL\GLShader.cpp" />
+    <ClCompile Include="Rendering\RenderDevice.cpp" />
   </ItemGroup>
 </Project>

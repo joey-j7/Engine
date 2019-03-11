@@ -4,31 +4,34 @@
 #include <string>
 #include <unordered_map>
 
+#include "ResourceManagerBase.h"
 #include "ResourceType.h"
 
 namespace Engine
 {
-	class ResourceType;
-
 	template<class T>
-	class ResourceManager
+	class ResourceManager : public ResourceManagerBase
 	{
 		static_assert(std::is_base_of<ResourceType, T>::value, "Type must be a descendant of ResourceType");
+
 	public:
 		ResourceManager(const std::vector<std::string>& supportedExtensions) { m_SupportedExtensions = supportedExtensions; };
 		~ResourceManager();
 
-		T* Add(const std::string& filePath);
-		bool Remove(const std::string& filePath);
+		virtual ResourceType* Add(const std::string& filePath) override;
+		virtual bool Remove(const std::string& filePath) override;
 
-		bool Supports(const std::string& extension)
+		void SetFunctions(std::function<void(T*)> load, std::function<void(T*)> unload)
 		{
-			return m_Resources.find(extension) != m_Resources.end();
+			m_LoadFn = load;
+			m_UnloadFn = unload;
 		}
 
 	protected:
 		std::unordered_map<std::string, T*> m_Resources;
-		std::vector<std::string> m_SupportedExtensions;
+
+		std::function<void(T*)> m_LoadFn;
+		std::function<void(T*)> m_UnloadFn;
 	};
 
 	template<class T>
@@ -36,12 +39,13 @@ namespace Engine
 	{
 		for (auto& obj : m_Resources)
 		{
+			m_UnloadFn(obj.second);
 			delete obj.second;
 		}
 	}
 
 	template<class T>
-	T* ResourceManager<T>::Add(const std::string& filePath)
+	ResourceType* ResourceManager<T>::Add(const std::string& filePath)
 	{
 		auto it = m_Resources.find(filePath);
 
@@ -49,6 +53,8 @@ namespace Engine
 		{
 			T* resource = new T(filePath);
 			resource->Add();
+
+			m_LoadFn(resource);
 
 			m_Resources.emplace(filePath, resource);
 			return resource;
@@ -65,11 +71,13 @@ namespace Engine
 
 		if (it != m_Resources.end())
 		{
-			it.second->m_ReferenceCount--;
+			it->second->Remove();
 
-			if (it.second->m_ReferenceCount == 0)
+			if (!it->second->HasReferences())
 			{
-				delete it.second;
+				m_UnloadFn(it->second);
+
+				delete it->second;
 				m_Resources.erase(it);
 
 				return true;

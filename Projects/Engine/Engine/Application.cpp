@@ -1,7 +1,12 @@
 #include "pch.h"
 #include "Application.h"
 #include "Input.h"
+
 #include "Platform/FileLoader.h"
+
+#include "Rendering/RenderDevice.h"
+#include "Rendering/Renderer.h"
+#include "Rendering/RenderContext.h"
 
 namespace Engine {
 
@@ -14,9 +19,19 @@ namespace Engine {
 		CB_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
-		m_RenderContext = std::make_unique<RenderContext>();
+		m_RenderContext = std::make_shared<RenderContext>();
 		m_RenderContext->Init();
 		m_RenderContext->GetWindow().SetEventCallback(BIND_EVENT_FN(OnEvent));
+
+		FileLoader::Init();
+
+		ResourceType* vs = m_RenderContext->GetRenderer().Load("default.vs.glsl");
+		ResourceType* ps = m_RenderContext->GetRenderer().Load("default.ps.glsl");
+		
+		Shader::Descriptor shaderDesc;
+		shaderDesc.Vertex = static_cast<ShaderResource*>(vs);
+		shaderDesc.Pixel = static_cast<ShaderResource*>(ps);
+		m_RenderContext->GetRenderer().GetRenderDevice().CreateShaderProgram(shaderDesc);
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

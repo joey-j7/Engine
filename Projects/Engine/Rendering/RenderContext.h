@@ -3,9 +3,10 @@
 #include "Platform/Window.h"
 #include "Rendering/Renderer.h"
 
-#include "RenderContextData.h"
+#include "Rendering/RenderContextData.h"
 
-namespace Engine {
+namespace Engine
+{
 	class Engine_API RenderContext
 	{
 	public:
@@ -14,14 +15,14 @@ namespace Engine {
 		// Upload
 		void Upload(const std::string& m_FilePath);
 
-		Window& GetWindow() const { return *m_Window; };
-		Renderer& GetRenderer() const { return *m_Renderer; };
-		RenderContextData& GetData() const { return *m_ContextData; };
+		Window& GetWindow() const { return *m_pWindow; };
+		Renderer& GetRenderer() const { return *m_pRenderer; };
+		RenderContextData& GetData() const { return *m_pContextData; };
 
 	protected:
-		std::unique_ptr<Window> m_Window;
-		std::unique_ptr<Renderer> m_Renderer;
-		std::shared_ptr<RenderContextData> m_ContextData;
+		std::unique_ptr<Window> m_pWindow;
+		std::unique_ptr<Renderer> m_pRenderer;
+		std::shared_ptr<RenderContextData> m_pContextData;
 
 	private:
 		bool m_Initialized = false;

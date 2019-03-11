@@ -20,9 +20,9 @@ namespace Engine
 		m_DefaultSeperator = "\\";
 	}
 
-	std::vector<char> FileLoader::Read(std::string filePath, Type type)
+	char* FileLoader::Read(const std::string& filePath, Type type, bool addNull)
 	{
-		return ReadStream(filePath, type);
+		return ReadStream(filePath, type, addNull);
 	}
 }
 

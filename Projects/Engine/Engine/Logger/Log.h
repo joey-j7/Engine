@@ -88,7 +88,7 @@ namespace Engine {
 
 		/* Format message */
 		std::string message = "";
-		std::string name = ((isCore) ? "CORE" : "ENGINE");
+		std::string name = ((isCore) ? "CORE" : "USER");
 		std::string time = hour + ":" + min + ":" + sec;
 
 		fmt::memory_buffer formatted;
@@ -106,9 +106,14 @@ namespace Engine {
 		catch (...) {}
 
 		/* Compose and add to screen */
-		message = "[" + time + "][" + name + "]";
+		message = "[" + time + "][" + name + "] ";
 		message += formatted.data();
 		AddScreenMessage(message, col, timer);
+
+#ifdef CB_PLATFORM_WINDOWS
+		message += '\n';
+		OutputDebugString(message.c_str());
+#endif
 #endif
 	}
 }

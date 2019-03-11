@@ -17,3 +17,11 @@ std::string& ReplaceAll(std::string& str, const std::string& from, const std::st
 
 	return str;
 }
+
+bool Contains(const std::string& str, const std::string& search)
+{
+	if (str.empty() || search.empty())
+		return search.empty();
+
+	return str.find(search) != std::string::npos;
+}

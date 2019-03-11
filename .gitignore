@@ -5,3 +5,20 @@ Intermediate/
 
 # Files
 *.user
+/Libraries/PhysX/libs/Release/libPhysX_static.a
+/Libraries/PhysX/libs/Release/libPhysXVehicle_static.a
+/Libraries/PhysX/libs/Release/libPhysXPvdSDK_static.a
+/Libraries/PhysX/libs/Release/libPhysXFoundation_static.a
+/Libraries/PhysX/libs/Release/libPhysXExtensions.a
+/Libraries/PhysX/libs/Release/libPhysXCooking_static.a
+/Libraries/PhysX/libs/Release/libPhysXCommon_static.a
+/Libraries/PhysX/libs/Release/libPhysXCharacterKinematic_static.a
+/Libraries/PhysX/libs/Release
+/Libraries/PhysX/libs/Debug/libPhysX_static.a
+/Libraries/PhysX/libs/Debug/libPhysXVehicle_static.a
+/Libraries/PhysX/libs/Debug/libPhysXPvdSDK_static.a
+/Libraries/PhysX/libs/Debug/libPhysXFoundation_static.a
+/Libraries/PhysX/libs/Debug/libPhysXExtensions.a
+/Libraries/PhysX/libs/Debug/libPhysXCooking_static.a
+/Libraries/PhysX/libs/Debug/libPhysXCommon_static.a
+/Libraries/PhysX/libs/Debug/libPhysXCharacterKinematic_static.a

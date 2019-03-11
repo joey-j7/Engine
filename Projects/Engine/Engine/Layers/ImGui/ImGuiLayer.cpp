@@ -219,16 +219,20 @@ namespace Engine {
 		ImGui::ShowDemoWindow(&show);
 
 #ifndef CB_DIST
-		// Logger
 		auto& logger = ::Engine::Log::GetScreenLogger();
 
 		if (!logger.empty())
 		{
+			auto& io = ImGui::GetIO();
+
+			ImGui::SetNextWindowSizeConstraints(ImVec2(0.0f, 0.0f), ImVec2(io.DisplaySize.x - 10.0f, io.DisplaySize.y - 10.0f));
 			ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f));
 			ImGui::SetNextWindowPos(ImVec2(5.0f, 5.0f));
-			ImGui::SetNextWindowBgAlpha(0.5f);
+			ImGui::SetNextWindowBgAlpha(0.8f);
+			ImGui::SetNextWindowFocus();
 
 			ImGui::Begin("Logger", &show, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs);
+			ImGui::PushTextWrapPos(io.DisplaySize.x - 10.0f);
 
 			for (uint32_t i = 0; i < logger.size(); ++i)
 			{
@@ -246,9 +250,9 @@ namespace Engine {
 				}
 			}
 
+			ImGui::PopTextWrapPos();
 			ImGui::End();
 		}
-		// Logger
 #endif
 	}
 
