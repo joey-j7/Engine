@@ -12,7 +12,8 @@
 #include "examples/imgui_impl_vulkan.h"
 #include "examples/imgui_impl_glfw.h"
 
-static ImGui_ImplVulkanH_WindowData m_WindowData;
+static ImGui_ImplVulkanH_Window m_Window;
+static int                      m_iMinImageCount = 2;
 #endif
 
 #include "Engine/Application.h"
@@ -71,33 +72,28 @@ namespace Engine {
 #endif
 #elif CB_RENDERING_API == CB_RENDERER_VULKAN
 		// Create Framebuffers
-		ImGui_ImplVulkanH_WindowData* wd = &m_WindowData;
+		ImGui_ImplVulkanH_Window* wd = &m_Window;
 
 		Color clearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		memcpy(&wd->ClearValue.color.float32[0], &clearColor, 4 * sizeof(float));
 
-		glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow* window, int width, int height)
-		{
+		glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow* window, int w, int h)
+		{	
 			RenderContext& context = Application::Get().GetRenderContext();
 			RenderContextData& contextData = context.GetData();
 
-			ImGui_ImplVulkanH_CreateWindowDataSwapChainAndFramebuffer(
-				contextData.PhysicalDevice,
-				contextData.Device,
-				&m_WindowData,
-				contextData.Allocator,
-				width,
-				height
-			);
+			ImGui_ImplVulkan_SetMinImageCount(m_iMinImageCount);
+			ImGui_ImplVulkanH_CreateWindow(contextData.Instance, contextData.PhysicalDevice, contextData.Device, &m_Window, contextData.QueueFamily, contextData.Allocator, w, h, m_iMinImageCount);
+			m_Window.FrameIndex = 0;
 		});
 
 		// SetupVulkanWindowData
-		m_WindowData.Surface = contextData.Surface;
+		m_Window.Surface = contextData.Surface;
 
 		// Check for WSI support
 		VkBool32 res;
 
-		vkGetPhysicalDeviceSurfaceSupportKHR(contextData.PhysicalDevice, contextData.QueueFamily, m_WindowData.Surface, &res);
+		vkGetPhysicalDeviceSurfaceSupportKHR(contextData.PhysicalDevice, contextData.QueueFamily, m_Window.Surface, &res);
 		if (res != VK_TRUE)
 		{
 			fprintf(stderr, "Error no WSI support on physical device 0\n");
@@ -107,7 +103,7 @@ namespace Engine {
 		// Select Surface Format
 		const VkFormat requestSurfaceImageFormat[] = { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM };
 		const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-		m_WindowData.SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(contextData.PhysicalDevice, m_WindowData.Surface, requestSurfaceImageFormat, (sizeof(requestSurfaceImageFormat) / sizeof(*requestSurfaceImageFormat)), requestSurfaceColorSpace);
+		m_Window.SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(contextData.PhysicalDevice, m_Window.Surface, requestSurfaceImageFormat, (sizeof(requestSurfaceImageFormat) / sizeof(*requestSurfaceImageFormat)), requestSurfaceColorSpace);
 
 		// Select Present Mode (vsync on)
 		VkPresentModeKHR present_modes[1];
@@ -115,12 +111,11 @@ namespace Engine {
 
 		// VkPresentModeKHR present_modes[] = { VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR };
 
-		m_WindowData.PresentMode = ImGui_ImplVulkanH_SelectPresentMode(contextData.PhysicalDevice, m_WindowData.Surface, &present_modes[0], (sizeof(present_modes) / sizeof(*present_modes)));
-		//printf("[vulkan] Selected PresentMode = %d\n", m_WindowData.PresentMode);
+		m_Window.PresentMode = ImGui_ImplVulkanH_SelectPresentMode(contextData.PhysicalDevice, m_Window.Surface, &present_modes[0], (sizeof(present_modes) / sizeof(*present_modes)));
+		//printf("[vulkan] Selected PresentMode = %d\n", m_Window.PresentMode);
 
 		// Create SwapChain, RenderPass, Framebuffer, etc.
-		ImGui_ImplVulkanH_CreateWindowDataCommandBuffers(contextData.PhysicalDevice, contextData.Device, contextData.QueueFamily, wd, contextData.Allocator);
-		ImGui_ImplVulkanH_CreateWindowDataSwapChainAndFramebuffer(contextData.PhysicalDevice, contextData.Device, wd, contextData.Allocator, window.GetWidth(), window.GetHeight());
+		ImGui_ImplVulkanH_CreateWindow(contextData.Instance, contextData.PhysicalDevice, contextData.Device, &m_Window, contextData.QueueFamily, contextData.Allocator, window.GetWidth(), window.GetHeight(), m_iMinImageCount);
 
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForVulkan(glfwWindow, true);
@@ -133,16 +128,21 @@ namespace Engine {
 		init_info.PipelineCache = contextData.PipelineCache;
 		init_info.DescriptorPool = contextData.DescriptorPool;
 		init_info.Allocator = contextData.Allocator;
+		init_info.MinImageCount = m_iMinImageCount;
+		init_info.ImageCount = m_Window.ImageCount;
 		init_info.CheckVkResultFn = [](VkResult err) { Application::Get().GetRenderContext().GetRenderer().Verify(err); };
-		ImGui_ImplVulkan_Init(&init_info, m_WindowData.RenderPass);
+		ImGui_ImplVulkan_Init(&init_info, m_Window.RenderPass);
 
 		// Upload Fonts
 		{
-			// Use any command queue
-			VkCommandPool command_pool = m_WindowData.Frames[m_WindowData.FrameIndex].CommandPool;
-			VkCommandBuffer command_buffer = m_WindowData.Frames[m_WindowData.FrameIndex].CommandBuffer;
+			Renderer& renderer = renderContext.GetRenderer();
+			RenderContextData& renderData = renderContext.GetData();
 
-			int err = vkResetCommandPool(contextData.Device, command_pool, 0);
+			// Use any command queue
+			VkCommandPool command_pool = wd->Frames[wd->FrameIndex].CommandPool;
+			VkCommandBuffer command_buffer = wd->Frames[wd->FrameIndex].CommandBuffer;
+
+			VkResult err = vkResetCommandPool(renderData.Device, command_pool, 0);
 			renderer.Verify(err);
 			VkCommandBufferBeginInfo begin_info = {};
 			begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -158,12 +158,12 @@ namespace Engine {
 			end_info.pCommandBuffers = &command_buffer;
 			err = vkEndCommandBuffer(command_buffer);
 			renderer.Verify(err);
-			err = vkQueueSubmit(contextData.Queue, 1, &end_info, VK_NULL_HANDLE);
+			err = vkQueueSubmit(renderData.Queue, 1, &end_info, VK_NULL_HANDLE);
 			renderer.Verify(err);
 
-			err = vkDeviceWaitIdle(contextData.Device);
+			err = vkDeviceWaitIdle(renderData.Device);
 			renderer.Verify(err);
-			ImGui_ImplVulkan_InvalidateFontUploadObjects();
+			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 #endif
 
@@ -191,15 +191,25 @@ namespace Engine {
 
 		ImGui::DestroyContext();
 #elif CB_RENDERING_API == CB_RENDERER_VULKAN
+
+		Application& app = Application::Get();
+		RenderContext& renderContext = app.GetRenderContext();
+		RenderContextData& renderData = renderContext.GetData();
+		Renderer& renderer = renderContext.GetRenderer();
+
+		VkResult err = vkDeviceWaitIdle(renderData.Device);
+		renderer.Verify(err);
+		ImGui_ImplVulkan_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 
 		ImGui::DestroyContext();
 
-		ImGui_ImplVulkanH_WindowData* wd = &m_WindowData;
-
 		RenderContextData& contextData = Application::Get().GetRenderContext().GetData();
-		ImGui_ImplVulkanH_DestroyWindowData(contextData.Instance, contextData.Device, wd, contextData.Allocator);
+		ImGui_ImplVulkanH_DestroyWindow(contextData.Instance, contextData.Device, &m_Window, contextData.Allocator);
 		vkDestroyDescriptorPool(contextData.Device, contextData.DescriptorPool, contextData.Allocator);
 
 #ifdef CB_DEBUG
@@ -213,11 +223,193 @@ namespace Engine {
 #endif
 	}
 
+
+	void ImGuiLayer::Begin()
+	{
+#if CB_RENDERING_API == CB_RENDERER_OPENGL
+		ImGui_ImplOpenGL3_NewFrame();
+#elif CB_RENDERING_API == CB_RENDERER_VULKAN
+		ImGui_ImplVulkan_NewFrame();
+#endif
+
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+	}
+
+	void ImGuiLayer::End()
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		Application& app = Application::Get();
+		RenderContext& renderContext = app.GetRenderContext();
+		Window& window = renderContext.GetWindow();
+
+		io.DisplaySize = ImVec2((float)window.GetWidth(), (float)window.GetHeight());
+
+		// Rendering
+		ImGui::Render();
+
+#if CB_RENDERING_API == CB_RENDERER_OPENGL
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
+#elif CB_RENDERING_API == CB_RENDERER_VULKAN
+		Renderer& renderer = renderContext.GetRenderer();
+		RenderContextData& contextData = renderContext.GetData();
+		
+		// FrameRender
+		VkResult err;
+
+		VkSemaphore image_acquired_semaphore = m_Window.FrameSemaphores[m_Window.SemaphoreIndex].ImageAcquiredSemaphore;
+		VkSemaphore render_complete_semaphore = m_Window.FrameSemaphores[m_Window.SemaphoreIndex].RenderCompleteSemaphore;
+		err = vkAcquireNextImageKHR(contextData.Device, m_Window.Swapchain, UINT64_MAX, image_acquired_semaphore, VK_NULL_HANDLE, &m_Window.FrameIndex);
+		renderer.Verify(err);
+
+		ImGui_ImplVulkanH_Frame* fd = &m_Window.Frames[m_Window.FrameIndex];
+		{
+			err = vkWaitForFences(contextData.Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX);    // wait indefinitely instead of periodically checking
+			renderer.Verify(err);
+
+			err = vkResetFences(contextData.Device, 1, &fd->Fence);
+			renderer.Verify(err);
+		}
+		{
+			err = vkResetCommandPool(contextData.Device, fd->CommandPool, 0);
+			renderer.Verify(err);
+			VkCommandBufferBeginInfo info = {};
+			info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			err = vkBeginCommandBuffer(fd->CommandBuffer, &info);
+			renderer.Verify(err);
+		}
+		{
+			VkRenderPassBeginInfo info = {};
+			info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			info.renderPass = m_Window.RenderPass;
+			info.framebuffer = fd->Framebuffer;
+			info.renderArea.extent.width = m_Window.Width;
+			info.renderArea.extent.height = m_Window.Height;
+			info.clearValueCount = 1;
+			info.pClearValues = &m_Window.ClearValue;
+			vkCmdBeginRenderPass(fd->CommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+		}
+
+		// Record Imgui Draw Data and draw funcs into command buffer
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), fd->CommandBuffer);
+
+		// Submit command buffer
+		vkCmdEndRenderPass(fd->CommandBuffer);
+		{
+			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			VkSubmitInfo info = {};
+			info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			info.waitSemaphoreCount = 1;
+			info.pWaitSemaphores = &image_acquired_semaphore;
+			info.pWaitDstStageMask = &wait_stage;
+			info.commandBufferCount = 1;
+			info.pCommandBuffers = &fd->CommandBuffer;
+			info.signalSemaphoreCount = 1;
+			info.pSignalSemaphores = &render_complete_semaphore;
+
+			err = vkEndCommandBuffer(fd->CommandBuffer);
+			renderer.Verify(err);
+			err = vkQueueSubmit(contextData.Queue, 1, &info, fd->Fence);
+			renderer.Verify(err);
+		}
+
+		// Update and Render additional Platform Windows
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
+
+		// FramePresent
+		render_complete_semaphore = m_Window.FrameSemaphores[m_Window.SemaphoreIndex].RenderCompleteSemaphore;
+		VkPresentInfoKHR info = {};
+		info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		info.waitSemaphoreCount = 1;
+		info.pWaitSemaphores = &render_complete_semaphore;
+		info.swapchainCount = 1;
+		info.pSwapchains = &m_Window.Swapchain;
+		info.pImageIndices = &m_Window.FrameIndex;
+
+		err = vkQueuePresentKHR(contextData.Queue, &info);
+		renderer.Verify(err);
+		m_Window.SemaphoreIndex = (m_Window.SemaphoreIndex + 1) % m_Window.ImageCount; // Now we can use the next set of semaphores
+#endif
+	}
+
 	void ImGuiLayer::OnImGuiRender()
 	{
-		static bool show = true;
-		ImGui::ShowDemoWindow(&show);
+		static bool opt_fullscreen_persistant = true;
+		bool opt_fullscreen = opt_fullscreen_persistant;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		if (opt_fullscreen)
+		{
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->Pos);
+			ImGui::SetNextWindowSize(viewport->Size);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			window_flags |= ImGuiWindowFlags_NoBackground;
+
+		static bool show = true;
+
+		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
+		// all active windows docked into it will lose their parent and become undocked.
+		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
+		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("DockSpace", &show, window_flags);
+		ImGui::PopStyleVar();
+
+		if (opt_fullscreen)
+			ImGui::PopStyleVar(2);
+
+		// DockSpace
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		}
+
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				ImGui::MenuItem("Exit", NULL, true);
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenuBar();
+		}
+
+		ImGui::End();
+
+		ImGui::Begin("Style Editor");
+		ImGui::ShowStyleEditor();
+		ImGui::End();
+
+		// On-Screen Logger
 #ifndef CB_DIST
 		auto& logger = ::Engine::Log::GetScreenLogger();
 
@@ -255,118 +447,4 @@ namespace Engine {
 		}
 #endif
 	}
-
-	void ImGuiLayer::Begin()
-	{
-#if CB_RENDERING_API == CB_RENDERER_OPENGL
-		ImGui_ImplOpenGL3_NewFrame();
-#elif CB_RENDERING_API == CB_RENDERER_VULKAN
-		ImGui_ImplVulkan_NewFrame();
-#endif
-
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-	}
-
-	void ImGuiLayer::End()
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		Application& app = Application::Get();
-		RenderContext& renderContext = app.GetRenderContext();
-		Window& window = renderContext.GetWindow();
-
-		io.DisplaySize = ImVec2((float)window.GetWidth(), (float)window.GetHeight());
-
-		// Rendering
-		ImGui::Render();
-
-#if CB_RENDERING_API == CB_RENDERER_OPENGL
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			GLFWwindow* backup_current_context = glfwGetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backup_current_context);
-		}
-#elif CB_RENDERING_API == CB_RENDERER_VULKAN
-		VkResult err;
-
-		VkSemaphore& image_acquired_semaphore = m_WindowData.Frames[m_WindowData.FrameIndex].ImageAcquiredSemaphore;
-		err = vkAcquireNextImageKHR(contextData.Device, m_WindowData.Swapchain, UINT64_MAX, image_acquired_semaphore, VK_NULL_HANDLE, &m_WindowData.FrameIndex);
-		renderer.Verify(err);
-
-		ImGui_ImplVulkanH_FrameData* fd = &m_WindowData.Frames[m_WindowData.FrameIndex];
-		{
-			err = vkWaitForFences(contextData.Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX);	// wait indefinitely instead of periodically checking
-			renderer.Verify(err);
-
-			err = vkResetFences(contextData.Device, 1, &fd->Fence);
-			renderer.Verify(err);
-		}
-		{
-			err = vkResetCommandPool(contextData.Device, fd->CommandPool, 0);
-			renderer.Verify(err);
-			VkCommandBufferBeginInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			err = vkBeginCommandBuffer(fd->CommandBuffer, &info);
-			renderer.Verify(err);
-		}
-		{
-			VkRenderPassBeginInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			info.renderPass = m_WindowData.RenderPass;
-			info.framebuffer = m_WindowData.Framebuffer[m_WindowData.FrameIndex];
-			info.renderArea.extent.width = m_WindowData.Width;
-			info.renderArea.extent.height = m_WindowData.Height;
-			info.clearValueCount = 1;
-			info.pClearValues = &m_WindowData.ClearValue;
-			vkCmdBeginRenderPass(fd->CommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
-		}
-
-		// Record Imgui Draw Data and draw funcs into command buffer
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), fd->CommandBuffer);
-
-		// Submit command buffer
-		vkCmdEndRenderPass(fd->CommandBuffer);
-		{
-			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-			VkSubmitInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			info.waitSemaphoreCount = 1;
-			info.pWaitSemaphores = &image_acquired_semaphore;
-			info.pWaitDstStageMask = &wait_stage;
-			info.commandBufferCount = 1;
-			info.pCommandBuffers = &fd->CommandBuffer;
-			info.signalSemaphoreCount = 1;
-			info.pSignalSemaphores = &fd->RenderCompleteSemaphore;
-
-			err = vkEndCommandBuffer(fd->CommandBuffer);
-			renderer.Verify(err);
-			err = vkQueueSubmit(contextData.Queue, 1, &info, fd->Fence);
-			renderer.Verify(err);
-		}
-
-		// Update and Render additional Platform Windows
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-		}
-
-		// FramePresent
-		VkPresentInfoKHR info = {};
-		info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		info.waitSemaphoreCount = 1;
-		info.pWaitSemaphores = &fd->RenderCompleteSemaphore;
-		info.swapchainCount = 1;
-		info.pSwapchains = &m_WindowData.Swapchain;
-		info.pImageIndices = &m_WindowData.FrameIndex;
-		err = vkQueuePresentKHR(contextData.Queue, &info);
-		renderer.Verify(err);
-#endif
-	}
-
 }

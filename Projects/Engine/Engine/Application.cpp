@@ -28,7 +28,7 @@ namespace Engine {
 		Shader::Descriptor shaderDesc;
 		shaderDesc.Vertex = "default.vs.glsl";
 		shaderDesc.Pixel = "default.ps.glsl";
-		m_RenderContext->GetRenderer().GetRenderDevice().CreateShaderProgram(shaderDesc);
+		// m_RenderContext->GetRenderer().GetRenderDevice().CreateShaderProgram(shaderDesc);
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

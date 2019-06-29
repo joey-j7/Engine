@@ -30,7 +30,7 @@ namespace Engine {
 
 	VkRenderer::~VkRenderer()
 	{
-		int err = vkDeviceWaitIdle(m_ContextData->Device);
+		int err = vkDeviceWaitIdle(m_pContextData->Device);
 		Verify(err);
 	}
 
@@ -70,12 +70,12 @@ namespace Engine {
 			create_info.ppEnabledExtensionNames = extensions_ext;
 
 			// Create Vulkan Instance
-			err = vkCreateInstance(&create_info, m_ContextData->Allocator, &m_ContextData->Instance);
+			err = vkCreateInstance(&create_info, m_pContextData->Allocator, &m_pContextData->Instance);
 			Verify(err);
 			free(extensions_ext);
 
 			// Get the function pointer (required for any extensions)
-			auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_ContextData->Instance, "vkCreateDebugReportCallbackEXT");
+			auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(m_pContextData->Instance, "vkCreateDebugReportCallbackEXT");
 			CB_CORE_ASSERT(vkCreateDebugReportCallbackEXT != NULL, "Function pointer extension is not supported!");
 
 			// Setup the debug report callback
@@ -84,11 +84,11 @@ namespace Engine {
 			debug_report_ci.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
 			debug_report_ci.pfnCallback = debug_report;
 			debug_report_ci.pUserData = NULL;
-			err = vkCreateDebugReportCallbackEXT(m_ContextData->Instance, &debug_report_ci, m_ContextData->Allocator, &m_ContextData->DebugReport);
+			err = vkCreateDebugReportCallbackEXT(m_pContextData->Instance, &debug_report_ci, m_pContextData->Allocator, &m_pContextData->DebugReport);
 			Verify(err);
 #else
 			// Create Vulkan Instance without any debug feature
-			err = vkCreateInstance(&create_info, m_ContextData->Allocator, &m_ContextData->Instance);
+			err = vkCreateInstance(&create_info, m_pContextData->Allocator, &m_pContextData->Instance);
 			Verify(err);
 #endif
 		}
@@ -96,34 +96,34 @@ namespace Engine {
 		// Select GPU
 		{
 			uint32_t gpu_count;
-			err = vkEnumeratePhysicalDevices(m_ContextData->Instance, &gpu_count, NULL);
+			err = vkEnumeratePhysicalDevices(m_pContextData->Instance, &gpu_count, NULL);
 			Verify(err);
 
 			VkPhysicalDevice* gpus = (VkPhysicalDevice*)malloc(sizeof(VkPhysicalDevice) * gpu_count);
-			err = vkEnumeratePhysicalDevices(m_ContextData->Instance, &gpu_count, gpus);
+			err = vkEnumeratePhysicalDevices(m_pContextData->Instance, &gpu_count, gpus);
 			Verify(err);
 
 			// If a number >1 of GPUs got reported, you should find the best fit GPU for your purpose
 			// e.g. VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU if available, or with the greatest memory available, etc.
 			// for sake of simplicity we'll just take the first one, assuming it has a graphics queue family.
-			m_ContextData->PhysicalDevice = gpus[0];
+			m_pContextData->PhysicalDevice = gpus[0];
 			free(gpus);
 		}
 
 		// Select graphics queue family
 		{
 			uint32_t count;
-			vkGetPhysicalDeviceQueueFamilyProperties(m_ContextData->PhysicalDevice, &count, NULL);
+			vkGetPhysicalDeviceQueueFamilyProperties(m_pContextData->PhysicalDevice, &count, NULL);
 			VkQueueFamilyProperties* queues = (VkQueueFamilyProperties*)malloc(sizeof(VkQueueFamilyProperties) * count);
-			vkGetPhysicalDeviceQueueFamilyProperties(m_ContextData->PhysicalDevice, &count, queues);
+			vkGetPhysicalDeviceQueueFamilyProperties(m_pContextData->PhysicalDevice, &count, queues);
 			for (uint32_t i = 0; i < count; i++)
 				if (queues[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 				{
-					m_ContextData->QueueFamily = i;
+					m_pContextData->QueueFamily = i;
 					break;
 				}
 			free(queues);
-			CB_CORE_ASSERT(m_ContextData->QueueFamily != -1, "Invalid graphic queue family!");
+			CB_CORE_ASSERT(m_pContextData->QueueFamily != -1, "Invalid graphic queue family!");
 		}
 
 		// Create Logical Device (with 1 queue)
@@ -133,7 +133,7 @@ namespace Engine {
 			const float queue_priority[] = { 1.0f };
 			VkDeviceQueueCreateInfo queue_info[1] = {};
 			queue_info[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queue_info[0].queueFamilyIndex = m_ContextData->QueueFamily;
+			queue_info[0].queueFamilyIndex = m_pContextData->QueueFamily;
 			queue_info[0].queueCount = 1;
 			queue_info[0].pQueuePriorities = queue_priority;
 			VkDeviceCreateInfo create_info = {};
@@ -142,9 +142,9 @@ namespace Engine {
 			create_info.pQueueCreateInfos = queue_info;
 			create_info.enabledExtensionCount = device_extension_count;
 			create_info.ppEnabledExtensionNames = device_extensions;
-			err = vkCreateDevice(m_ContextData->PhysicalDevice, &create_info, m_ContextData->Allocator, &m_ContextData->Device);
+			err = vkCreateDevice(m_pContextData->PhysicalDevice, &create_info, m_pContextData->Allocator, &m_pContextData->Device);
 			Verify(err);
-			vkGetDeviceQueue(m_ContextData->Device, m_ContextData->QueueFamily, 0, &m_ContextData->Queue);
+			vkGetDeviceQueue(m_pContextData->Device, m_pContextData->QueueFamily, 0, &m_pContextData->Queue);
 		}
 
 		// Create Descriptor Pool
@@ -170,15 +170,15 @@ namespace Engine {
 			pool_info.maxSets = 1000 * ((int)(sizeof(pool_sizes) / sizeof(*pool_sizes)));
 			pool_info.poolSizeCount = (uint32_t)((int)(sizeof(pool_sizes) / sizeof(*pool_sizes)));
 			pool_info.pPoolSizes = pool_sizes;
-			err = vkCreateDescriptorPool(m_ContextData->Device, &pool_info, m_ContextData->Allocator, &m_ContextData->DescriptorPool);
+			err = vkCreateDescriptorPool(m_pContextData->Device, &pool_info, m_pContextData->Allocator, &m_pContextData->DescriptorPool);
 			Verify(err);
 		}
 
 		auto& window = Application::Get().GetRenderContext().GetWindow();
 
 		// Create Window Surface
-		auto vkAllocator = m_ContextData->Allocator;
-		err = glfwCreateWindowSurface(m_ContextData->Instance, (GLFWwindow*)window.GetWindow(), vkAllocator, &m_ContextData->Surface);
+		auto vkAllocator = m_pContextData->Allocator;
+		err = glfwCreateWindowSurface(m_pContextData->Instance, (GLFWwindow*)window.GetWindow(), vkAllocator, &m_pContextData->Surface);
 		Verify(err);
 	}
 }
