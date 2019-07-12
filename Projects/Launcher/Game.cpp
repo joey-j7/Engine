@@ -1,4 +1,5 @@
 #include <Engine.h>
+#include "Engine/Events/KeyEvent.h"
 
 class ExampleLayer : public Engine::Layer
 {
@@ -8,13 +9,13 @@ public:
 	{
 	}
 
-	void OnUpdate() override
+	void Update(float fDeltaTime) override
 	{
 		if (Engine::Input::IsKeyPressed(CB_KEY_TAB))
 			CB_TRACE("Tab key is pressed (poll)!");
 	}
 
-	void OnEvent(Engine::Event& event) override
+	void Call(Engine::Event& event) override
 	{
 		if (event.GetEventType() == Engine::EventType::KeyPressed)
 		{

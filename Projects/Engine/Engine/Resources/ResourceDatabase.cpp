@@ -14,7 +14,7 @@ namespace Engine
 
 	ResourceType* ResourceDatabase::Load(const std::string& filePath, FileLoader::Type pathType)
 	{
-		std::string extension = FileLoader::GetExtension(filePath);
+		const std::string extension = FileLoader::GetExtension(filePath);
 		
 		if (!FileLoader::Exists(filePath, pathType))
 		{

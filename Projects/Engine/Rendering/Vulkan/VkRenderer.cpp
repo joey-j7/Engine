@@ -16,14 +16,14 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_report(VkDebugReportFlagsEXT flags, 
 #endif // IMGUI_VULKAN_DEBUG_REPORT
 
 namespace Engine {
-	const char* Renderer::m_Name = "Vulkan";
+	const char* RenderAPI::m_Name = "Vulkan";
 
-	Renderer* Renderer::Create(const std::shared_ptr<RenderContextData>& contextData)
+	RenderAPI* RenderAPI::Create(const std::shared_ptr<RenderContextData>& contextData)
 	{
 		return new VkRenderer(contextData);
 	}
 
-	VkRenderer::VkRenderer(const std::shared_ptr<RenderContextData>& contextData) : Renderer(contextData)
+	VkRenderer::VkRenderer(const std::shared_ptr<RenderContextData>& contextData) : RenderAPI(contextData)
 	{
 		Init();
 	}

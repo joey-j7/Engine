@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Rendering/RenderDevice.h"
+#include "Rendering/RenderDatabase.h"
 
 namespace Engine
 {
-	class Engine_API GLRenderDevice : public RenderDevice
+	class Engine_API GLRenderDevice : public RenderDatabase
 	{
 	public:
 		virtual void LoadModel(ModelResource* model) override;

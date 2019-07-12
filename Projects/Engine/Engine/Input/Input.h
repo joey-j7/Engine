@@ -2,8 +2,8 @@
 
 #include "Engine/Core.h"
 
-namespace Engine {
-
+namespace Engine
+{
 	class Engine_API Input
 	{
 	public:

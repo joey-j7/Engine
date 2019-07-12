@@ -460,7 +460,9 @@
   <ItemGroup>
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Engine\Application.h" />
-    <ClInclude Include="Engine\Common.h" />
+    <ClInclude Include="Engine\Layers\World\WorldManagerLayer.h" />
+    <ClInclude Include="Engine\Objects\Buffers\Buffer.h" />
+    <ClInclude Include="Engine\General\Common.h" />
     <ClInclude Include="Engine\Core.h" />
     <ClInclude Include="Engine\DeltaTime.h" />
     <ClInclude Include="Engine\EntryPoint.h" />
@@ -468,28 +470,33 @@
     <ClInclude Include="Engine\Events\Event.h" />
     <ClInclude Include="Engine\Events\KeyEvent.h" />
     <ClInclude Include="Engine\Events\MouseEvent.h" />
+    <ClInclude Include="Engine\Objects\LayeredObject.h" />
+    <ClInclude Include="Engine\Objects\RealTimeObject.h" />
+    <ClInclude Include="Engine\Objects\Object.h" />
+    <ClInclude Include="Engine\Objects\World\World.h" />
+    <ClInclude Include="Engine\Objects\World\Entity.h" />
     <ClInclude Include="Engine\Layers\ImGui\ImGuiLayer.h" />
-    <ClInclude Include="Engine\Input.h" />
-    <ClInclude Include="Engine\KeyCodes.h" />
-    <ClInclude Include="Engine\Layer.h" />
-    <ClInclude Include="Engine\LayerStack.h" />
+    <ClInclude Include="Engine\Input\Input.h" />
+    <ClInclude Include="Engine\Input\KeyCodes.h" />
+    <ClInclude Include="Engine\Layers\Layer.h" />
+    <ClInclude Include="Engine\Layers\LayerStack.h" />
     <ClInclude Include="Engine\Layers\Rendering\RenderLayer3D.h" />
     <ClInclude Include="Engine\Logger\Sinks\engine_sink.h" />
     <ClInclude Include="Engine\Logger\Log.h" />
-    <ClInclude Include="Engine\Math.h" />
-    <ClInclude Include="Engine\MouseButtonCodes.h" />
+    <ClInclude Include="Engine\General\Math.h" />
+    <ClInclude Include="Engine\Input\MouseButtonCodes.h" />
     <ClInclude Include="Engine\Resources\ResourceDatabase.h" />
     <ClInclude Include="Engine\Resources\ResourceManager.h" />
     <ClInclude Include="Engine\Resources\ResourceManagerBase.h" />
     <ClInclude Include="Engine\Resources\ResourceType.h" />
+    <ClInclude Include="Engine\Managers\IDManager.h" />
     <ClInclude Include="Platform\FileLoader.h" />
     <ClInclude Include="Platform\GLFW\GLFWInput.h" />
     <ClInclude Include="Platform\GLFW\GLFWWindow.h" />
     <ClInclude Include="Rendering\OpenGL\GLRenderDevice.h" />
     <ClInclude Include="Rendering\OpenGL\GLShader.h" />
     <ClInclude Include="Rendering\RenderContext.h" />
-    <ClInclude Include="Rendering\RenderDevice.h" />
-    <ClInclude Include="Rendering\Renderer.h" />
+    <ClInclude Include="Rendering\RenderAPI.h" />
     <ClInclude Include="Engine\Timer.h" />
     <ClInclude Include="Platform\Window.h" />
     <ClInclude Include="pch.h" />
@@ -504,16 +511,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application.cpp" />
-    <ClCompile Include="Engine\Common.cpp" />
+    <ClCompile Include="Engine\Layers\LayerStack.cpp" />
+    <ClCompile Include="Engine\Layers\World\WorldManagerLayer.cpp" />
+    <ClCompile Include="Engine\Objects\Buffers\Buffer.cpp" />
+    <ClCompile Include="Engine\General\Common.cpp" />
     <ClCompile Include="Engine\DeltaTime.cpp" />
+    <ClCompile Include="Engine\Objects\LayeredObject.cpp" />
+    <ClCompile Include="Engine\Objects\Object.cpp" />
+    <ClCompile Include="Engine\Objects\RealTimeObject.cpp" />
+    <ClCompile Include="Engine\Objects\World\World.cpp" />
+    <ClCompile Include="Engine\Objects\World\Entity.cpp" />
     <ClCompile Include="Engine\Layers\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="Engine\Layers\ImGui\ImGuiLayer.cpp" />
-    <ClCompile Include="Engine\Layer.cpp" />
-    <ClCompile Include="Engine\LayerStack.cpp" />
+    <ClCompile Include="Engine\Layers\Layer.cpp" />
     <ClCompile Include="Engine\Logger\Log.cpp" />
     <ClCompile Include="Engine\Resources\ResourceDatabase.cpp" />
     <ClCompile Include="Engine\Resources\ResourceManager.cpp" />
     <ClCompile Include="Engine\Resources\ResourceType.cpp" />
+    <ClCompile Include="Engine\Managers\IDManager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">Create</PrecompiledHeader>
@@ -534,8 +549,7 @@
     <ClCompile Include="Rendering\OpenGL\GLRenderer.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLShader.cpp" />
     <ClCompile Include="Rendering\RenderContext.cpp" />
-    <ClCompile Include="Rendering\RenderDevice.cpp" />
-    <ClCompile Include="Rendering\Renderer.cpp" />
+    <ClCompile Include="Rendering\RenderAPI.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>

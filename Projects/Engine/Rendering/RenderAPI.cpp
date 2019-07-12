@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "RenderAPI.h"
+#include "Renderer.h"
 
 #include "Resources/ModelResource.h"
 #include "Resources/TextureResource.h"
@@ -12,6 +12,7 @@ namespace Engine
 		m_pContextData = contextData;
 
 		m_pDatabase = std::make_unique<ResourceDatabase>();
+
 		m_pDatabase->Add<ModelResource>({ "fbx", "obj", "vox" });
 		m_pDatabase->Add<TextureResource>({ "png", "jpg", "bmp" });
 		m_pDatabase->Add<ShaderResource>({ "glsl" });
@@ -23,6 +24,7 @@ namespace Engine
 	{
 		if (RenderResource* p = static_cast<RenderResource*>(m_pDatabase->Load(filePath, pathType)))
 		{
+			// TODO: type specific handling
 			return p;
 		}
 
@@ -32,6 +34,7 @@ namespace Engine
 
 	bool RenderAPI::Unload(RenderResource* resource)
 	{
+		// TODO: type specific handling
 		return m_pDatabase->Unload(resource);
 	}
 }

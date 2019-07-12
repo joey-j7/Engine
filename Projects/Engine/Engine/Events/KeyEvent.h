@@ -2,8 +2,8 @@
 
 #include "Event.h"
 
-namespace Engine {
-
+namespace Engine
+{
 	class Engine_API KeyEvent : public Event
 	{
 	public:

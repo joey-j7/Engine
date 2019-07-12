@@ -1,13 +1,12 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #include "Engine/Resources/ResourceDatabase.h"
-
 #include "Rendering/RenderContextData.h"
 
-namespace Engine {
+namespace Engine
+{
 	class Engine_API RenderAPI
 	{
 	public:

@@ -20,8 +20,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Engine/Common.h"
-#include "Engine/Math.h"
+#include "Engine/General/Common.h"
+#include "Engine/General/Math.h"
+
 #include "Engine/Logger/Log.h"
 #include "Engine/Timer.h"
 

@@ -5,6 +5,8 @@
 struct RenderContextData
 {
 #if CB_RENDERING_API == CB_RENDERER_OPENGL
+
+
 #elif CB_RENDERING_API == CB_RENDERER_VULKAN
 	VkAllocationCallbacks* Allocator = NULL;
 	VkInstance Instance = VK_NULL_HANDLE;

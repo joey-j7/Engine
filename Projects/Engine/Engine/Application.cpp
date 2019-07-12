@@ -1,11 +1,9 @@
 #include "pch.h"
 #include "Application.h"
-#include "Input.h"
 
 #include "Platform/FileLoader.h"
 
-#include "Rendering/RenderDevice.h"
-#include "Rendering/Renderer.h"
+#include "Rendering/RenderAPI.h"
 #include "Rendering/RenderContext.h"
 
 namespace Engine {
@@ -14,21 +12,24 @@ namespace Engine {
 
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application() 
+	Application::Application(const std::string& sName) : LayeredObject(sName)
 	{
 		CB_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
 		m_RenderContext = std::make_shared<RenderContext>();
 		m_RenderContext->Init();
-		m_RenderContext->GetWindow().SetEventCallback(BIND_EVENT_FN(OnEvent));
+		m_RenderContext->GetWindow().SetEventCallback(BIND_EVENT_FN(Call));
 
 		FileLoader::Init();
 
-		Shader::Descriptor shaderDesc;
+		/*Shader::Descriptor shaderDesc;
 		shaderDesc.Vertex = "default.vs.glsl";
-		shaderDesc.Pixel = "default.ps.glsl";
-		// m_RenderContext->GetRenderer().GetRenderDevice().CreateShaderProgram(shaderDesc);
+		shaderDesc.Pixel = "default.ps.glsl";*/
+		// m_RenderContext->GetAPI().GetRenderDevice().CreateShaderProgram(shaderDesc);
+
+		m_WorldManagerLayer = new WorldManagerLayer();
+		PushOverlay(m_WorldManagerLayer);
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -41,19 +42,7 @@ namespace Engine {
 		// s_Instance = nullptr;
 	}
 
-	void Application::PushLayer(Layer* layer)
-	{
-		m_LayerStack.PushLayer(layer);
-		layer->OnAttach();
-	}
-
-	void Application::PushOverlay(Layer* layer)
-	{
-		m_LayerStack.PushOverlay(layer);
-		layer->OnAttach();
-	}
-
-	void Application::OnEvent(Event& e)
+	void Application::Call(Event& e)
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
@@ -67,31 +56,35 @@ namespace Engine {
 		EventDispatcher dispatcher3(e);
 		dispatcher3.Dispatch<AppPauseEvent>(BIND_EVENT_FN(OnAppPause));
 
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
-		{
-			(*--it)->OnEvent(e);
-			if (e.Handled)
-				break;
-		}
+		LayeredObject::Call(e);
 	}
 
 	void Application::Run()
 	{
-		while (m_Running)
+		while (m_bRunning)
 		{
-			if (!m_Paused)
+			m_DeltaTime->Update();
+			m_RenderContext->GetAPI().Clear();
+
+			const float fDeltaTime = m_DeltaTime->Get();
+
+			// Update layers
+			Update(fDeltaTime);
+
+			if (m_DeltaTime->IsFixed())
 			{
-				m_DeltaTime->Update();
-				m_RenderContext->GetRenderer().Clear();
-
-				for (Layer* layer : m_LayerStack)
-					layer->OnUpdate();
-
-				m_ImGuiLayer->Begin();
-				for (Layer* layer : m_LayerStack)
-					layer->OnImGuiRender();
-				m_ImGuiLayer->End();
+				// Update layers
+				const float fFixedDeltaTime = m_DeltaTime->GetFixed();
+				FixedUpdate(fFixedDeltaTime);
 			}
+
+			m_ImGuiLayer->Begin();
+			// Update layers
+			Draw(fDeltaTime);
+			m_ImGuiLayer->End();
+
+			// Update layers
+			LateUpdate(fDeltaTime);
 
 			m_RenderContext->GetWindow().OnUpdate();
 		}
@@ -99,7 +92,7 @@ namespace Engine {
 
 	bool Application::OnAppPause(AppPauseEvent& e)
 	{
-		m_Paused = e.IsPaused();
+		m_bPaused = e.IsPaused();
 		return true;
 	}
 
@@ -110,8 +103,7 @@ namespace Engine {
 			m_RenderContext->GetWindow().Reset();
 
 			// Reset layer
-			m_ImGuiLayer->OnDetach();
-			m_ImGuiLayer->OnAttach();
+			m_ImGuiLayer->Reset(m_LayerStack);
 		}
 
 		AppPauseEvent event(e.IsMinimized());
@@ -128,7 +120,7 @@ namespace Engine {
 
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
-		m_Running = false;
+		m_bRunning = false;
 		return true;
 	}
 }

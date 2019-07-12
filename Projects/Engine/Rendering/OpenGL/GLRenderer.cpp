@@ -12,30 +12,30 @@
 #include "Rendering/Resources/ShaderResource.h"
 
 namespace Engine {
-	const char* Renderer::m_Name = "OpenGL";
+	const char* RenderAPI::m_Name = "OpenGL";
 
-	Renderer* Renderer::Create(const std::shared_ptr<RenderContextData>& contextData)
+	RenderAPI* RenderAPI::Create(const std::shared_ptr<RenderContextData>& contextData)
 	{
 		return new GLRenderer(contextData);
 	}
 
-	GLRenderer::GLRenderer(const std::shared_ptr<RenderContextData>& contextData) : Renderer(contextData)
+	GLRenderer::GLRenderer(const std::shared_ptr<RenderContextData>& contextData) : RenderAPI(contextData)
 	{
-		m_pRenderDevice = std::make_unique<GLRenderDevice>();
+		m_pDatabase = std::make_unique<GLRenderDevice>();
 
 		m_pDatabase->Get<TextureResource>()->SetFunctions(
-			[this](TextureResource* texture) { m_pRenderDevice->LoadTexture(texture); },
-			[this](TextureResource* texture) { m_pRenderDevice->UnloadTexture(texture); }
+			[this](TextureResource* texture) { m_pDatabase->LoadTexture(texture); },
+			[this](TextureResource* texture) { m_pDatabase->UnloadTexture(texture); }
 		);
 
 		m_pDatabase->Get<ShaderResource>()->SetFunctions(
-			[this](ShaderResource* shader) { m_pRenderDevice->LoadShader(shader); },
-			[this](ShaderResource* shader) { m_pRenderDevice->UnloadShader(shader); }
+			[this](ShaderResource* shader) { m_pDatabase->LoadShader(shader); },
+			[this](ShaderResource* shader) { m_pDatabase->UnloadShader(shader); }
 		);
 
 		m_pDatabase->Get<ModelResource>()->SetFunctions(
-			[this](ModelResource* model) { m_pRenderDevice->LoadModel(model); },
-			[this](ModelResource* model) { m_pRenderDevice->UnloadModel(model); }
+			[this](ModelResource* model) { m_pDatabase->LoadModel(model); },
+			[this](ModelResource* model) { m_pDatabase->UnloadModel(model); }
 		);
 	}
 

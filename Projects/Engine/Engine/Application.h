@@ -4,29 +4,29 @@
 
 #include "Rendering/RenderContext.h"
 
-#include "Engine/LayerStack.h"
 #include "Engine/Events/Event.h"
 #include "Engine/Events/ApplicationEvent.h"
 
 #include "Engine/Layers/ImGui/ImGuiLayer.h"
+#include "Engine/Layers/World/WorldManagerLayer.h"
 
-namespace Engine {
+#include "Objects/LayeredObject.h"
 
-	class Engine_API Application
+namespace Engine
+{
+	class Engine_API Application : public LayeredObject
 	{
 	public:
-		Application();
+		Application(const std::string& sName = "Application");
 		virtual ~Application();
 
 		void Run();
+		virtual void Call(Event& e) override;
 
-		void OnEvent(Event& e);
+		RenderContext& GetRenderContext() const { return *m_RenderContext; }
+		static Application& Get() { return *s_Instance; }
 
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
-
-		inline RenderContext& GetRenderContext() { return *m_RenderContext; }
-		inline static Application& Get() { return *s_Instance; }
+		void Exit() { m_bRunning = false; }
 
 	private:
 		bool OnAppPause(AppPauseEvent& e);
@@ -36,16 +36,15 @@ namespace Engine {
 		bool OnWindowClose(WindowCloseEvent& e);
 
 		std::shared_ptr<RenderContext> m_RenderContext;
-		ImGuiLayer* m_ImGuiLayer;
+
+		ImGuiLayer* m_ImGuiLayer = nullptr;
+		WorldManagerLayer* m_WorldManagerLayer = nullptr;
 
 		std::unique_ptr<DeltaTime> m_DeltaTime;
 
-		bool m_Running = true;
-		bool m_Paused = false;
+		bool m_bRunning = true;
+		bool m_bPaused = false;
 
-		LayerStack m_LayerStack;
-
-	private:
 		static Application* s_Instance;
 	};
 

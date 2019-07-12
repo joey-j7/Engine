@@ -29,7 +29,7 @@ namespace Engine {
 	{
 	}
 
-	void ImGuiLayer::OnAttach()
+	void ImGuiLayer::OnAttach(const LayerStack& stack)
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -62,7 +62,7 @@ namespace Engine {
 		RenderContextData& contextData = renderContext.GetData();
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(window.GetNativeWindow());
 
-		// Setup Platform/Renderer bindings
+		// Setup Platform/RenderAPI bindings
 #if CB_RENDERING_API == CB_RENDERER_OPENGL
 		ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 #ifdef CB_PLATFORM_WINDOWS
@@ -117,7 +117,7 @@ namespace Engine {
 		// Create SwapChain, RenderPass, Framebuffer, etc.
 		ImGui_ImplVulkanH_CreateWindow(contextData.Instance, contextData.PhysicalDevice, contextData.Device, &m_Window, contextData.QueueFamily, contextData.Allocator, window.GetWidth(), window.GetHeight(), m_iMinImageCount);
 
-		// Setup Platform/Renderer bindings
+		// Setup Platform/RenderAPI bindings
 		ImGui_ImplGlfw_InitForVulkan(glfwWindow, true);
 		ImGui_ImplVulkan_InitInfo init_info = {};
 		init_info.Instance = contextData.Instance;
@@ -130,12 +130,12 @@ namespace Engine {
 		init_info.Allocator = contextData.Allocator;
 		init_info.MinImageCount = m_iMinImageCount;
 		init_info.ImageCount = m_Window.ImageCount;
-		init_info.CheckVkResultFn = [](VkResult err) { Application::Get().GetRenderContext().GetRenderer().Verify(err); };
+		init_info.CheckVkResultFn = [](VkResult err) { Application::Get().GetRenderContext().GetAPI().Verify(err); };
 		ImGui_ImplVulkan_Init(&init_info, m_Window.RenderPass);
 
 		// Upload Fonts
 		{
-			Renderer& renderer = renderContext.GetRenderer();
+			RenderAPI& renderAPI = renderContext.GetAPI();
 			RenderContextData& renderData = renderContext.GetData();
 
 			// Use any command queue
@@ -143,12 +143,12 @@ namespace Engine {
 			VkCommandBuffer command_buffer = wd->Frames[wd->FrameIndex].CommandBuffer;
 
 			VkResult err = vkResetCommandPool(renderData.Device, command_pool, 0);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 			VkCommandBufferBeginInfo begin_info = {};
 			begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 			err = vkBeginCommandBuffer(command_buffer, &begin_info);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 
 			ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
 
@@ -157,12 +157,12 @@ namespace Engine {
 			end_info.commandBufferCount = 1;
 			end_info.pCommandBuffers = &command_buffer;
 			err = vkEndCommandBuffer(command_buffer);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 			err = vkQueueSubmit(renderData.Queue, 1, &end_info, VK_NULL_HANDLE);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 
 			err = vkDeviceWaitIdle(renderData.Device);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 #endif
@@ -183,8 +183,11 @@ namespace Engine {
 #endif
 	}
 
-	void ImGuiLayer::OnDetach()
+	bool ImGuiLayer::OnDetach(const LayerStack& stack)
 	{
+		if (!OnDetach(stack))
+			return false;
+
 #if CB_RENDERING_API == CB_RENDERER_OPENGL
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -195,10 +198,10 @@ namespace Engine {
 		Application& app = Application::Get();
 		RenderContext& renderContext = app.GetRenderContext();
 		RenderContextData& renderData = renderContext.GetData();
-		Renderer& renderer = renderContext.GetRenderer();
+		RenderAPI& renderAPI = renderContext.GetAPI();
 
 		VkResult err = vkDeviceWaitIdle(renderData.Device);
-		renderer.Verify(err);
+		renderAPI.Verify(err);
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
@@ -221,6 +224,8 @@ namespace Engine {
 		vkDestroyDevice(contextData.Device, contextData.Allocator);
 		vkDestroyInstance(contextData.Instance, contextData.Allocator);
 #endif
+
+		return true;
 	}
 
 
@@ -259,7 +264,7 @@ namespace Engine {
 			glfwMakeContextCurrent(backup_current_context);
 		}
 #elif CB_RENDERING_API == CB_RENDERER_VULKAN
-		Renderer& renderer = renderContext.GetRenderer();
+		RenderAPI& renderAPI = renderContext.GetAPI();
 		RenderContextData& contextData = renderContext.GetData();
 		
 		// FrameRender
@@ -268,24 +273,24 @@ namespace Engine {
 		VkSemaphore image_acquired_semaphore = m_Window.FrameSemaphores[m_Window.SemaphoreIndex].ImageAcquiredSemaphore;
 		VkSemaphore render_complete_semaphore = m_Window.FrameSemaphores[m_Window.SemaphoreIndex].RenderCompleteSemaphore;
 		err = vkAcquireNextImageKHR(contextData.Device, m_Window.Swapchain, UINT64_MAX, image_acquired_semaphore, VK_NULL_HANDLE, &m_Window.FrameIndex);
-		renderer.Verify(err);
+		renderAPI.Verify(err);
 
 		ImGui_ImplVulkanH_Frame* fd = &m_Window.Frames[m_Window.FrameIndex];
 		{
 			err = vkWaitForFences(contextData.Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX);    // wait indefinitely instead of periodically checking
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 
 			err = vkResetFences(contextData.Device, 1, &fd->Fence);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 		}
 		{
 			err = vkResetCommandPool(contextData.Device, fd->CommandPool, 0);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 			VkCommandBufferBeginInfo info = {};
 			info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 			err = vkBeginCommandBuffer(fd->CommandBuffer, &info);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 		}
 		{
 			VkRenderPassBeginInfo info = {};
@@ -317,9 +322,9 @@ namespace Engine {
 			info.pSignalSemaphores = &render_complete_semaphore;
 
 			err = vkEndCommandBuffer(fd->CommandBuffer);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 			err = vkQueueSubmit(contextData.Queue, 1, &info, fd->Fence);
-			renderer.Verify(err);
+			renderAPI.Verify(err);
 		}
 
 		// Update and Render additional Platform Windows
@@ -340,12 +345,12 @@ namespace Engine {
 		info.pImageIndices = &m_Window.FrameIndex;
 
 		err = vkQueuePresentKHR(contextData.Queue, &info);
-		renderer.Verify(err);
+		renderAPI.Verify(err);
 		m_Window.SemaphoreIndex = (m_Window.SemaphoreIndex + 1) % m_Window.ImageCount; // Now we can use the next set of semaphores
 #endif
 	}
 
-	void ImGuiLayer::OnImGuiRender()
+	void ImGuiLayer::Draw(float fDeltaTime)
 	{
 		static bool opt_fullscreen_persistant = true;
 		bool opt_fullscreen = opt_fullscreen_persistant;
@@ -396,17 +401,15 @@ namespace Engine {
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				ImGui::MenuItem("Exit", NULL, true);
+				if (ImGui::MenuItem("Exit", NULL, false))
+					Application::Get().Exit();
+
 				ImGui::EndMenu();
 			}
 
 			ImGui::EndMenuBar();
 		}
 
-		ImGui::End();
-
-		ImGui::Begin("Style Editor");
-		ImGui::ShowStyleEditor();
 		ImGui::End();
 
 		// On-Screen Logger
@@ -419,9 +422,9 @@ namespace Engine {
 
 			ImGui::SetNextWindowSizeConstraints(ImVec2(0.0f, 0.0f), ImVec2(io.DisplaySize.x - 10.0f, io.DisplaySize.y - 10.0f));
 			ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f));
-			ImGui::SetNextWindowPos(ImVec2(5.0f, 5.0f));
+			ImGui::SetNextWindowPos(ImVec2(5.0f, 25.0f));
 			ImGui::SetNextWindowBgAlpha(0.8f);
-			ImGui::SetNextWindowFocus();
+			// ImGui::SetNextWindowFocus();
 
 			ImGui::Begin("Logger", &show, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoInputs);
 			ImGui::PushTextWrapPos(io.DisplaySize.x - 10.0f);

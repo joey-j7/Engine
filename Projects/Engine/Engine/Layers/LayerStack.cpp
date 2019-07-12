@@ -1,13 +1,10 @@
 #include "pch.h"
 #include "LayerStack.h"
 
-namespace Engine {
-
-	LayerStack::LayerStack()
-	{
-	}
-
-	LayerStack::~LayerStack()
+namespace Engine
+{
+	LayerStack::LayerStack() {};
+	Engine::LayerStack::~LayerStack()
 	{
 		for (Layer* layer : m_Layers)
 			delete layer;
@@ -17,11 +14,14 @@ namespace Engine {
 	{
 		m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, layer);
 		m_LayerInsertIndex++;
+
+		layer->OnAttach(*this);
 	}
 
 	void LayerStack::PushOverlay(Layer* overlay)
 	{
 		m_Layers.emplace_back(overlay);
+		overlay->OnAttach(*this);
 	}
 
 	void LayerStack::PopLayer(Layer* layer)
@@ -32,6 +32,8 @@ namespace Engine {
 			m_Layers.erase(it);
 			m_LayerInsertIndex--;
 		}
+
+		layer->OnDetach(*this);
 	}
 
 	void LayerStack::PopOverlay(Layer* overlay)
@@ -39,6 +41,7 @@ namespace Engine {
 		auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay);
 		if (it != m_Layers.end())
 			m_Layers.erase(it);
-	}
 
+		overlay->OnDetach(*this);
+	}
 }
