@@ -6,9 +6,9 @@
 #include "Engine/Events/MouseEvent.h"
 #include "Engine/Events/KeyEvent.h"
 
-#if CB_RENDERING_API == CB_RENDERER_OPENGL
+#include "Rendering/RenderContext.h"
+
 #include <glad/glad.h>
-#endif
 
 namespace Engine {
 
@@ -19,12 +19,12 @@ namespace Engine {
 		CB_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
-	Window* Window::Create(const std::shared_ptr<RenderContextData>& contextData, const WindowProps& props)
+	Window* Window::Create(const WindowProps& props)
 	{
-		return new GLFWWindow(contextData, props);
+		return new GLFWWindow(props);
 	}
 
-	GLFWWindow::GLFWWindow(const std::shared_ptr<RenderContextData>& contextData, const WindowProps& props) : Window(contextData)
+	GLFWWindow::GLFWWindow(const WindowProps& props) : Window()
 	{
 		Init(props);
 	}
@@ -51,27 +51,31 @@ namespace Engine {
 			s_GLFWInitialized = true;
 		}
 
-#if CB_RENDERING_API == CB_RENDERER_VULKAN
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-#else
+		if (RenderContext::GetAPIType() == RenderAPI::E_VULKAN)
+		{
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		}
+		else
+		{
 #ifdef CB_PLATFORM_WINDOWS
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
 #else
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-		glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+			glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
-#endif
+		}
 
 		m_Window = glfwCreateWindow((int)m_Data.Width, (int)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
 
-#if CB_RENDERING_API == CB_RENDERER_OPENGL
-		glfwMakeContextCurrent(m_Window);
+		if (RenderContext::GetAPIType() == RenderAPI::E_OPENGL)
+		{
+			glfwMakeContextCurrent(m_Window);
 
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		CB_CORE_ASSERT(status, "Failed to initialize Glad!");
-#endif
+			int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+			CB_CORE_ASSERT(status, "Failed to initialize Glad!");
+		}
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
@@ -85,10 +89,11 @@ namespace Engine {
 		m_Data.Width = width;
 		m_Data.Height = height;
 
-#if CB_RENDERING_API == CB_RENDERER_OPENGL
-		glViewport(0, 0, (GLsizei)width, (GLsizei)height);
-		glScissor(0, 0, (GLsizei)width, (GLsizei)height);
-#endif
+		if (RenderContext::GetAPIType() == RenderAPI::E_OPENGL)
+		{
+			glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+			glScissor(0, 0, (GLsizei)width, (GLsizei)height);
+		}
 #endif
 
 		// Set GLFW callbacks
@@ -208,19 +213,21 @@ namespace Engine {
 	{
 		glfwPollEvents();
 
-#if CB_RENDERING_API == CB_RENDERER_OPENGL
-		glfwSwapBuffers(m_Window);
-#endif
+		if (RenderContext::GetAPIType() == RenderAPI::E_OPENGL)
+		{
+			glfwSwapBuffers(m_Window);
+		}
 	}
 
 	void GLFWWindow::SetVSync(bool enabled)
 	{
-#if CB_RENDERING_API == CB_RENDERER_OPENGL
-		if (enabled)
-			glfwSwapInterval(1);
-		else
-			glfwSwapInterval(0);
-#endif
+		if (RenderContext::GetAPIType() == RenderAPI::E_OPENGL)
+		{
+			if (enabled)
+				glfwSwapInterval(1);
+			else
+				glfwSwapInterval(0);
+		}
 
 		m_Data.VSync = enabled;
 	}

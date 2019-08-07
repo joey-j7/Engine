@@ -13,7 +13,7 @@ namespace Engine
 
 	public:
 		Buffer(const std::string& sName = "Unnamed Buffer");
-		virtual ~Buffer() { delete m_pData; };
+		virtual ~Buffer() { delete[] m_pData; };
 
 		virtual void Create(Data* pBuffer, const Strides& uiStrides) = 0;
 

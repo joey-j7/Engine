@@ -21,7 +21,7 @@
       <Command>IF EXIST $(TargetDir)$(TargetName)$(TargetExt)\ (xcopy /Q /E /Y /I $(TargetDir)$(TargetName)$(TargetExt) "$(SolutionDir)Builds\Launcher\$(Platform)\$(Configuration)\" &gt; nul) ELSE (xcopy /Q /Y /I $(TargetDir)$(TargetName)$(TargetExt) "$(SolutionDir)Builds\Launcher\$(Platform)\$(Configuration)\" &gt; nul)</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalLibraryDirectories>$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib\;$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

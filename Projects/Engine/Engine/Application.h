@@ -7,7 +7,6 @@
 #include "Engine/Events/Event.h"
 #include "Engine/Events/ApplicationEvent.h"
 
-#include "Engine/Layers/ImGui/ImGuiLayer.h"
 #include "Engine/Layers/World/WorldManagerLayer.h"
 
 #include "Objects/LayeredObject.h"
@@ -26,6 +25,8 @@ namespace Engine
 		RenderContext& GetRenderContext() const { return *m_RenderContext; }
 		static Application& Get() { return *s_Instance; }
 
+		WorldManagerLayer& GetWorldManager() const { return *m_WorldManagerLayer; }
+
 		void Exit() { m_bRunning = false; }
 
 	private:
@@ -36,8 +37,8 @@ namespace Engine
 		bool OnWindowClose(WindowCloseEvent& e);
 
 		std::shared_ptr<RenderContext> m_RenderContext;
+		CommandEngine* m_pScreenEngine;
 
-		ImGuiLayer* m_ImGuiLayer = nullptr;
 		WorldManagerLayer* m_WorldManagerLayer = nullptr;
 
 		std::unique_ptr<DeltaTime> m_DeltaTime;

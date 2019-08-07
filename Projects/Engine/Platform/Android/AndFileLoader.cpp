@@ -37,7 +37,7 @@ namespace Engine
 		m_WorkingDirectory[E_CONTENT] = "Content/";
 	}
 
-	char* FileLoader::Read(const std::string& filePath, Type type, bool addNull)
+	char* FileLoader::Read(const std::string& filePath, uint32_t& fileLength, Type type, bool addNull)
 	{
 		// Read apk asset
 		//if (type == E_CONTENT)
@@ -50,7 +50,7 @@ namespace Engine
 				return {};
 			}
 
-			size_t fileLength = AAsset_getLength(asset);
+			fileLength = AAsset_getLength(asset);
 
 			char* fileContent = new char[addNull ? fileLength + 1 : fileLength];
 
@@ -65,7 +65,7 @@ namespace Engine
 			return fileContent;
 		//}
 
-		return ReadStream(filePath, type, addNull);
+		return ReadStream(filePath, fileLength, type, addNull);
 	}
 
 	bool FileLoader::Exists(const std::string& filePath, Type type /*= E_CONTENT*/)

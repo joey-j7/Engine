@@ -1,22 +1,47 @@
 #include "pch.h"
-
-#include "Engine/Application.h"
 #include "RenderContext.h"
 
-#include "Engine/Events/Event.h"
+#include "Engine/Application.h"
+
+#include "Vulkan/VkRenderAPI.h"
+#include "OpenGL/GLRenderAPI.h"
 
 namespace Engine
 {
+	class VkRenderAPI;
+
+	typedef VkRenderAPI* (__stdcall* CREATEAPI)(RenderContext&);
+
+	RenderAPI::Type RenderContext::m_APIType = RenderAPI::E_VULKAN;
+
 	void RenderContext::Init()
 	{
 		if (m_Initialized)
 			return;
 
-		m_pContextData = std::make_shared<RenderContextData>();
+		m_pWindow = std::unique_ptr<Window>(Window::Create());
+		m_pWindow->SetEventCallback(std::bind(&Application::Call, &Application::Get(), std::placeholders::_1));
 
-		m_pWindow = std::unique_ptr<Window>(Window::Create(m_pContextData));
-		m_pAPI = std::unique_ptr<RenderAPI>(RenderAPI::Create(m_pContextData));
+		switch(m_APIType)
+		{
+		case RenderAPI::E_VULKAN:
+			m_pAPI = std::unique_ptr<RenderAPI>(new VkRenderAPI(*this));
+			break;
+		default:
+			m_pAPI = std::unique_ptr<RenderAPI>(new GLRenderAPI(*this));
+			break;
+		}
 
 		m_Initialized = true;
+	}
+
+	void RenderContext::SetAPIType(RenderAPI::Type type)
+	{
+		if (m_APIType == type)
+			return;
+
+		CB_CORE_ASSERT(false, "Not implemented");
+
+		m_APIType = type;
 	}
 }

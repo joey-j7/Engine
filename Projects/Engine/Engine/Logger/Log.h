@@ -3,13 +3,16 @@
 #include "Engine/Core.h"
 #include "Engine/Timer.h"
 
+#include "Engine/General/Math.h"
+
 #include <chrono>
 #include <string>
 
 #include "spdlog/spdlog.h"
 
-namespace Engine {
-	struct ScreenMessage
+namespace Engine
+{
+	struct Engine_API ScreenMessage
 	{
 		std::string Message = "";
 		Color Color;
@@ -43,6 +46,7 @@ namespace Engine {
 	{
 #ifndef CB_DIST
 		Color col = Color(1.0f);
+		static const std::string typeNames[] = { "TRACE", "INFO", "WARN", "ERROR", "FATAL" };
 
 		switch (type)
 		{
@@ -105,7 +109,7 @@ namespace Engine {
 		catch (...) {}
 
 		/* Compose and add to screen */
-		message = "[" + time + "][" + name + "] ";
+		message = "[" + time + "][" + name + "][" + typeNames[type] + "] ";
 		message += formatted.data();
 		AddScreenMessage(message, col, timer);
 

@@ -1,6 +1,8 @@
 #include <Engine.h>
 #include "Engine/Events/KeyEvent.h"
 
+#include "DebugWorld.h"
+
 class ExampleLayer : public Engine::Layer
 {
 public:
@@ -34,6 +36,7 @@ public:
 	Game()
 	{
 		PushLayer(new ExampleLayer());
+		GetWorldManager().Add(new DebugWorld());
 	}
 
 	~Game()

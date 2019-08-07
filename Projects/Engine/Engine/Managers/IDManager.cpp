@@ -23,7 +23,7 @@ namespace Engine
 		}
 
 		// Out if IDs, may never happen
-		assert(i != UINT_MAX);
+		CB_CORE_ASSERT(i != UINT_MAX, "Out of IDs!");
 
 		return uiSlot;
 	}

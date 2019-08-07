@@ -24,7 +24,7 @@ namespace Engine {
 		return("");
 	}
 
-	char* FileLoader::ReadStream(const std::string& filePath, Type type, bool addNull)
+	char* FileLoader::ReadStream(const std::string& filePath, uint32_t& length, Type type, bool addNull)
 	{
 		// Retrieve full absolute path
 		std::string path = GetPath(filePath, type);
@@ -36,7 +36,7 @@ namespace Engine {
 			std::ifstream::pos_type pos = ifs.tellg();
 
 			ifs.seekg(0, std::ios::end);
-			int length = static_cast<int>(ifs.tellg());
+			length = static_cast<uint32_t>(ifs.tellg());
 			char* result = new char[addNull ? length + 1 : length];
 
 			ifs.seekg(0, std::ios::beg);
@@ -51,7 +51,7 @@ namespace Engine {
 		}
 
 		CB_CORE_ERROR("Could not open file at path \"{0}\"!", path);
-		return {};
+		return nullptr;
 	}
 
 	// Define root as empty string

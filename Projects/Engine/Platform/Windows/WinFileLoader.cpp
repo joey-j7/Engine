@@ -20,9 +20,9 @@ namespace Engine
 		m_DefaultSeperator = "\\";
 	}
 
-	char* FileLoader::Read(const std::string& filePath, Type type, bool addNull)
+	char* FileLoader::Read(const std::string& filePath, uint32_t& length, Type type, bool addNull)
 	{
-		return ReadStream(filePath, type, addNull);
+		return ReadStream(filePath, length, type, addNull);
 	}
 
 	bool FileLoader::Exists(const std::string& filePath, Type type /*= E_CONTENT*/)

@@ -6,8 +6,10 @@
 #include "Rendering/RenderAPI.h"
 #include "Rendering/RenderContext.h"
 
-namespace Engine {
+#include "Rendering/CommandEngine.h"
 
+namespace Engine
+{
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
 	Application* Application::s_Instance = nullptr;
@@ -19,20 +21,13 @@ namespace Engine {
 
 		m_RenderContext = std::make_shared<RenderContext>();
 		m_RenderContext->Init();
-		m_RenderContext->GetWindow().SetEventCallback(BIND_EVENT_FN(Call));
+
+		m_pScreenEngine = m_RenderContext->GetAPI().GetCommandEngine("Screen");
 
 		FileLoader::Init();
 
-		/*Shader::Descriptor shaderDesc;
-		shaderDesc.Vertex = "default.vs.glsl";
-		shaderDesc.Pixel = "default.ps.glsl";*/
-		// m_RenderContext->GetAPI().GetRenderDevice().CreateShaderProgram(shaderDesc);
-
 		m_WorldManagerLayer = new WorldManagerLayer();
 		PushOverlay(m_WorldManagerLayer);
-
-		m_ImGuiLayer = new ImGuiLayer();
-		PushOverlay(m_ImGuiLayer);
 
 		m_DeltaTime = std::unique_ptr<DeltaTime>(new DeltaTime());
 	}
@@ -63,9 +58,14 @@ namespace Engine {
 	{
 		while (m_bRunning)
 		{
-			m_DeltaTime->Update();
-			m_RenderContext->GetAPI().Clear();
+			m_RenderContext->GetAPI().Swap();
 
+			// Reset rendering for new frame
+			m_pScreenEngine->Reset();
+			m_pScreenEngine->Begin();
+
+			// Retrieve delta time for logic
+			m_DeltaTime->Update();
 			const float fDeltaTime = m_DeltaTime->Get();
 
 			// Update layers
@@ -78,13 +78,14 @@ namespace Engine {
 				FixedUpdate(fFixedDeltaTime);
 			}
 
-			m_ImGuiLayer->Begin();
-			// Update layers
-			Draw(fDeltaTime);
-			m_ImGuiLayer->End();
-
 			// Update layers
 			LateUpdate(fDeltaTime);
+
+			// Draw layers
+			Draw(fDeltaTime);
+
+			m_pScreenEngine->Execute();
+			m_RenderContext->GetAPI().Present();
 
 			m_RenderContext->GetWindow().OnUpdate();
 		}
@@ -101,9 +102,6 @@ namespace Engine {
 		if (!e.IsMinimized())
 		{
 			m_RenderContext->GetWindow().Reset();
-
-			// Reset layer
-			m_ImGuiLayer->Reset(m_LayerStack);
 		}
 
 		AppPauseEvent event(e.IsMinimized());

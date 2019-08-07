@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Layers/Layer.h"
-#include "Engine/Objects/World/World.h"
+#include "Engine/Objects/Worlds/World.h"
 
 namespace Engine
 {
@@ -11,10 +11,13 @@ namespace Engine
 		WorldManagerLayer();
 		~WorldManagerLayer();
 
+		void Add(World* pWorld);
+		void Remove(World* pWorld);
+
+	private:
 		virtual void OnAttach(const LayerStack& stack) override;
 		virtual bool OnDetach(const LayerStack& stack) override;
 
-	private:
 		virtual void Update(float fDeltaTime) override;
 		virtual void FixedUpdate(float fDeltaTime) override;
 

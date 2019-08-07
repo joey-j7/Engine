@@ -7,8 +7,6 @@
 #include "Engine/Core.h"
 #include "Engine/Events/Event.h"
 
-#include "Rendering/RenderContextData.h"
-
 namespace Engine {
 
 	struct WindowProps
@@ -44,7 +42,7 @@ namespace Engine {
 			EventCallbackFn EventCallback;
 		};
 
-		Window(const std::shared_ptr<RenderContextData>& contextData) { m_ContextData = contextData; }
+		Window() {}
 		virtual ~Window() {}
 
 		virtual void OnUpdate() = 0;
@@ -61,14 +59,13 @@ namespace Engine {
 
 		virtual void* GetNativeWindow() const = 0;
 
-		static Window* Create(const std::shared_ptr<RenderContextData>& contextData, const WindowProps& props = WindowProps());
+		static Window* Create(const WindowProps& props = WindowProps());
 		virtual void Reset() = 0;
 
 	protected:
 		virtual void Shutdown() = 0;
 
 		Window::Data m_Data;
-		std::shared_ptr<RenderContextData> m_ContextData;
 	};
 
 }

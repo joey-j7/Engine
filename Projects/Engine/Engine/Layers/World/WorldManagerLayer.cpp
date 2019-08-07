@@ -18,6 +18,27 @@ namespace Engine
 		}
 	}
 
+	void WorldManagerLayer::Add(World* pWorld)
+	{
+		auto it = std::find(m_Worlds.begin(), m_Worlds.end(), pWorld);
+
+		if (it == m_Worlds.end())
+		{
+			m_Worlds.push_back(pWorld);
+		}
+	}
+
+	void WorldManagerLayer::Remove(World* pWorld)
+	{
+		auto it = std::find(m_Worlds.begin(), m_Worlds.end(), pWorld);
+
+		if (it != m_Worlds.end())
+		{
+			m_Worlds.erase(it);
+			delete pWorld;
+		}
+	}
+
 	void WorldManagerLayer::OnAttach(const LayerStack& stack)
 	{
 		Layer::OnAttach(stack);

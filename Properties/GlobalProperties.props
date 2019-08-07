@@ -6,9 +6,6 @@
     <CB_PLATFORM>Undefined</CB_PLATFORM>
     <CB_BUILD_MODE>Release</CB_BUILD_MODE>
     <CB_MAX_LOG_MESSAGES>25</CB_MAX_LOG_MESSAGES>
-    <CB_RENDERER_OPENGL>0</CB_RENDERER_OPENGL>
-    <CB_RENDERER_VULKAN>1</CB_RENDERER_VULKAN>
-    <CB_RENDERING_API>$(CB_RENDERER_VULKAN)</CB_RENDERING_API>
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>GlobalProperties</_PropertySheetDisplayName>
@@ -23,7 +20,7 @@
     <ClCompile />
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CB_NAME=$(CB_NAME);CB_MAX_LOG_MESSAGES=$(CB_MAX_LOG_MESSAGES);CB_PLATFORM=$(CB_PLATFORM);CB_RENDERER_VULKAN=$(CB_RENDERER_VULKAN);CB_RENDERER_OPENGL=$(CB_RENDERER_OPENGL);CB_RENDERING_API=$(CB_RENDERING_API);_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CB_NAME=$(CB_NAME);CB_MAX_LOG_MESSAGES=$(CB_MAX_LOG_MESSAGES);CB_PLATFORM=$(CB_PLATFORM);_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;</AdditionalIncludeDirectories>
@@ -44,15 +41,6 @@
     </BuildMacro>
     <BuildMacro Include="CB_MAX_LOG_MESSAGES">
       <Value>$(CB_MAX_LOG_MESSAGES)</Value>
-    </BuildMacro>
-    <BuildMacro Include="CB_RENDERER_OPENGL">
-      <Value>$(CB_RENDERER_OPENGL)</Value>
-    </BuildMacro>
-    <BuildMacro Include="CB_RENDERER_VULKAN">
-      <Value>$(CB_RENDERER_VULKAN)</Value>
-    </BuildMacro>
-    <BuildMacro Include="CB_RENDERING_API">
-      <Value>$(CB_RENDERING_API)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

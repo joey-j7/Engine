@@ -2,33 +2,49 @@
 
 #include <memory>
 
-#include "Engine/Resources/ResourceDatabase.h"
-#include "Rendering/RenderContextData.h"
+#include "Engine/Files/FileDatabase.h"
+#include "ShaderProgram.h"
 
 namespace Engine
 {
-	class Engine_API RenderAPI
+	class RenderContext;
+	class CommandEngine;
+
+	class Engine_API RenderAPI : public Object
 	{
 	public:
-		RenderAPI(const std::shared_ptr<RenderContextData>& contextData);
+		enum Type
+		{
+			E_NONE,
+			E_OPENGL,
+			E_VULKAN,
+			E_DIRECTX
+		};
+
+		RenderAPI(RenderContext& renderContext);
 		virtual ~RenderAPI()
 		{
-
+			m_pDatabase.reset();
 		}
 
-		virtual void Clear() = 0;
-		static RenderAPI* Create(const std::shared_ptr<RenderContextData>& contextData);
+		virtual bool Init();
 
-		virtual void Verify(int err) {};
+		virtual ShaderProgram* Create(const ShaderProgram::Descriptor& descriptor) = 0;
 
-		virtual RenderResource* Load(const std::string& filePath, FileLoader::Type pathType = FileLoader::Type::E_CONTENT);
-		virtual bool Unload(RenderResource* resource);
+		virtual RenderFile* Load(const std::string& filePath, FileLoader::Type pathType = FileLoader::Type::E_CONTENT);
+		virtual bool Unload(RenderFile* resource);
+
+		virtual void Swap() = 0;
+		virtual void Present() = 0;
+
+		virtual CommandEngine* GetCommandEngine(const std::string& sName) = 0;
+		RenderContext& GetRenderContext() const { return *m_pRenderContext; }
 
 	protected:
-		static const char* m_Name;
+		bool m_bInitialized = false;
+		RenderContext* m_pRenderContext = nullptr;
 
-		std::shared_ptr<RenderContextData> m_pContextData = nullptr;
-		std::unique_ptr<ResourceDatabase> m_pDatabase = nullptr;
+		std::unique_ptr<FileDatabase> m_pDatabase = nullptr;
 	};
 
 }

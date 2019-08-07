@@ -98,8 +98,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="$(SolutionDir)Content\**">
-	  <Link>assets\Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>assets\Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>

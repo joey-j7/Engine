@@ -9,16 +9,21 @@
 #include "examples/imgui_impl_glfw.h"
 #include <glad/glad.h>
 #elif CB_RENDERING_API == CB_RENDERER_VULKAN
-#include "examples/imgui_impl_vulkan.h"
-#include "examples/imgui_impl_glfw.h"
+//#include "examples/imgui_impl_vulkan.h"
+//#include "examples/imgui_impl_glfw.h"
 
-static ImGui_ImplVulkanH_Window m_Window;
+//#include "Rendering/Vulkan/VkRenderAPI.h"
+//#include "Rendering/Vulkan/VkCommandEngine.h"
+
 static int                      m_iMinImageCount = 2;
 #endif
 
 #include "Engine/Application.h"
 
-namespace Engine {
+namespace Engine
+{
+	VkDescriptorPool DescriptorPool = VK_NULL_HANDLE;
+	VkPipelineCache PipelineCache = VK_NULL_HANDLE;
 
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
@@ -59,7 +64,6 @@ namespace Engine {
 		Application& app = Application::Get();
 		RenderContext& renderContext = app.GetRenderContext();
 		Window& window = renderContext.GetWindow();
-		RenderContextData& contextData = renderContext.GetData();
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(window.GetNativeWindow());
 
 		// Setup Platform/RenderAPI bindings
@@ -71,99 +75,81 @@ namespace Engine {
 		ImGui_ImplOpenGL3_Init("#version 300 es");
 #endif
 #elif CB_RENDERING_API == CB_RENDERER_VULKAN
-		// Create Framebuffers
-		ImGui_ImplVulkanH_Window* wd = &m_Window;
-
-		Color clearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		memcpy(&wd->ClearValue.color.float32[0], &clearColor, 4 * sizeof(float));
-
-		glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow* window, int w, int h)
-		{	
-			RenderContext& context = Application::Get().GetRenderContext();
-			RenderContextData& contextData = context.GetData();
-
-			ImGui_ImplVulkan_SetMinImageCount(m_iMinImageCount);
-			ImGui_ImplVulkanH_CreateWindow(contextData.Instance, contextData.PhysicalDevice, contextData.Device, &m_Window, contextData.QueueFamily, contextData.Allocator, w, h, m_iMinImageCount);
-			m_Window.FrameIndex = 0;
-		});
-
-		// SetupVulkanWindowData
-		m_Window.Surface = contextData.Surface;
-
-		// Check for WSI support
-		VkBool32 res;
-
-		vkGetPhysicalDeviceSurfaceSupportKHR(contextData.PhysicalDevice, contextData.QueueFamily, m_Window.Surface, &res);
-		if (res != VK_TRUE)
+		// Create Descriptor Pool
 		{
-			fprintf(stderr, "Error no WSI support on physical device 0\n");
-			exit(-1);
+			VkDescriptorPoolSize pool_sizes[] =
+			{
+				{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+				{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+			};
+
+			VkDescriptorPoolCreateInfo pool_info = {};
+			pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+			pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+			pool_info.maxSets = 1000 * ((int)(sizeof(pool_sizes) / sizeof(*pool_sizes)));
+			pool_info.poolSizeCount = (uint32_t)((int)(sizeof(pool_sizes) / sizeof(*pool_sizes)));
+			pool_info.pPoolSizes = pool_sizes;
+			//VkResult err = vkCreateDescriptorPool(contextData.Device, &pool_info, contextData.Allocator, &DescriptorPool);
+			//VkRenderAPI::Verify(err);
 		}
 
-		// Select Surface Format
-		const VkFormat requestSurfaceImageFormat[] = { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM };
-		const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-		m_Window.SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(contextData.PhysicalDevice, m_Window.Surface, requestSurfaceImageFormat, (sizeof(requestSurfaceImageFormat) / sizeof(*requestSurfaceImageFormat)), requestSurfaceColorSpace);
-
-		// Select Present Mode (vsync on)
-		VkPresentModeKHR present_modes[1];
-		present_modes[0] = VK_PRESENT_MODE_FIFO_KHR;
-
-		// VkPresentModeKHR present_modes[] = { VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR };
-
-		m_Window.PresentMode = ImGui_ImplVulkanH_SelectPresentMode(contextData.PhysicalDevice, m_Window.Surface, &present_modes[0], (sizeof(present_modes) / sizeof(*present_modes)));
-		//printf("[vulkan] Selected PresentMode = %d\n", m_Window.PresentMode);
-
-		// Create SwapChain, RenderPass, Framebuffer, etc.
-		ImGui_ImplVulkanH_CreateWindow(contextData.Instance, contextData.PhysicalDevice, contextData.Device, &m_Window, contextData.QueueFamily, contextData.Allocator, window.GetWidth(), window.GetHeight(), m_iMinImageCount);
-
 		// Setup Platform/RenderAPI bindings
-		ImGui_ImplGlfw_InitForVulkan(glfwWindow, true);
-		ImGui_ImplVulkan_InitInfo init_info = {};
-		init_info.Instance = contextData.Instance;
-		init_info.PhysicalDevice = contextData.PhysicalDevice;
-		init_info.Device = contextData.Device;
-		init_info.QueueFamily = contextData.QueueFamily;
-		init_info.Queue = contextData.Queue;
-		init_info.PipelineCache = contextData.PipelineCache;
-		init_info.DescriptorPool = contextData.DescriptorPool;
-		init_info.Allocator = contextData.Allocator;
-		init_info.MinImageCount = m_iMinImageCount;
-		init_info.ImageCount = m_Window.ImageCount;
-		init_info.CheckVkResultFn = [](VkResult err) { Application::Get().GetRenderContext().GetAPI().Verify(err); };
-		ImGui_ImplVulkan_Init(&init_info, m_Window.RenderPass);
+		//ImGui_ImplGlfw_InitForVulkan(glfwWindow, true);
+		//ImGui_ImplVulkan_InitInfo init_info = {};
+		//init_info.Instance = contextData.Instance;
+		//init_info.PhysicalDevice = contextData.PhysicalDevice;
+		//init_info.Device = contextData.Device;
+		//init_info.QueueFamily = contextData.QueueFamily;
+		//init_info.Queue = contextData.Queue;
+		//init_info.PipelineCache = PipelineCache;
+		//init_info.DescriptorPool = DescriptorPool;
+		//init_info.Allocator = contextData.Allocator;
+		//init_info.MinImageCount = contextData.SwapchainCtx.MinImageCount;
+		//init_info.ImageCount = contextData.SwapchainCtx.Views.size();
+		//init_info.CheckVkResultFn = [](VkResult err) { VkRenderAPI::Verify(err); };
+		//ImGui_ImplVulkan_Init(&init_info, m_Window.RenderPass);
 
 		// Upload Fonts
 		{
-			RenderAPI& renderAPI = renderContext.GetAPI();
-			RenderContextData& renderData = renderContext.GetData();
+			//RenderContextData& renderData = renderContext.GetData();
+			//RenderAPI& api = renderContext.GetAPI();
+			//VkCommandEngine* pEngine = static_cast<VkCommandEngine*>(api.GetCommandEngine("Screen"));
 
-			// Use any command queue
-			VkCommandPool command_pool = wd->Frames[wd->FrameIndex].CommandPool;
-			VkCommandBuffer command_buffer = wd->Frames[wd->FrameIndex].CommandBuffer;
+			//// Use any command queue
+			//VkCommandPool command_pool = pEngine->GetCommandPool();
+			//VkCommandBuffer command_buffer = pEngine->GetCommandBuffer();
 
-			VkResult err = vkResetCommandPool(renderData.Device, command_pool, 0);
-			renderAPI.Verify(err);
-			VkCommandBufferBeginInfo begin_info = {};
-			begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			err = vkBeginCommandBuffer(command_buffer, &begin_info);
-			renderAPI.Verify(err);
+			//VkResult err = vkResetCommandPool(renderData.Device, command_pool, 0);
+			//VkRenderAPI::Verify(err);
+			//VkCommandBufferBeginInfo begin_info = {};
+			//begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			//begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			//err = vkBeginCommandBuffer(command_buffer, &begin_info);
+			//VkRenderAPI::Verify(err);
 
-			ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
+			//ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
 
-			VkSubmitInfo end_info = {};
-			end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			end_info.commandBufferCount = 1;
-			end_info.pCommandBuffers = &command_buffer;
-			err = vkEndCommandBuffer(command_buffer);
-			renderAPI.Verify(err);
-			err = vkQueueSubmit(renderData.Queue, 1, &end_info, VK_NULL_HANDLE);
-			renderAPI.Verify(err);
+			//VkSubmitInfo end_info = {};
+			//end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			//end_info.commandBufferCount = 1;
+			//end_info.pCommandBuffers = &command_buffer;
+			//err = vkEndCommandBuffer(command_buffer);
+			//VkRenderAPI::Verify(err);
+			//err = vkQueueSubmit(renderData.Queue, 1, &end_info, VK_NULL_HANDLE);
+			//VkRenderAPI::Verify(err);
 
-			err = vkDeviceWaitIdle(renderData.Device);
-			renderAPI.Verify(err);
-			ImGui_ImplVulkan_DestroyFontUploadObjects();
+			//err = vkDeviceWaitIdle(renderData.Device);
+			//VkRenderAPI::Verify(err);
+			//ImGui_ImplVulkan_DestroyFontUploadObjects();
 		}
 #endif
 
@@ -196,15 +182,11 @@ namespace Engine {
 #elif CB_RENDERING_API == CB_RENDERER_VULKAN
 
 		Application& app = Application::Get();
-		RenderContext& renderContext = app.GetRenderContext();
+		/*RenderContext& renderContext = app.GetRenderContext();
 		RenderContextData& renderData = renderContext.GetData();
-		RenderAPI& renderAPI = renderContext.GetAPI();
 
 		VkResult err = vkDeviceWaitIdle(renderData.Device);
-		renderAPI.Verify(err);
-		ImGui_ImplVulkan_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
+		VkRenderAPI::Verify(err);
 
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
@@ -212,17 +194,13 @@ namespace Engine {
 		ImGui::DestroyContext();
 
 		RenderContextData& contextData = Application::Get().GetRenderContext().GetData();
-		ImGui_ImplVulkanH_DestroyWindow(contextData.Instance, contextData.Device, &m_Window, contextData.Allocator);
-		vkDestroyDescriptorPool(contextData.Device, contextData.DescriptorPool, contextData.Allocator);
+		vkDestroyDescriptorPool(contextData.Device, DescriptorPool, contextData.Allocator);*/
 
 #ifdef CB_DEBUG
 		// Remove the debug report callback
-		auto vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(contextData.Instance, "vkDestroyDebugReportCallbackEXT");
-		vkDestroyDebugReportCallbackEXT(contextData.Instance, contextData.DebugReport, contextData.Allocator);
+		//auto vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(contextData.Instance, "vkDestroyDebugReportCallbackEXT");
+		//vkDestroyDebugReportCallbackEXT(contextData.Instance, contextData.DebugReport, contextData.Allocator);
 #endif // IMGUI_VULKAN_DEBUG_REPORT
-
-		vkDestroyDevice(contextData.Device, contextData.Allocator);
-		vkDestroyInstance(contextData.Instance, contextData.Allocator);
 #endif
 
 		return true;
@@ -231,18 +209,24 @@ namespace Engine {
 
 	void ImGuiLayer::Begin()
 	{
+		if (!IsActive())
+			return;
+
 #if CB_RENDERING_API == CB_RENDERER_OPENGL
 		ImGui_ImplOpenGL3_NewFrame();
 #elif CB_RENDERING_API == CB_RENDERER_VULKAN
-		ImGui_ImplVulkan_NewFrame();
+		//ImGui_ImplVulkan_NewFrame();
 #endif
 
-		ImGui_ImplGlfw_NewFrame();
+		//ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
 
 	void ImGuiLayer::End()
 	{
+		if (!IsActive())
+			return;
+
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
 		RenderContext& renderContext = app.GetRenderContext();
@@ -264,68 +248,33 @@ namespace Engine {
 			glfwMakeContextCurrent(backup_current_context);
 		}
 #elif CB_RENDERING_API == CB_RENDERER_VULKAN
-		RenderAPI& renderAPI = renderContext.GetAPI();
-		RenderContextData& contextData = renderContext.GetData();
+		RenderAPI& api = renderContext.GetAPI();
+		// VkCommandEngine* pCmdEngine = static_cast<VkCommandEngine*>(api.GetCommandEngine("Screen"));
 		
 		// FrameRender
-		VkResult err;
+		// pCmdEngine->Reset();
+		// pCmdEngine->Start();
 
-		VkSemaphore image_acquired_semaphore = m_Window.FrameSemaphores[m_Window.SemaphoreIndex].ImageAcquiredSemaphore;
-		VkSemaphore render_complete_semaphore = m_Window.FrameSemaphores[m_Window.SemaphoreIndex].RenderCompleteSemaphore;
-		err = vkAcquireNextImageKHR(contextData.Device, m_Window.Swapchain, UINT64_MAX, image_acquired_semaphore, VK_NULL_HANDLE, &m_Window.FrameIndex);
-		renderAPI.Verify(err);
-
-		ImGui_ImplVulkanH_Frame* fd = &m_Window.Frames[m_Window.FrameIndex];
-		{
-			err = vkWaitForFences(contextData.Device, 1, &fd->Fence, VK_TRUE, UINT64_MAX);    // wait indefinitely instead of periodically checking
-			renderAPI.Verify(err);
-
-			err = vkResetFences(contextData.Device, 1, &fd->Fence);
-			renderAPI.Verify(err);
-		}
-		{
-			err = vkResetCommandPool(contextData.Device, fd->CommandPool, 0);
-			renderAPI.Verify(err);
-			VkCommandBufferBeginInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			err = vkBeginCommandBuffer(fd->CommandBuffer, &info);
-			renderAPI.Verify(err);
-		}
-		{
+		/*{
 			VkRenderPassBeginInfo info = {};
 			info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			info.renderPass = m_Window.RenderPass;
+			info.renderPass = m_RenderPass;
 			info.framebuffer = fd->Framebuffer;
-			info.renderArea.extent.width = m_Window.Width;
-			info.renderArea.extent.height = m_Window.Height;
+			info.renderArea.extent.width = window.GetWidth();
+			info.renderArea.extent.height = window.GetHeight();
 			info.clearValueCount = 1;
 			info.pClearValues = &m_Window.ClearValue;
-			vkCmdBeginRenderPass(fd->CommandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
-		}
+			vkCmdBeginRenderPass(pCmdEngine->GetCommandBuffer(), &info, VK_SUBPASS_CONTENTS_INLINE);
+		}*/
 
 		// Record Imgui Draw Data and draw funcs into command buffer
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), fd->CommandBuffer);
+		//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), pCmdEngine->GetCommandBuffer());
+
+		// End render pass
+		//vkCmdEndRenderPass(pCmdEngine->GetCommandBuffer());
 
 		// Submit command buffer
-		vkCmdEndRenderPass(fd->CommandBuffer);
-		{
-			VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-			VkSubmitInfo info = {};
-			info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			info.waitSemaphoreCount = 1;
-			info.pWaitSemaphores = &image_acquired_semaphore;
-			info.pWaitDstStageMask = &wait_stage;
-			info.commandBufferCount = 1;
-			info.pCommandBuffers = &fd->CommandBuffer;
-			info.signalSemaphoreCount = 1;
-			info.pSignalSemaphores = &render_complete_semaphore;
-
-			err = vkEndCommandBuffer(fd->CommandBuffer);
-			renderAPI.Verify(err);
-			err = vkQueueSubmit(contextData.Queue, 1, &info, fd->Fence);
-			renderAPI.Verify(err);
-		}
+		// pCmdEngine->Execute();
 
 		// Update and Render additional Platform Windows
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -334,19 +283,7 @@ namespace Engine {
 			ImGui::RenderPlatformWindowsDefault();
 		}
 
-		// FramePresent
-		render_complete_semaphore = m_Window.FrameSemaphores[m_Window.SemaphoreIndex].RenderCompleteSemaphore;
-		VkPresentInfoKHR info = {};
-		info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		info.waitSemaphoreCount = 1;
-		info.pWaitSemaphores = &render_complete_semaphore;
-		info.swapchainCount = 1;
-		info.pSwapchains = &m_Window.Swapchain;
-		info.pImageIndices = &m_Window.FrameIndex;
-
-		err = vkQueuePresentKHR(contextData.Queue, &info);
-		renderAPI.Verify(err);
-		m_Window.SemaphoreIndex = (m_Window.SemaphoreIndex + 1) % m_Window.ImageCount; // Now we can use the next set of semaphores
+		api.Present();
 #endif
 	}
 
@@ -354,7 +291,7 @@ namespace Engine {
 	{
 		static bool opt_fullscreen_persistant = true;
 		bool opt_fullscreen = opt_fullscreen_persistant;
-		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
 
 		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 		// because it would be confusing to have two docking targets within each others.
@@ -398,7 +335,9 @@ namespace Engine {
 		}
 
 		if (ImGui::BeginMenuBar())
-		{
+		{;
+			ImGui::Text(("  " + std::to_string(DeltaTime::GetFPS())).c_str(), NULL, false);
+
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Exit", NULL, false))

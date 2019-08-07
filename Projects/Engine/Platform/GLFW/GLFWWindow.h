@@ -8,7 +8,7 @@ namespace Engine {
 	class Engine_API GLFWWindow : public Window
 	{
 	public:
-		GLFWWindow(const std::shared_ptr<RenderContextData>& contextData, const WindowProps& props);
+		GLFWWindow(const WindowProps& props);
 		virtual ~GLFWWindow();
 
 		void OnUpdate() override;
