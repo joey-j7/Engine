@@ -27,7 +27,6 @@ public:
 			CB_TRACE("Character \"{0}\" pressed!", (char)e.GetKeyCode());
 		}
 	}
-
 };
 
 class Game : public Engine::Application

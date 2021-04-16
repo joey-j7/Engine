@@ -119,7 +119,7 @@ namespace Engine
 
 #if defined(CB_DEBUG) && !defined(CB_PLATFORM_ANDROID)
 			// Enabling multiple validation layers grouped as LunarG standard validation
-			const char* layers[] = { "VK_LAYER_LUNARG_standard_validation" };
+			const char* layers[] = { "VK_LAYER_KHRONOS_validation" };
 			create_info.enabledLayerCount = 1;
 			create_info.ppEnabledLayerNames = layers;
 
