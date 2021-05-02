@@ -1,7 +1,9 @@
 #pragma once
 
-#include <string>
 #include "Engine/Core.h"
+#include <string>
+
+class Component;
 
 namespace Engine
 {

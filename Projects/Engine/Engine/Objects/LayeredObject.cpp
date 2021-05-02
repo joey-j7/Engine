@@ -59,7 +59,7 @@ namespace Engine
 
 	bool LayeredObject::Play()
 	{
-		if (!RealTimeObject::Play())
+		if (!DynamicObject::Play())
 			return false;
 
 		for (Layer* pLayer : m_LayerStack)
@@ -72,7 +72,7 @@ namespace Engine
 
 	bool LayeredObject::Pause()
 	{
-		if (!RealTimeObject::Pause())
+		if (!DynamicObject::Pause())
 			return false;
 
 		for (Layer* pLayer : m_LayerStack)
@@ -85,7 +85,7 @@ namespace Engine
 
 	bool LayeredObject::Resume()
 	{
-		if (!RealTimeObject::Resume())
+		if (!DynamicObject::Resume())
 			return false;
 
 		for (Layer* pLayer : m_LayerStack)
@@ -98,7 +98,7 @@ namespace Engine
 
 	bool LayeredObject::Stop()
 	{
-		if (!RealTimeObject::Stop())
+		if (!DynamicObject::Stop())
 			return false;
 
 		for (Layer* pLayer : m_LayerStack)

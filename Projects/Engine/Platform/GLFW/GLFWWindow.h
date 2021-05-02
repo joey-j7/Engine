@@ -16,6 +16,8 @@ namespace Engine {
 		inline unsigned int GetWidth() const override { return m_Data.Width; }
 		inline unsigned int GetHeight() const override { return m_Data.Height; }
 
+		inline float GetScale() const override { return m_Data.Scale; };
+		
 		inline void* GetWindow() override
 		{
 			return m_Window;
@@ -25,6 +27,9 @@ namespace Engine {
 		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
+		
+		void SetTrippleBuffering(bool enabled) override;
+		bool IsTrippleBuffering() const override;
 
 		inline virtual void* GetNativeWindow() const override { return m_Window; }
 		virtual void Reset() override;

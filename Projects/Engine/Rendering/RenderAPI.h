@@ -5,6 +5,8 @@
 #include "Engine/Files/FileDatabase.h"
 #include "ShaderProgram.h"
 
+#include "Renderers/2D/Renderer2D.h"
+
 namespace Engine
 {
 	class RenderContext;
@@ -24,7 +26,6 @@ namespace Engine
 		RenderAPI(RenderContext& renderContext);
 		virtual ~RenderAPI()
 		{
-			m_pDatabase.reset();
 		}
 
 		virtual bool Init();
@@ -44,7 +45,7 @@ namespace Engine
 		bool m_bInitialized = false;
 		RenderContext* m_pRenderContext = nullptr;
 
-		std::unique_ptr<FileDatabase> m_pDatabase = nullptr;
+		std::unique_ptr<Renderer2D> m_pRenderer2D;
 	};
 
 }

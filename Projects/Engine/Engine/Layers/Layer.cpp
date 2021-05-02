@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	Layer::Layer(const std::string& name) : RealTimeObject(name)
+	Layer::Layer(const std::string& name) : DynamicObject(name)
 	{
 	}
 

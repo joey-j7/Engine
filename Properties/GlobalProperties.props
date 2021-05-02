@@ -1,16 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <!-- Windows -->
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <!-- Android -->
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  
+    <!-- Windows -->
+  <PropertyGroup Label="Globals">
+    <Keyword>Win32Proj</Keyword>
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
+  </PropertyGroup>
+  <!-- Android -->
+  <PropertyGroup Condition="'$(Platform)'=='ARM'" Label="Globals">
+    <Keyword>Android</Keyword>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
+    <ApplicationType>Android</ApplicationType>
+    <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='ARM64'" Label="Globals">
+    <Keyword>Android</Keyword>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
+    <ApplicationType>Android</ApplicationType>
+    <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
+  </PropertyGroup>
+  
+
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <CB_NAME>Cubix</CB_NAME>
+    <CB_NAME>The Nest</CB_NAME>
     <CB_PLATFORM>Undefined</CB_PLATFORM>
     <CB_BUILD_MODE>Release</CB_BUILD_MODE>
     <CB_MAX_LOG_MESSAGES>25</CB_MAX_LOG_MESSAGES>
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>GlobalProperties</_PropertySheetDisplayName>
-    <OutDir>$(SolutionDir)Builds\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Builds\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</IntDir>
     <UseMultiToolTask>true</UseMultiToolTask>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -23,10 +84,12 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CB_NAME=$(CB_NAME);CB_MAX_LOG_MESSAGES=$(CB_MAX_LOG_MESSAGES);CB_PLATFORM=$(CB_PLATFORM);_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glfw\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+		$(SolutionDir)Projects\Engine;$(SolutionDir)Libraries\glfw\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\skia;$(SolutionDir)Libraries\spdlog\include;$(SolutionDir)Libraries\Glad\include;$(SolutionDir)Libraries\imgui;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)
+	  </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\PhysX\libs\$(CB_BUILD_MODE);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

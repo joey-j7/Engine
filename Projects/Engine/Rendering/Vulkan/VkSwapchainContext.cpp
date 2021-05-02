@@ -4,6 +4,7 @@
 
 #include "Rendering/RenderContext.h"
 #include "VkRenderAPI.h"
+#include "Engine/Application.h"
 
 VkSwapchainContext::~VkSwapchainContext()
 {
@@ -59,19 +60,27 @@ void VkSwapchainContext::Init(Engine::VkRenderAPI& api)
 	}
 
 	// Choose swap chain present mode
-	VkPresentModeKHR bestMode = VK_PRESENT_MODE_FIFO_KHR;
-	VkPresentModeKHR presentMode = bestMode;
+	auto& Window = Engine::Application::Get().GetRenderContext().GetWindow();
+	const bool VSync = Window.IsVSync();
+	const bool TrippleBuffering = Window.IsTrippleBuffering();
+	
+	VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
-	for (const auto& availablePresentMode : PresentModes)
+	if (!VSync || TrippleBuffering)
 	{
-		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+		for (const auto& availablePresentMode : PresentModes)
 		{
-			presentMode = availablePresentMode;
-			break;
-		}
-		else if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
-		{
-			bestMode = availablePresentMode;
+			if (!VSync && availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
+			{
+				presentMode = availablePresentMode;
+				break;
+			}
+
+			if (VSync && TrippleBuffering && availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+			{
+				presentMode = availablePresentMode;
+				break;
+			}
 		}
 	}
 
@@ -91,16 +100,18 @@ void VkSwapchainContext::Init(Engine::VkRenderAPI& api)
 		extent = actualExtent;
 	}
 
-	VkSwapchainCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface = api.Surface;
+	CreateInfo = {};
+	CreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	CreateInfo.surface = api.Surface;
 
-	createInfo.minImageCount = MinImageCount;
-	createInfo.imageFormat = surfaceFormat.format;
-	createInfo.imageColorSpace = surfaceFormat.colorSpace;
-	createInfo.imageExtent = extent;
-	createInfo.imageArrayLayers = 1;
-	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	CreateInfo.minImageCount = MinImageCount;
+	CreateInfo.imageFormat = surfaceFormat.format;
+	CreateInfo.imageColorSpace = surfaceFormat.colorSpace;
+	CreateInfo.imageExtent = extent;
+	CreateInfo.imageArrayLayers = 1;
+	CreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+		VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+		VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
 	// Find queue families
 	uint32_t graphicsFamily = UINT_MAX;
@@ -148,23 +159,23 @@ void VkSwapchainContext::Init(Engine::VkRenderAPI& api)
 
 	if (graphicsFamily != presentFamily)
 	{
-		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-		createInfo.queueFamilyIndexCount = 2;
-		createInfo.pQueueFamilyIndices = queueFamilyIndices;
+		CreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+		CreateInfo.queueFamilyIndexCount = 2;
+		CreateInfo.pQueueFamilyIndices = queueFamilyIndices;
 	}
 	else
 	{
-		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		CreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	}
 
-	createInfo.preTransform = Capabilities.currentTransform;
-	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	createInfo.presentMode = presentMode;
-	createInfo.clipped = VK_TRUE;
+	CreateInfo.preTransform = Capabilities.currentTransform;
+	CreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	CreateInfo.presentMode = presentMode;
+	CreateInfo.clipped = VK_TRUE;
 
-	createInfo.oldSwapchain = VK_NULL_HANDLE;
+	CreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	const VkResult err = vkCreateSwapchainKHR(api.Device, &createInfo, api.Allocator, &Swapchain);
+	const VkResult err = vkCreateSwapchainKHR(api.Device, &CreateInfo, api.Allocator, &Swapchain);
 	Engine::VkRenderAPI::Verify(err);
 
 	vkGetSwapchainImagesKHR(api.Device, Swapchain, &FrameCount, nullptr);
@@ -172,14 +183,13 @@ void VkSwapchainContext::Init(Engine::VkRenderAPI& api)
 	Views.resize(FrameCount);
 	vkGetSwapchainImagesKHR(api.Device, Swapchain, &FrameCount, Images.data());
 
-	ImageFormat = surfaceFormat.format;
 	Extent = extent;
 
 	// Create views
 	VkImageViewCreateInfo imageCreateInfo = {};
 	imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	imageCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	imageCreateInfo.format = ImageFormat;
+	imageCreateInfo.format = CreateInfo.imageFormat;
 	imageCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
 	imageCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
 	imageCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;

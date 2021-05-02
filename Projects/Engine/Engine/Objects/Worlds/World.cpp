@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "World.h"
 
+#include "Entities/DynamicEntity.h"
+
 namespace Engine
 {
 	World::World(const std::string& sName) : LayeredObject(sName)
@@ -10,11 +12,6 @@ namespace Engine
 
 	World::~World()
 	{
-		for (Entity* pObject : m_pObjectsToAdd)
-		{
-			delete pObject;
-		}
-
 		for (Entity* pObject : m_pObjectsToRemove)
 		{
 			delete pObject;
@@ -37,15 +34,15 @@ namespace Engine
 		m_pObjectsToRemove.clear();
 
 		// Add objects
-		for (Entity* pEntity : m_pObjectsToAdd)
+		for (DynamicEntity* pEntity : m_pObjectsToActivate)
 		{
 			pEntity->Play();
 		}
 
-		m_pObjectsToAdd.clear();
+		m_pObjectsToActivate.clear();
 
 		// Update all objects
-		for (Entity* pObject : m_pWorldObjects)
+		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
 		{
 			if (!pObject->IsActive())
 				continue;
@@ -59,7 +56,7 @@ namespace Engine
 
 	void World::FixedUpdate(float fDeltaTime)
 	{
-		for (Entity* pObject : m_pWorldObjects)
+		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
 		{
 			if (!pObject->IsActive())
 				continue;
@@ -73,7 +70,7 @@ namespace Engine
 
 	void World::Draw(float fDeltaTime)
 	{
-		for (Entity* pObject : m_pWorldObjects)
+		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
 		{
 			if (pObject->IsStopped())
 				continue;
@@ -87,7 +84,7 @@ namespace Engine
 
 	void World::LateUpdate(float fDeltaTime)
 	{
-		for (Entity* pObject : m_pWorldObjects)
+		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
 		{
 			if (!pObject->IsActive())
 				continue;
@@ -104,7 +101,7 @@ namespace Engine
 		if (!LayeredObject::Pause())
 			return false;
 
-		for (Entity* pObject : m_pWorldObjects)
+		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
 		{
 			pObject->Pause();
 		}
@@ -117,7 +114,7 @@ namespace Engine
 		if (!LayeredObject::Resume())
 			return false;
 
-		for (Entity* pObject : m_pWorldObjects)
+		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
 		{
 			pObject->Resume();
 		}
@@ -130,7 +127,7 @@ namespace Engine
 		if (!LayeredObject::Stop())
 			return false;
 
-		for (Entity* pObject : m_pWorldObjects)
+		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
 		{
 			pObject->Stop();
 		}
@@ -143,19 +140,27 @@ namespace Engine
 		if (pObject->GetWorld())
 			return;
 
-		if (std::find(m_pObjectsToAdd.begin(), m_pObjectsToAdd.end(), pObject) != m_pObjectsToAdd.end())
+		if (std::find(m_pObjectsToActivate.begin(), m_pObjectsToActivate.end(), pObject) != m_pObjectsToActivate.end())
 			return;
 
 		if (std::find(m_pWorldObjects.begin(), m_pWorldObjects.end(), pObject) != m_pWorldObjects.end())
 			return;
 
-		m_pObjectsToAdd.push_back(pObject);
 		m_pWorldObjects.push_back(pObject);
 
 		pObject->m_uiID = m_IDManager.Reserve();
 		pObject->m_pWorld = this;
 
-		pObject->Stop();
+		if (pObject->GetType() == Entity::E_DYNAMIC)
+		{
+			DynamicEntity* pDynamicObject = static_cast<DynamicEntity*>(pObject);
+			
+			m_pDynamicWorldObjects.push_back(pDynamicObject);
+			m_pObjectsToActivate.push_back(pDynamicObject);
+
+			pDynamicObject->Stop();
+		}
+		
 		pObject->Awake();
 	}
 
@@ -175,15 +180,20 @@ namespace Engine
 			m_pWorldObjects.erase(it);
 			m_pObjectsToRemove.push_back(pObject);
 
-			it = std::find(m_pObjectsToAdd.begin(), m_pObjectsToAdd.end(), pObject);
-
-			if (it != m_pObjectsToAdd.end())
+			// Remove from activation list
+			if (pObject->GetType() == Entity::E_DYNAMIC)
 			{
-				m_pObjectsToAdd.erase(it);
-				m_pObjectsToRemove.push_back(pObject);
+				const DynamicEntity* pDynamicObject = static_cast<DynamicEntity*>(pObject);
+				const auto it2 = std::find(m_pObjectsToActivate.begin(), m_pObjectsToActivate.end(), pDynamicObject);
+
+				if (it2 != m_pObjectsToActivate.end())
+				{
+					m_pObjectsToActivate.erase(it2);
+					m_pObjectsToRemove.push_back(pObject);
+				}
 			}
 
-			pObject->Destroy();
+			pObject->OnDestroy();
 		}
 
 		return bResult;

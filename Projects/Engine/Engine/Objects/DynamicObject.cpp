@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "RealTimeObject.h"
+#include "DynamicObject.h"
 
 namespace Engine
 {
-	bool RealTimeObject::Play()
+	bool DynamicObject::Play()
 	{
 		if (Resume())
 			return true;
@@ -16,7 +16,7 @@ namespace Engine
 		return true;
 	}
 
-	bool RealTimeObject::Pause()
+	bool DynamicObject::Pause()
 	{
 		if (m_State != PLAYING)
 			return false;
@@ -26,7 +26,7 @@ namespace Engine
 		return true;
 	}
 
-	bool RealTimeObject::Resume()
+	bool DynamicObject::Resume()
 	{
 		if (m_State == PLAYING || m_State == STOPPED)
 			return false;
@@ -35,17 +35,12 @@ namespace Engine
 		return true;
 	}
 
-	bool RealTimeObject::Stop()
+	bool DynamicObject::Stop()
 	{
 		if (m_State == STOPPED)
 			return false;
 
 		m_State = STOPPED;
 		return true;
-	}
-
-	bool RealTimeObject::Destroy()
-	{
-		return Stop();
 	}
 }

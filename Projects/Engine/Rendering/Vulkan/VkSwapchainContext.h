@@ -28,12 +28,13 @@ struct VkSwapchainContext
 	uint32_t FrameIndex = 0;
 	uint32_t SemaphoreIndex = 0;
 
-	VkFormat ImageFormat;
 	VkExtent2D Extent;
 
 	VkQueue GraphicsQueue;
 	VkQueue PresentQueue;
 
+	VkSwapchainCreateInfoKHR CreateInfo;
+	
 	VkSurfaceCapabilitiesKHR Capabilities;
 	std::vector<VkSurfaceFormatKHR> Formats;
 	std::vector<VkPresentModeKHR> PresentModes;

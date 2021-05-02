@@ -23,6 +23,8 @@ namespace Engine
 		virtual void Call(Event& e) override;
 
 		RenderContext& GetRenderContext() const { return *m_RenderContext; }
+		FileDatabase& GetFileDatabase() const { return *m_Database; }
+		
 		static Application& Get() { return *s_Instance; }
 
 		WorldManagerLayer& GetWorldManager() const { return *m_WorldManagerLayer; }
@@ -38,6 +40,8 @@ namespace Engine
 
 		std::shared_ptr<RenderContext> m_RenderContext;
 		CommandEngine* m_pScreenEngine;
+
+		std::unique_ptr<FileDatabase> m_Database = nullptr;
 
 		WorldManagerLayer* m_WorldManagerLayer = nullptr;
 

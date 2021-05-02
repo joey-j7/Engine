@@ -14,7 +14,7 @@ namespace Engine
 		CB_CORE_ASSERT(!s_Instance, "VkRenderAPI already exists!");
 		s_Instance = this;
 
-		m_pDatabase->Add<GLShaderFile>({ "vspv", "glsl" });
+		FileDatabase::Get().Add<GLShaderFile>({ "vspv", "glsl" });
 
 		m_CommandEngines.emplace("Screen", new GLCommandEngine(CommandEngine::E_DIRECT, "Screen"));
 		m_ScreenCommandEngine = m_CommandEngines["Screen"];

@@ -9,11 +9,15 @@
     <ClCompile>
       <PreprocessorDefinitions>GLFW_EXPOSE_NATIVE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
-      <AdditionalIncludeDirectories>$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+	  
+      <AdditionalIncludeDirectories>
+		$(SolutionDir)Projects\Engine;$(SolutionDir)Libraries\glfw\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\skia;$(SolutionDir)Libraries\spdlog\include;$(SolutionDir)Libraries\Glad\include;$(SolutionDir)Libraries\imgui;$(MSBuildThisFileDirectory);
+		$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)
+	  </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>vulkan;GLESv3;m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <LibraryDependencies>vulkan;EGL;GLESv3;m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Builds\ImGui\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -8,6 +8,7 @@ namespace Engine
 		static float Get() { return m_DeltaTime; }
 		static float GetFixed() { return m_FixedTimeStep; }
 
+		static double GetTime() { return m_CurrentTime; }
 		static uint32_t GetFPS() { return m_FPS; }
 
 		static bool IsFixed() { return m_bIsFixed; }

@@ -4,12 +4,23 @@
 
 namespace Engine
 {
+	FileDatabase* FileDatabase::s_Instance = nullptr;
+	
+	FileDatabase::FileDatabase()
+	{
+		CB_CORE_ASSERT(!s_Instance, "File Database already exists!");
+		s_Instance = this;
+	};
+
 	FileDatabase::~FileDatabase()
 	{
 		for (auto& manager : m_Managers)
 		{
 			delete manager.second;
 		}
+
+		if (s_Instance == this)
+			s_Instance = nullptr;
 	}
 
 	FileReference* FileDatabase::Load(const std::string& filePath, FileLoader::Type pathType)

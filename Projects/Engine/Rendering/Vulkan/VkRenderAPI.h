@@ -40,6 +40,7 @@ namespace Engine {
 		VkDebugReportCallbackEXT DebugReport = VK_NULL_HANDLE;
 		VkSurfaceKHR Surface = VK_NULL_HANDLE;
 		VkSwapchainContext SwapchainCtx;
+		VkPhysicalDeviceFeatures Features;
 
 	protected:
 		virtual bool Init() override;

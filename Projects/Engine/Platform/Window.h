@@ -37,7 +37,10 @@ namespace Engine {
 		{
 			std::string Title;
 			unsigned int Width, Height;
-			bool VSync;
+			float Scale;
+
+			bool VSync = true;
+			bool TrippleBuffering = false;
 
 			EventCallbackFn EventCallback;
 		};
@@ -50,12 +53,17 @@ namespace Engine {
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;
 
+		virtual float GetScale() const = 0;
+
 		virtual void* GetWindow() { return nullptr; }
 
 		// Window attributes
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void SetVSync(bool enabled) = 0;
 		virtual bool IsVSync() const = 0;
+
+		virtual void SetTrippleBuffering(bool enabled) = 0;
+		virtual bool IsTrippleBuffering() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
 

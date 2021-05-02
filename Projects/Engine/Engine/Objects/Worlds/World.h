@@ -1,9 +1,11 @@
 #pragma once
 
 #include <vector>
-#include "Entity.h"
 
-#include "Engine\Managers\IDManager.h"
+#include "Entities/Entity.h"
+#include "Entities/DynamicEntity.h"
+
+#include "Engine/Managers/IDManager.h"
 #include "Engine/Objects/LayeredObject.h"
 
 namespace Engine
@@ -34,8 +36,10 @@ namespace Engine
 		IDManager m_IDManager;
 
 		std::vector<Entity*> m_pWorldObjects;
+		
+		std::vector<DynamicEntity*> m_pDynamicWorldObjects;
+		std::vector<DynamicEntity*> m_pObjectsToActivate;
 
-		std::vector<Entity*> m_pObjectsToAdd;
 		std::vector<Entity*> m_pObjectsToRemove;
 	};
 }

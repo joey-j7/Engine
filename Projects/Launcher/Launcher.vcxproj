@@ -1,57 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Label="ProjectConfigurations">
-    <!-- Windows / Android -->
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Dist|Win32">
-      <Configuration>Dist</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Dist|x64">
-      <Configuration>Dist</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <!-- Android -->
-    <ProjectConfiguration Include="Debug|ARM">
-      <Configuration>Debug</Configuration>
-      <Platform>ARM</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|ARM">
-      <Configuration>Release</Configuration>
-      <Platform>ARM</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Dist|ARM">
-      <Configuration>Dist</Configuration>
-      <Platform>ARM</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|ARM64">
-      <Configuration>Debug</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|ARM64">
-      <Configuration>Release</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Dist|ARM64">
-      <Configuration>Dist</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-  </ItemGroup>
+
   <!-- Windows -->
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
@@ -79,7 +28,9 @@
     <ApplicationType>Android</ApplicationType>
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
   </PropertyGroup>
+  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  
   <!-- Windows -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -94,30 +45,16 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -129,12 +66,6 @@
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>Clang_5_0</PlatformToolset>
-    <UseOfStl>c++_static</UseOfStl>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
@@ -154,92 +85,61 @@
     <AndroidAPILevel>android-24</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-24</AndroidAPILevel>
-    <UseOfStl>c++_static</UseOfStl>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Windows.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Debug.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Launcher.props" />
+    <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Windows.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Release.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Launcher.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Windows.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Debug.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Launcher.props" />
+    <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Windows.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Release.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Launcher.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Android.props" />
-    <Import Project="..\..\Properties\Debug.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Launcher.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Android.props" />
-    <Import Project="..\..\Properties\Debug.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Launcher.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Android.props" />
-    <Import Project="..\..\Properties\Release.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Launcher.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Android.props" />
-    <Import Project="..\..\Properties\Release.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Android.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Dist.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|Win32'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Windows.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Dist.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Windows.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Dist.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">
-    <Import Project="..\..\Properties\GlobalProperties.props" />
-    <Import Project="..\..\Properties\Android.props" />
-    <Import Project="..\..\Properties\Launcher.props" />
-    <Import Project="..\..\Properties\Dist.props" />
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Launcher.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <!-- Windows
@@ -314,25 +214,10 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|Win32'">
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <ClCompile />
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <ClCompile />
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <Link />
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>$(ANDROID_NDK)\sources\android\native_app_glue;$(SolutionDir)Projects\Engine;$(SolutionDir)Libraries\spdlog\include;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <PostBuildEvent>
@@ -342,25 +227,10 @@
     <Link />
     <Link />
     <Link />
-    <Link>
-      <LibraryDependencies>VkLayer_core_validation;VkLayer_object_tracker;VkLayer_parameter_validation;VkLayer_threading;VkLayer_unique_objects;GLESv3;m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
-      <AdditionalLibraryDirectories>$(ANDROID_NDK)\sources\third_party\vulkan\src\build-android\jniLibs\arm64-v8a\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM64'">
-    <Link />
-    <ClCompile>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-    </ClCompile>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <Link />
     <Link />
     <Link>
-      <LibraryDependencies>GLESv3;m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>$(ANDROID_NDK)\platforms\android-27\arch-arm64\usr\lib;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries></IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -368,6 +238,7 @@
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\skia;$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
       <Command>
@@ -375,48 +246,39 @@
     </PostBuildEvent>
     <Link />
     <Link />
+    <Link />
     <Link>
-      <LibraryDependencies>GLESv3;m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>$(ANDROID_NDK)\platforms\android-27\arch-arm64\usr\lib;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\skia;$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
       <Command>
       </Command>
     </PostBuildEvent>
+    <Link />
     <Link>
-      <LibraryDependencies>GLESv3;m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
-      <AdditionalLibraryDirectories>$(ANDROID_NDK)\sources\third_party\vulkan\src\build-android\jniLibs\armeabi-v7a\;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|ARM'">
-    <ClCompile>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-    </ClCompile>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <Link>
-      <LibraryDependencies>m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>$(ANDROID_NDK)\platforms\android-27\arch-arm\usr\lib;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\skia;$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
       <Command>
       </Command>
     </PostBuildEvent>
+    <Link />
     <Link>
-      <LibraryDependencies>m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>$(ANDROID_NDK)\platforms\android-27\arch-arm\usr\lib;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

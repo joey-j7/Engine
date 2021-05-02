@@ -5,6 +5,7 @@
 #include "VkCommandEngine.h"
 #include "Files/VkShaderFile.h"
 
+#include "Renderers/2D/VkRenderer2D.h"
 #include "Rendering/RenderContext.h"
 
 #ifdef CB_DEBUG
@@ -27,7 +28,7 @@ namespace Engine
 
 		// m_pDatabase->Add<VkModelFile>({ "fbx", "obj", "vox" });
 		// m_pDatabase->Add<VkTextureFile>({ "png", "jpg", "bmp" });
-		m_pDatabase->Add<VkShaderFile>({ "vspv" });
+		FileDatabase::Get().Add<VkShaderFile>({ "vspv" });
 
 		Init();
 	}
@@ -37,12 +38,13 @@ namespace Engine
 		VkResult err = vkDeviceWaitIdle(Device);
 		Verify(err);
 
+		m_pRenderer2D.reset();
+		
 		for (auto& it : m_CommandEngines)
 		{
 			delete it.second;
 		}
 
-		m_pDatabase.reset();
 		SwapchainCtx.Deinit();
 
 		vkDestroySurfaceKHR(Instance, Surface, nullptr);
@@ -63,10 +65,14 @@ namespace Engine
 		);
 
 		Verify(err);
+
+		m_pRenderer2D->Swap();
 	}
 
 	void VkRenderAPI::Present()
 	{
+		m_pRenderer2D->Present();
+		
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
@@ -119,7 +125,9 @@ namespace Engine
 
 #if defined(CB_DEBUG) && !defined(CB_PLATFORM_ANDROID)
 			// Enabling multiple validation layers grouped as LunarG standard validation
-			const char* layers[] = { "VK_LAYER_KHRONOS_validation" };
+			const char* layers[] = {
+				"VK_LAYER_KHRONOS_validation"
+			};
 			create_info.enabledLayerCount = 1;
 			create_info.ppEnabledLayerNames = layers;
 
@@ -225,6 +233,15 @@ namespace Engine
 
 		m_CommandEngines.emplace("Screen", new VkCommandEngine(CommandEngine::E_DIRECT, "Screen"));
 		m_ScreenCommandEngine = m_CommandEngines["Screen"];
+
+		vkGetPhysicalDeviceFeatures(PhysicalDevice, &Features);
+		
+		/* Initialize Renderers */
+		m_pRenderer2D = std::unique_ptr<VkRenderer2D>(
+			new VkRenderer2D(*this)
+		);
+
+		m_pRenderer2D->Init();
 
 		return RenderAPI::Init();
 	}

@@ -8,7 +8,7 @@
 #include "Rendering/RenderContext.h"
 #include "Platform/Window.h"
 
-#include "../../../arch-arm/usr/include/android/asset_manager.h"
+#include <android/asset_manager.h>
 
 namespace Engine
 {

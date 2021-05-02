@@ -3,13 +3,13 @@
 #include "Engine/Core.h"
 #include "Engine/Events/Event.h"
 
-#include "Engine/Objects/RealTimeObject.h"
+#include "Engine/Objects/DynamicObject.h"
 
 namespace Engine
 {
 	class LayerStack;
 
-	class Engine_API Layer : public RealTimeObject
+	class Engine_API Layer : public DynamicObject
 	{
 		friend class LayeredObject;
 

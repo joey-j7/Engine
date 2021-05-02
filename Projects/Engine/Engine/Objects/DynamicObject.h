@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Object.h"
+#include "WorldObject.h"
 
 namespace Engine
 {
-	class Engine_API RealTimeObject : public Object
+	class Engine_API DynamicObject : public Object
 	{
 	public:
 		enum State
@@ -14,8 +14,8 @@ namespace Engine
 			STOPPED
 		};
 
-		RealTimeObject(const std::string& sName = "Unnamed Object") : Object(sName) {}
-		virtual ~RealTimeObject() { Destroy(); };
+		DynamicObject(const std::string& sName = "Unnamed Object") : Object(sName) {}
+		virtual ~DynamicObject() { };
 
 		bool IsActive() const { return m_State == PLAYING; }
 		bool IsStopped() const { return m_State == STOPPED; }
@@ -34,8 +34,6 @@ namespace Engine
 		virtual void LateUpdate(float fDeltaTime) = 0;
 
 		virtual bool Resume();
-
-		virtual bool Destroy();
 
 		State m_State = PLAYING;
 	};

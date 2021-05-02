@@ -13,15 +13,14 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Projects\Engine;$(SolutionDir)Libraries\PhysX\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\spdlog\include;$(SolutionDir)Libraries\Glad\include;$(SolutionDir)Libraries\imgui;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>CB_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <PostBuildEvent>
-      <Command>IF EXIST $(TargetDir)$(TargetName)$(TargetExt)\ (xcopy /Q /E /Y /I $(TargetDir)$(TargetName)$(TargetExt) "$(SolutionDir)Builds\Launcher\$(Platform)\$(Configuration)\" &gt; nul) ELSE (xcopy /Q /Y /I $(TargetDir)$(TargetName)$(TargetExt) "$(SolutionDir)Builds\Launcher\$(Platform)\$(Configuration)\" &gt; nul)</Command>
+      <Command>IF EXIST $(TargetDir)$(TargetName)$(TargetExt)\ (xcopy /Q /E /Y /I $(TargetDir)$(TargetName)$(TargetExt) "$(SolutionDir)Builds\Launcher\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)" &gt; nul) ELSE (xcopy /Q /Y /I $(TargetDir)$(TargetName)$(TargetExt) "$(SolutionDir)Builds\Launcher\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)" &gt; nul)</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib\;$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Builds\skia\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);$(VK_SDK_PATH)\Lib\;$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

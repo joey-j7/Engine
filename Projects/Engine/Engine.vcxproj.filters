@@ -31,7 +31,6 @@
     <ClInclude Include="Engine\Managers\IDManager.h" />
     <ClInclude Include="Rendering\RenderAPI.h" />
     <ClInclude Include="Engine\Objects\LayeredObject.h" />
-    <ClInclude Include="Engine\Objects\RealTimeObject.h" />
     <ClInclude Include="Engine\Layers\World\WorldManagerLayer.h" />
     <ClInclude Include="Engine\Files\FileDatabase.h" />
     <ClInclude Include="Engine\Files\FileManager.h" />
@@ -41,7 +40,6 @@
     <ClInclude Include="Engine\Files\Rendering\RenderFile.h" />
     <ClInclude Include="Engine\Files\Rendering\ShaderFile.h" />
     <ClInclude Include="Engine\Files\Rendering\TextureFile.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entity.h" />
     <ClInclude Include="Engine\Objects\Worlds\World.h" />
     <ClInclude Include="Rendering\Passes\RenderPass.h" />
     <ClInclude Include="Rendering\Passes\DrawPass.h" />
@@ -60,6 +58,17 @@
     <ClInclude Include="Rendering\OpenGL\Objects\GLShaderProgram.h" />
     <ClInclude Include="Rendering\OpenGL\Passes\GLDrawPass.h" />
     <ClInclude Include="Rendering\OpenGL\GLCommandEngine.h" />
+    <ClInclude Include="Engine\Files\Config\ConfigFile.h" />
+    <ClInclude Include="Rendering\Renderers\2D\UI\UIElement.h" />
+    <ClInclude Include="Rendering\Renderers\2D\Renderer2D.h" />
+    <ClInclude Include="Rendering\Vulkan\Renderers\2D\VkRenderer2D.h" />
+    <ClInclude Include="Rendering\Renderers\2D\UI\Shapes\UIRect.h" />
+    <ClInclude Include="Engine\Objects\Components\Component.h" />
+    <ClInclude Include="Engine\Objects\WorldObject.h" />
+    <ClInclude Include="Engine\Objects\DynamicObject.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\DynamicEntity.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Entity.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\StaticEntity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -79,13 +88,11 @@
     <ClCompile Include="Engine\Managers\IDManager.cpp" />
     <ClCompile Include="Rendering\RenderAPI.cpp" />
     <ClCompile Include="Engine\Layers\World\WorldManagerLayer.cpp" />
-    <ClCompile Include="Engine\Objects\RealTimeObject.cpp" />
     <ClCompile Include="Engine\Layers\LayerStack.cpp" />
     <ClCompile Include="Engine\Objects\LayeredObject.cpp" />
     <ClCompile Include="Engine\Files\FileDatabase.cpp" />
     <ClCompile Include="Engine\Files\FileManager.cpp" />
     <ClCompile Include="Engine\Files\FileReference.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\World.cpp" />
     <ClCompile Include="Rendering\Passes\RenderPass.cpp" />
     <ClCompile Include="Rendering\Passes\DrawPass.cpp" />
@@ -101,5 +108,8 @@
     <ClCompile Include="Rendering\OpenGL\Passes\GLDrawPass.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLCommandEngine.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLRenderAPI.cpp" />
+    <ClCompile Include="Rendering\Renderers\2D\Renderer2D.cpp" />
+    <ClCompile Include="Rendering\Vulkan\Renderers\2D\VkRenderer2D.cpp" />
+    <ClCompile Include="Engine\Objects\DynamicObject.cpp" />
   </ItemGroup>
 </Project>

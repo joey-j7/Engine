@@ -18,13 +18,15 @@ namespace Engine
 	{
 		CB_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
+		
+		m_Database = std::make_unique<FileDatabase>();
 
 		m_RenderContext = std::make_shared<RenderContext>();
 		m_RenderContext->Init();
 
-		m_pScreenEngine = m_RenderContext->GetAPI().GetCommandEngine("Screen");
-
 		FileLoader::Init();
+
+		m_pScreenEngine = m_RenderContext->GetAPI().GetCommandEngine("Screen");
 
 		m_WorldManagerLayer = new WorldManagerLayer();
 		PushOverlay(m_WorldManagerLayer);
@@ -56,14 +58,16 @@ namespace Engine
 
 	void Application::Run()
 	{
+		bool b = false;
+		
 		while (m_bRunning)
 		{
-			m_RenderContext->GetAPI().Swap();
+				m_RenderContext->GetAPI().Swap();
 
-			// Reset rendering for new frame
-			m_pScreenEngine->Reset();
-			m_pScreenEngine->Begin();
-
+				// Reset rendering for new frame
+				m_pScreenEngine->Reset();
+				m_pScreenEngine->Begin();
+		
 			// Retrieve delta time for logic
 			m_DeltaTime->Update();
 			const float fDeltaTime = m_DeltaTime->Get();
@@ -88,6 +92,8 @@ namespace Engine
 			m_RenderContext->GetAPI().Present();
 
 			m_RenderContext->GetWindow().OnUpdate();
+
+			b = true;
 		}
 	}
 

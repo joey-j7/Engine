@@ -19,7 +19,7 @@ namespace Engine
 	class Engine_API FileDatabase
 	{
 	public:
-		FileDatabase() { };
+		FileDatabase();
 		~FileDatabase();
 
 		template <typename T>
@@ -28,10 +28,13 @@ namespace Engine
 		template <typename T>
 		FileManager<T>* Get();
 
+		static FileDatabase& Get() { return *s_Instance; }
+
 		FileReference* Load(const std::string& filePath, FileLoader::Type pathType);
 		bool Unload(FileReference* resource);
 
 	protected:
+		static FileDatabase* s_Instance;
 		std::unordered_map<size_t, FileManagerBase*> m_Managers;
 	};
 

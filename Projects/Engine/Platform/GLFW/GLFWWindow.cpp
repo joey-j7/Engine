@@ -79,6 +79,13 @@ namespace Engine {
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
+		SetTrippleBuffering(false);
+
+		glfwGetWindowContentScale(
+			m_Window,
+			&m_Data.Scale,
+			&m_Data.Scale
+		);
 
 #ifdef CB_PLATFORM_ANDROID
 		// Resize to screen resolution
@@ -94,6 +101,8 @@ namespace Engine {
 			glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 			glScissor(0, 0, (GLsizei)width, (GLsizei)height);
 		}
+
+		m_Data.Scale /= 160.f;
 #endif
 
 		// Set GLFW callbacks
@@ -235,6 +244,16 @@ namespace Engine {
 	bool GLFWWindow::IsVSync() const
 	{
 		return m_Data.VSync;
+	}
+
+	void GLFWWindow::SetTrippleBuffering(bool enabled)
+	{
+		m_Data.TrippleBuffering = enabled;
+	}
+
+	bool GLFWWindow::IsTrippleBuffering() const
+	{
+		return m_Data.TrippleBuffering;
 	}
 
 	void GLFWWindow::Reset()

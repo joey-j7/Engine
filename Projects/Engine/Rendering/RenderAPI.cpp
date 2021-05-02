@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "RenderAPI.h"
 
+
+#include "Engine/Application.h"
 #include "Engine/Files/Rendering/ModelFile.h"
 #include "Engine/Files/Rendering/TextureFile.h"
 #include "Engine/Files/Rendering/ShaderFile.h"
@@ -10,7 +12,6 @@ namespace Engine
 	RenderAPI::RenderAPI(RenderContext& renderContext) : Object("Unknown")
 	{
 		m_pRenderContext = &renderContext;
-		m_pDatabase = std::make_unique<FileDatabase>();
 	}
 
 	bool RenderAPI::Init()
@@ -26,7 +27,7 @@ namespace Engine
 
 	RenderFile* RenderAPI::Load(const std::string& filePath, FileLoader::Type pathType)
 	{
-		if (RenderFile* p = static_cast<RenderFile*>(m_pDatabase->Load(filePath, pathType)))
+		if (RenderFile* p = static_cast<RenderFile*>(FileDatabase::Get().Load(filePath, pathType)))
 		{
 			return p;
 		}
@@ -37,6 +38,6 @@ namespace Engine
 
 	bool RenderAPI::Unload(RenderFile* resource)
 	{
-		return m_pDatabase->Unload(resource);
+		return FileDatabase::Get().Unload(resource);
 	}
 }
