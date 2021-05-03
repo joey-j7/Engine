@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
   <!-- Windows -->
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
@@ -28,9 +27,7 @@
     <ApplicationType>Android</ApplicationType>
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
   </PropertyGroup>
-  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  
   <!-- Windows -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -142,44 +139,37 @@
     <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <!-- Windows
-  <PropertyGroup>
-    <TargetName>Launcher</TargetName>
-    <TargetExt>.lib</TargetExt>
-  </PropertyGroup> -->
-  <!-- Android
-  <PropertyGroup Condition="'$(Configuration)'=='ARM'">
-    <TargetName>libLauncher</TargetName>
-    <TargetExt>.a</TargetExt>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='ARM64'">
-    <TargetName>libLauncher</TargetName>
-    <TargetExt>.a</TargetExt>
-  </PropertyGroup> -->
-  <PropertyGroup />
+  <!-- Windows Win32 -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_DEBUG);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_32);
+	  </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+		$(AdditionalDependencies)
+	  </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -190,12 +180,64 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_RELEASE);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_32);
+	  </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+		$(AdditionalDependencies)
+	  </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Windows x64 -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_DEBUG);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_64);
+	  </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+		$(AdditionalDependencies)
+	  </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -206,86 +248,150 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_RELEASE);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_64);
+	  </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+		$(AdditionalDependencies)
+	  </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <Link />
-    <ClCompile>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-    </ClCompile>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <Link />
-    <Link />
-    <Link />
-    <Link />
-    <Link>
-      <AdditionalLibraryDirectories>$(ANDROID_NDK)\platforms\android-27\arch-arm64\usr\lib;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries></IgnoreSpecificDefaultLibraries>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <Link />
-    <ClCompile>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\skia;$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <Link />
-    <Link />
-    <Link />
-    <Link>
-      <AdditionalLibraryDirectories>$(ANDROID_NDK)\platforms\android-27\arch-arm64\usr\lib;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
+  <!-- Android ARM -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <CompileAs>CompileAsCpp</CompileAs>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\skia;$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Enabled</ExceptionHandling>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_ANDROID);
+		%(AdditionalIncludeDirectories);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_DEBUG);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <Link />
     <Link>
-      <AdditionalLibraryDirectories>$(ANDROID_NDK)\platforms\android-27\arch-arm\usr\lib;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+		%(AdditionalLibraryDirectories);
+	  </AdditionalLibraryDirectories>
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+		%(LibraryDependencies);
+	  </LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <CompileAs>CompileAsCpp</CompileAs>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\skia;$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Enabled</ExceptionHandling>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_ANDROID);
+		%(AdditionalIncludeDirectories);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_REKEASE);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <Link />
     <Link>
-      <AdditionalLibraryDirectories>$(ANDROID_NDK)\platforms\android-27\arch-arm\usr\lib;$(SolutionDir)Builds\ImGui\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;%(AdditionalLibraryDirectories);$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+		%(AdditionalLibraryDirectories);
+	  </AdditionalLibraryDirectories>
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+		%(LibraryDependencies);
+	  </LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Android ARM64 -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <ExceptionHandling>Enabled</ExceptionHandling>
+      <AdditionalIncludeDirectories>
+	    $(CB_INCLUDE_PATHS_ANDROID);
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		%(AdditionalIncludeDirectories);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_DEBUG);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(CB_LIBRARY_PATHS_DEFAULT);$(CB_LIBRARY_PATHS_ANDROID);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+		%(LibraryDependencies);
+	  </LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <ExceptionHandling>Enabled</ExceptionHandling>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_ANDROID);
+		%(AdditionalIncludeDirectories);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_RELEASE);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+		%(AdditionalLibraryDirectories);
+	  </AdditionalLibraryDirectories>
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+		%(LibraryDependencies);
+	  </LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="$(ANDROID_NDK)\sources\android\native_app_glue\android_native_app_glue.c">
       <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+	  <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
+  
     <ClCompile Include="DebugWorld.cpp" />
     <ClCompile Include="Game.cpp" />
   </ItemGroup>

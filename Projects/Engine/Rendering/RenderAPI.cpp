@@ -20,6 +20,8 @@ namespace Engine
 			return false;
 
 		m_bInitialized = true;
+		m_bRunning = true;
+		
 		CB_CORE_INFO("{0} rendering API has been initialized", GetName());
 
 		return true;

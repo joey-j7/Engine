@@ -34,6 +34,8 @@ namespace Engine {
 		inline virtual void* GetNativeWindow() const override { return m_Window; }
 		virtual void Reset() override;
 
+		virtual void Wait() override;
+
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown() override;

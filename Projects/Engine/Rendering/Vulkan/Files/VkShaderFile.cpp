@@ -17,7 +17,8 @@ namespace Engine
 		createInfo.codeSize = length;
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(data);
 
-		if (vkCreateShaderModule(VkRenderAPI::Get().Device, &createInfo, nullptr, &m_ShaderModule) != VK_SUCCESS)
+		const auto res = vk(CreateShaderModule, VkRenderAPI::Get().Device, &createInfo, nullptr, &m_ShaderModule);
+		if (res != VK_SUCCESS)
 		{
 			CB_CORE_WARN("Could not create shader module");
 		}
@@ -27,6 +28,6 @@ namespace Engine
 
 	VkShaderFile::~VkShaderFile()
 	{
-		vkDestroyShaderModule(VkRenderAPI::Get().Device, m_ShaderModule, nullptr);
+		vk(DestroyShaderModule, VkRenderAPI::Get().Device, m_ShaderModule, nullptr);
 	}
 }

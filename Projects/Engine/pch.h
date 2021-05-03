@@ -28,10 +28,6 @@
 
 #include "Engine/DeltaTime.h"
 
-/* GENERAL */
-#define SK_GL
-#define SK_SUPPORT_GPU 1
-
 /* DEBUG */
 #ifdef _DEBUG
 #define SK_DEBUG
@@ -44,7 +40,6 @@
 
 #if CB_RENDERING_API == CB_RENDERER_VULKAN && !defined(GLFW_INCLUDE_VULKAN)
 #define GLFW_INCLUDE_VULKAN
-#define SK_VULKAN
 #endif
 
 #include <GLFW/glfw3.h>
@@ -52,9 +47,4 @@
 /* Windows */
 #ifdef CB_PLATFORM_WINDOWS
 	#include <Windows.h>
-#endif
-
-/* Android */
-#ifdef CB_PLATFORM_ANDROID
-#define SK_BUILD_FOR_ANDROID
 #endif

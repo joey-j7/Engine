@@ -27,6 +27,15 @@ namespace Engine
 			m_FixedTime = std::fmod(m_FixedTime, static_cast<double>(m_FixedTimeStep));
 	}
 
+	void DeltaTime::Reset()
+	{
+		m_CurrentTime = glfwGetTime();
+		m_LastTime = m_CurrentTime;
+
+		m_FrameTimer = 0;
+		m_FrameCounter = 0;
+	}
+
 	bool DeltaTime::m_bIsFixed = false;
 	double DeltaTime::m_FixedTime = 0;
 	const float DeltaTime::m_FixedTimeStep = 0.2f;

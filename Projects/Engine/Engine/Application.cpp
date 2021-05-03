@@ -58,15 +58,20 @@ namespace Engine
 
 	void Application::Run()
 	{
-		bool b = false;
-		
 		while (m_bRunning)
 		{
-				m_RenderContext->GetAPI().Swap();
+			if (m_bPaused)
+			{
+				// Wait until new events occur (for example maximize)
+				m_RenderContext->GetWindow().Wait();
+				continue;
+			}
+			
+			m_RenderContext->GetAPI().Swap();
 
-				// Reset rendering for new frame
-				m_pScreenEngine->Reset();
-				m_pScreenEngine->Begin();
+			// Reset rendering for new frame
+			m_pScreenEngine->Reset();
+			m_pScreenEngine->Begin();
 		
 			// Retrieve delta time for logic
 			m_DeltaTime->Update();
@@ -92,14 +97,23 @@ namespace Engine
 			m_RenderContext->GetAPI().Present();
 
 			m_RenderContext->GetWindow().OnUpdate();
-
-			b = true;
 		}
 	}
 
 	bool Application::OnAppPause(AppPauseEvent& e)
 	{
 		m_bPaused = e.IsPaused();
+
+		if (m_bPaused)
+		{
+			m_RenderContext->GetAPI().Suspend();
+		}
+		else
+		{
+			m_DeltaTime->Reset();
+			m_RenderContext->GetAPI().Resume();
+		}
+		
 		return true;
 	}
 

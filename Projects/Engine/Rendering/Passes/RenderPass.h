@@ -18,7 +18,7 @@ namespace Engine
 		virtual bool End();
 
 	protected:
-		std::unique_ptr<ShaderProgram> m_pShaderProgram = nullptr;
+		std::unique_ptr<ShaderProgram> m_pShaderProgram;
 		bool m_bBegun = false;
 	};
 }

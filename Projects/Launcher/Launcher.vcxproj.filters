@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="$(ANDROID_NDK)\sources\android\native_app_glue\android_native_app_glue.c" />
     <ClCompile Include="DebugWorld.cpp" />
   </ItemGroup>
   <ItemGroup>

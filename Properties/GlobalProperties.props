@@ -37,7 +37,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   
-    <!-- Windows -->
+  <!-- Windows -->
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -47,27 +47,163 @@
   <!-- Android -->
   <PropertyGroup Condition="'$(Platform)'=='ARM'" Label="Globals">
     <Keyword>Android</Keyword>
-    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
-    <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
+    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
     <ApplicationType>Android</ApplicationType>
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+    <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
+    <AndroidAPILevel>android-19</AndroidAPILevel>
+    <ShowAndroidPathsVerbosity>Low</ShowAndroidPathsVerbosity>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='ARM'">
+	<ClangTarget Condition="'$(AndroidHeaderTriple)'=='arm-linux-androideabi'">armv7a-linux-androideabi$(AndroidAPILevelNumber)</ClangTarget>
+    <ClangTarget Condition="'$(AndroidHeaderTriple)'!='arm-linux-androideabi'">$(AndroidHeaderTriple)$(AndroidAPILevelNumber)</ClangTarget>
+    <ArchiveToolExe>$(LLVMToolchainPrebuiltRoot)\bin\llvm-ar.exe</ArchiveToolExe>
+    <StripToolExe>$(LLVMToolchainPrebuiltRoot)\bin\llvm-strip.exe</StripToolExe>
+    <StlIncludeDirectories></StlIncludeDirectories>
+    <StlLibraryPath></StlLibraryPath>
+    <Sysroot>$(LLVMToolchainPrebuiltRoot)\sysroot</Sysroot>
+    <SysrootLink>$(Sysroot)</SysrootLink>
+    <ExcludePath>$(LLVMToolchainPrebuiltRoot)\bin;$(VS_NdkRoot)\toolchains\$(AndroidHeaderTriple)-4.9\prebuilt\windows-x86_64\bin;$(MSBuildBinPath);$(MSBuildFrameworkToolsPath);$(SystemRoot)</ExcludePath>    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='ARM64'" Label="Globals">
     <Keyword>Android</Keyword>
-    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
-    <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
+    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
     <ApplicationType>Android</ApplicationType>
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+    <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
+    <AndroidAPILevel>android-21</AndroidAPILevel>
+    <ShowAndroidPathsVerbosity>Low</ShowAndroidPathsVerbosity>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='ARM64'">
+    <ClangTarget Condition="'$(AndroidHeaderTriple)'=='arm-linux-androideabi'">armv7a-linux-androideabi$(AndroidAPILevelNumber)</ClangTarget>
+    <ClangTarget Condition="'$(AndroidHeaderTriple)'!='arm-linux-androideabi'">$(AndroidHeaderTriple)$(AndroidAPILevelNumber)</ClangTarget>
+    <ArchiveToolExe>$(LLVMToolchainPrebuiltRoot)\bin\llvm-ar.exe</ArchiveToolExe>
+    <StripToolExe>$(LLVMToolchainPrebuiltRoot)\bin\llvm-strip.exe</StripToolExe>
+    <StlIncludeDirectories></StlIncludeDirectories>
+    <StlLibraryPath></StlLibraryPath>
+    <Sysroot>$(LLVMToolchainPrebuiltRoot)\sysroot</Sysroot>
+    <SysrootLink>$(Sysroot)</SysrootLink>
+    <ExcludePath>$(LLVMToolchainPrebuiltRoot)\bin;$(VS_NdkRoot)\toolchains\$(AndroidHeaderTriple)-4.9\prebuilt\windows-x86_64\bin;$(MSBuildBinPath);$(MSBuildFrameworkToolsPath);$(SystemRoot)</ExcludePath>    
   </PropertyGroup>
   
-
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <CB_NAME>The Nest</CB_NAME>
     <CB_PLATFORM>Undefined</CB_PLATFORM>
     <CB_BUILD_MODE>Release</CB_BUILD_MODE>
     <CB_MAX_LOG_MESSAGES>25</CB_MAX_LOG_MESSAGES>
+	
+	<!-- Include Paths -->
+    <CB_INCLUDE_PATHS_DEFAULT>
+		$(SolutionDir)Projects\Engine;
+		$(SolutionDir)Libraries\glfw\include;
+		$(SolutionDir)Libraries\glm;
+		$(SolutionDir)Libraries\skia;
+		$(SolutionDir)Libraries\spdlog\include;
+		$(SolutionDir)Libraries\Glad\include;
+		$(SolutionDir)Libraries\imgui;
+		%(AdditionalIncludeDirectories)
+	</CB_INCLUDE_PATHS_DEFAULT>
+	
+	<CB_INCLUDE_PATHS_WINDOWS>
+		$(MSBuildThisFileDirectory);
+		$(VK_SDK_PATH)\include;
+	</CB_INCLUDE_PATHS_WINDOWS>
+	
+	<CB_INCLUDE_PATHS_ANDROID>$(LLVMToolchainPrebuiltRoot)\sysroot\usr\include\$(AndroidHeaderTriple);$(LLVMToolchainPrebuiltRoot)\lib64\clang\$(LLVMVersion)\include;$(VS_NdkRoot)\sources\android\support\include;$(LLVMToolchainPrebuiltRoot)\sysroot\usr\include;$(VS_NdkRoot)\sources\android\native_app_glue;</CB_INCLUDE_PATHS_ANDROID>
+
+	<!-- Preprocessors -->
+	<CB_PREPROCESSORS_DEFAULT>
+		CB_NAME=$(CB_NAME);
+		CB_MAX_LOG_MESSAGES=$(CB_MAX_LOG_MESSAGES);
+		SK_HAS_ANDROID_CODEC;
+		NOMINMAX;
+		SK_GAMMA_APPLY_TO_A8;
+		SK_USE_VMA;
+		SKIA_IMPLEMENTATION=1;
+		SK_GL;
+		SK_VULKAN;
+		SK_SUPPORT_GPU;
+		SK_SUPPORT_PDF;
+		SK_CODEC_DECODES_JPEG;
+		SK_ENCODE_JPEG;
+		SK_SUPPORT_XPS;
+		SK_USE_LIBGIFCODEC;
+		SK_CODEC_DECODES_PNG;
+		SK_ENCODE_PNG;
+		SK_CODEC_DECODES_WEBP;
+		SK_ENCODE_WEBP;
+	</CB_PREPROCESSORS_DEFAULT>
+	
+	<CB_PREPROCESSORS_DEBUG>
+		CB_DEBUG;
+	</CB_PREPROCESSORS_DEBUG>
+	
+	<CB_PREPROCESSORS_RELEASE>
+		CB_RELEASE;
+		NDEBUG;
+	</CB_PREPROCESSORS_RELEASE>
+	
+	<CB_PREPROCESSORS_WINDOWS>
+		CB_PLATFORM_WINDOWS;
+		CB_PLATFORM=Windows;
+		_GLFW_WIN32;
+		GLFW_EXPOSE_NATIVE_WIN32;
+		WIN32_LEAN_AND_MEAN;
+		_HAS_EXCEPTIONS=0;
+		_CRT_SECURE_NO_WARNINGS;
+		_WINDLL;
+		_MBCS;
+	</CB_PREPROCESSORS_WINDOWS>
+	
+	<CB_PREPROCESSORS_ANDROID>
+		CB_PLATFORM_ANDROID;
+		CB_PLATFORM=Android;
+		_GLFW_ANDROID;
+		GLFW_EXPOSE_NATIVE_ANDROID;
+		SK_BUILD_FOR_ANDROID;
+	</CB_PREPROCESSORS_ANDROID>
+	
+	<CB_PREPROCESSORS_LIBRARY>
+	    CB_BUILD_DLL;
+	</CB_PREPROCESSORS_LIBRARY>
+	
+	<!-- Library Paths -->
+    <CB_LIBRARY_PATHS_DEFAULT>
+	    $(SolutionDir)Builds\skia\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);
+		$(SolutionDir)Builds\GLFW\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);
+		$(SolutionDir)Builds\Glad\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);
+	</CB_LIBRARY_PATHS_DEFAULT>
+
+	<CB_LIBRARY_PATHS_WINDOWS>
+	</CB_LIBRARY_PATHS_WINDOWS>
+
+	<CB_LIBRARY_PATHS_WINDOWS_32>
+	    $(VK_SDK_PATH)\Lib32\;
+	</CB_LIBRARY_PATHS_WINDOWS_32>
+		
+	<CB_LIBRARY_PATHS_WINDOWS_64>
+	    $(VK_SDK_PATH)\Lib\;
+	</CB_LIBRARY_PATHS_WINDOWS_64>
+	
+	<CB_LIBRARY_PATHS_ANDROID>
+		$(Sysroot)\usr\lib\$(AndroidHeaderTriple);
+		$(Sysroot)\usr\lib\$(AndroidHeaderTriple)\$(AndroidAPILevelNumber);
+		$(LLVMToolchainPrebuiltRoot)\sysroot\usr\lib\$(AndroidHeaderTriple)\$(AndroidAPILevelNumber);
+		<!-- $(Sysroot)\usr\lib; -->
+		<!-- $(VS_NdkRoot)\platforms\android-27\arch-arm\usr\lib; -->
+		<!-- $(ToolchainPrebuiltPath)\lib\gcc\$(AndroidHeaderTriple)\$(ToolchainFullVersionName); -->
+		<!-- $(StlLibraryPath); -->
+	</CB_LIBRARY_PATHS_ANDROID>
+	
+	<!-- Libraries -->
+	<CB_LIBRARIES_WINDOWS>skia.lib;vulkan-1.lib;opengl32.lib</CB_LIBRARIES_WINDOWS>
+	<CB_LIBRARIES_ANDROID>skia;GLFW;Glad;GLESv3;m;EGL;$(StlLibraryName)</CB_LIBRARIES_ANDROID>
+
   </PropertyGroup>
+  
   <PropertyGroup>
     <_PropertySheetDisplayName>GlobalProperties</_PropertySheetDisplayName>
     <OutDir>$(SolutionDir)Builds\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</OutDir>
@@ -81,15 +217,16 @@
     <ClCompile />
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CB_NAME=$(CB_NAME);CB_MAX_LOG_MESSAGES=$(CB_MAX_LOG_MESSAGES);CB_PLATFORM=$(CB_PLATFORM);_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CppLanguageStandard>c++1z</CppLanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>
-		$(SolutionDir)Projects\Engine;$(SolutionDir)Libraries\glfw\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\skia;$(SolutionDir)Libraries\spdlog\include;$(SolutionDir)Libraries\Glad\include;$(SolutionDir)Libraries\imgui;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)
+		$(CB_INCLUDE_PATHS_DEFAULT);
 	  </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(StlLibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARIES_DEFAULT);
+	  </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -18,6 +18,9 @@ namespace Engine {
 		virtual void Swap() override;
 		virtual void Present() override;
 
+		virtual void Suspend() override {};
+		virtual void Resume() override {};
+
 		virtual CommandEngine* GetCommandEngine(const std::string& sName) override;
 
 	private:

@@ -5,11 +5,6 @@
     <CB_BUILD_MODE>RELEASE</CB_BUILD_MODE>
   </PropertyGroup>
   <PropertyGroup />
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <PreprocessorDefinitions>CB_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="CB_BUILD_MODE">
       <Value>$(CB_BUILD_MODE)</Value>

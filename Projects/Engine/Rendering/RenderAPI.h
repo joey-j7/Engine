@@ -38,11 +38,16 @@ namespace Engine
 		virtual void Swap() = 0;
 		virtual void Present() = 0;
 
+		virtual void Suspend() = 0;
+		virtual void Resume() = 0;
+
 		virtual CommandEngine* GetCommandEngine(const std::string& sName) = 0;
 		RenderContext& GetRenderContext() const { return *m_pRenderContext; }
 
 	protected:
 		bool m_bInitialized = false;
+		bool m_bRunning = false;
+		
 		RenderContext* m_pRenderContext = nullptr;
 
 		std::unique_ptr<Renderer2D> m_pRenderer2D;

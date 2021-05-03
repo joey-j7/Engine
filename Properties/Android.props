@@ -4,22 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <CB_PLATFORM>Android</CB_PLATFORM>
   </PropertyGroup>
-  <PropertyGroup />
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <PreprocessorDefinitions>GLFW_EXPOSE_NATIVE_ANDROID;CB_PLATFORM_ANDROID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Enabled</ExceptionHandling>
-	  
-      <AdditionalIncludeDirectories>
-		$(SolutionDir)Projects\Engine;$(SolutionDir)Libraries\glfw\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\skia;$(SolutionDir)Libraries\spdlog\include;$(SolutionDir)Libraries\Glad\include;$(SolutionDir)Libraries\imgui;$(MSBuildThisFileDirectory);
-		$(Sysroot)\usr\include;$(ANDROID_NDK)\sources\android\native_app_glue;$(StlIncludeDirectories);%(AdditionalIncludeDirectories)
-	  </AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <LibraryDependencies>vulkan;EGL;GLESv3;m;$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Builds\ImGui\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);$(SolutionDir)Builds\GLFW\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);$(SolutionDir)Builds\Glad\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);$(SolutionDir)Builds\Cubix\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration);$(Sysroot)\usr\lib;$(ToolchainPrebuiltPath)\lib\gcc\$(ToolchainName)\$(ToolchainFullVersionName);</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
+  
   <ItemGroup>
     <BuildMacro Include="CB_PLATFORM">
       <Value>$(CB_PLATFORM)</Value>

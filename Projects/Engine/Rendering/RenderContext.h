@@ -10,18 +10,18 @@ namespace Engine
 	public:
 		void Init();
 
+		Window& GetWindow() const { return *m_pWindow; };
+		
 		// Upload
 		void Upload(const std::string& m_FilePath);
 		RenderAPI& GetAPI() const { return *m_pAPI; };
-
-		Window& GetWindow() const { return *m_pWindow; };
 
 		static RenderAPI::Type GetAPIType() { return m_APIType; }
 		void SetAPIType(RenderAPI::Type type);
 
 	private:
-		std::unique_ptr<RenderAPI> m_pAPI;
 		std::unique_ptr<Window> m_pWindow;
+		std::unique_ptr<RenderAPI> m_pAPI;
 
 		static RenderAPI::Type m_APIType;
 

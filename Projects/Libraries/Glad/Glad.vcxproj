@@ -151,38 +151,44 @@
     <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <!-- Windows
-  <PropertyGroup>
-    <TargetName>Glad</TargetName>
-    <TargetExt>.lib</TargetExt>
-  </PropertyGroup> -->
-  <!-- Android
-  <PropertyGroup Condition="'$(Configuration)'=='ARM'">
-    <TargetName>libGlad</TargetName>
-    <TargetExt>.a</TargetExt>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='ARM64'">
-    <TargetName>libGlad</TargetName>
-    <TargetExt>.a</TargetExt>
-  </PropertyGroup> -->
-  <PropertyGroup />
+
+   <!-- Windows Win32 -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glad\include;</AdditionalIncludeDirectories>
+	  
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+	  
+	  <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_DEBUG);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glad\include;</AdditionalIncludeDirectories>
-    </ClCompile>
+	
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+	  
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_32);
+	  </AdditionalLibraryDirectories>
+	  
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+	  </AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -192,11 +198,75 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glad\include;</AdditionalIncludeDirectories>
+	  
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+	  
+	  <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_RELEASE);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
+	
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+	  
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_32);
+	  </AdditionalLibraryDirectories>
+	  
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+	  </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  
+   <!-- Windows x64 -->
+    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+	  
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+	  
+	  <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_DEBUG);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+	
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+	  
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_64);
+	  </AdditionalLibraryDirectories>
+	  
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+	  </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -207,33 +277,165 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glad\include;</AdditionalIncludeDirectories>
+	  
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+	  
+	  <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_RELEASE);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
+	
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+	  
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_64);
+	  </AdditionalLibraryDirectories>
+	  
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+	  </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  
+   <!-- Android ARM -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glad\include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+	  
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_ANDROID);
+		$(StlIncludeDirectories);
+		%(AdditionalIncludeDirectories);
+	  </AdditionalIncludeDirectories>
+	  
+	  <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_DEBUG);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
+	
+    <Link>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+	  </AdditionalLibraryDirectories>
+	
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+	  </LibraryDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glad\include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+	  
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_ANDROID);
+		$(StlIncludeDirectories);
+		%(AdditionalIncludeDirectories);
+	  </AdditionalIncludeDirectories>
+	  
+	  <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_RELEASE);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
+	
+    <Link>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+	  </AdditionalLibraryDirectories>
+	  
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+	  </LibraryDependencies>
+    </Link>
   </ItemDefinitionGroup>
+  
+   <!-- Android ARM64 -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glad\include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+	  
+      <AdditionalIncludeDirectories>
+	    $(CB_INCLUDE_PATHS_ANDROID);
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		%(AdditionalIncludeDirectories);
+	  </AdditionalIncludeDirectories>
+	  
+	  <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_DEBUG);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
+	
+    <Link>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+	  </AdditionalLibraryDirectories>
+	  
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+	  )</LibraryDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\glad\include;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+	  
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_ANDROID);
+		$(StlIncludeDirectories);
+		%(AdditionalIncludeDirectories);
+	  </AdditionalIncludeDirectories>
+	  
+	  <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_RELEASE);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+	  </AdditionalLibraryDirectories>
+	  
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+	  </LibraryDependencies>
+    </Link>
   </ItemDefinitionGroup>
+  
   <ItemGroup>
     <ClInclude Include="$(SolutionDir)Libraries\glad\include\glad\glad.h" />
     <ClInclude Include="$(SolutionDir)Libraries\glad\include\KHR\khrplatform.h" />

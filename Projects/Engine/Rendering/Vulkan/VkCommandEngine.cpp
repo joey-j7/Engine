@@ -21,10 +21,10 @@ namespace Engine
 		uint32_t presentFamily = UINT_MAX;
 
 		uint32_t queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(api.PhysicalDevice, &queueFamilyCount, nullptr);
+		vk(GetPhysicalDeviceQueueFamilyProperties, api.PhysicalDevice, &queueFamilyCount, nullptr);
 
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(api.PhysicalDevice, &queueFamilyCount, queueFamilies.data());
+		vk(GetPhysicalDeviceQueueFamilyProperties, api.PhysicalDevice, &queueFamilyCount, queueFamilies.data());
 
 		int i = 0;
 		for (const auto& queueFamily : queueFamilies)
@@ -35,7 +35,7 @@ namespace Engine
 			}
 
 			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(api.PhysicalDevice, i, api.Surface, &presentSupport);
+			vk(GetPhysicalDeviceSurfaceSupportKHR, api.PhysicalDevice, i, api.Surface, &presentSupport);
 
 			if (queueFamily.queueCount > 0 && presentSupport)
 			{
@@ -75,27 +75,27 @@ namespace Engine
 		m_RenderCompleteSemaphores.resize(uiFrameCount);
 		m_Fences.resize(uiFrameCount);
 
-		VkResult err = vkCreateCommandPool(api.Device, &poolInfo, nullptr, &m_CommandPool);
+		VkResult err = vk(CreateCommandPool, api.Device, &poolInfo, nullptr, &m_CommandPool);
 		VkRenderAPI::Verify(err);
 
 		for (uint32_t i = 0; i < uiFrameCount; ++i)
 		{
 			allocInfo.commandPool = m_CommandPool;
 
-			err = vkAllocateCommandBuffers(api.Device, &allocInfo, &m_CommandBuffers[i]);
+			err = vk(AllocateCommandBuffers, api.Device, &allocInfo, &m_CommandBuffers[i]);
 			VkRenderAPI::Verify(err);
 		}
 
 		for (uint32_t i = 0; i < uiFrameCount; ++i)
 		{
-			err = vkCreateSemaphore(api.Device, &semaphoreInfo, nullptr, &m_ImageAcquiredSemaphores[i]);
+			err = vk(CreateSemaphore, api.Device, &semaphoreInfo, nullptr, &m_ImageAcquiredSemaphores[i]);
 			VkRenderAPI::Verify(err);
 
-			err = vkCreateSemaphore(api.Device, &semaphoreInfo, nullptr, &m_RenderCompleteSemaphores[i]);
+			err = vk(CreateSemaphore, api.Device, &semaphoreInfo, nullptr, &m_RenderCompleteSemaphores[i]);
 			VkRenderAPI::Verify(err);
 
 			/* Create the fence used to sync command buffer completion */
-			err = vkCreateFence(api.Device, &fenceInfo, nullptr, &m_Fences[i]);
+			err = vk(CreateFence, api.Device, &fenceInfo, nullptr, &m_Fences[i]);
 			VkRenderAPI::Verify(err);
 		}
 	}
@@ -110,13 +110,13 @@ namespace Engine
 
 		for (uint32_t i = 0; i < api.SwapchainCtx.FrameCount; ++i)
 		{
-			vkDestroyFence(api.Device, m_Fences[i], nullptr);
+			vk(DestroyFence, api.Device, m_Fences[i], nullptr);
 
-			vkDestroySemaphore(api.Device, m_RenderCompleteSemaphores[i], nullptr);
-			vkDestroySemaphore(api.Device, m_ImageAcquiredSemaphores[i], nullptr);
+			vk(DestroySemaphore, api.Device, m_RenderCompleteSemaphores[i], nullptr);
+			vk(DestroySemaphore, api.Device, m_ImageAcquiredSemaphores[i], nullptr);
 		}
 
-		vkDestroyCommandPool(api.Device, m_CommandPool, nullptr);
+		vk(DestroyCommandPool, api.Device, m_CommandPool, nullptr);
 	}
 
 	void VkCommandEngine::Reset()
@@ -131,10 +131,10 @@ namespace Engine
 		// Command list allocators can only be reset when the associated 
 		// command lists have finished execution on the GPU; apps should use 
 		// fences to determine GPU execution progress.
-		VkResult err = vkResetFences(api.Device, 1, &GetFence());
+		VkResult err = vk(ResetFences, api.Device, 1, &GetFence());
 		VkRenderAPI::Verify(err);
 
-		err = vkResetCommandPool(api.Device, GetCommandPool(), 0);
+		err = vk(ResetCommandPool, api.Device, GetCommandPool(), 0);
 		VkRenderAPI::Verify(err);
 	}
 
@@ -147,7 +147,7 @@ namespace Engine
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-		const VkResult err = vkBeginCommandBuffer(GetCommandBuffer(), &beginInfo);
+		const VkResult err = vk(BeginCommandBuffer, GetCommandBuffer(), &beginInfo);
 		VkRenderAPI::Verify(err);
 	}
 
@@ -157,7 +157,7 @@ namespace Engine
 		m_State = E_EXECUTING;
 
 		// Close buffer
-		VkResult err = vkEndCommandBuffer(GetCommandBuffer());
+		VkResult err = vk(EndCommandBuffer, GetCommandBuffer());
 		VkRenderAPI::Verify(err);
 
 		// Execute
@@ -181,13 +181,13 @@ namespace Engine
 		// Signal
 		Signal();
 
-		err = vkQueueSubmit(VkRenderAPI::Get().SwapchainCtx.GraphicsQueue, 1, &submitInfo, GetFence());
+		err = vk(QueueSubmit, VkRenderAPI::Get().SwapchainCtx.GraphicsQueue, 1, &submitInfo, GetFence());
 		VkRenderAPI::Verify(err);
 	}
 
 	void VkCommandEngine::WaitForGPU()
 	{
-		vkWaitForFences(VkRenderAPI::Get().Device, 1, &GetFence(), VK_TRUE, std::numeric_limits<uint64_t>::max());
+		vk(WaitForFences, VkRenderAPI::Get().Device, 1, &GetFence(), VK_TRUE, std::numeric_limits<uint64_t>::max());
 		m_State = E_IDLE;
 	}
 
@@ -228,7 +228,7 @@ namespace Engine
 	//		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 	//		m_Fences.emplace_back();
-	//		VkResult err = vkCreateFence(m_pContextData->Device, &fenceInfo, nullptr, &m_Fences.back());
+	//		VkResult err = vk(CreateFence, m_pContextData->Device, &fenceInfo, nullptr, &m_Fences.back());
 	//		VkRenderAPI::Verify(err);
 	//	}
 	//}

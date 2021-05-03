@@ -14,6 +14,7 @@ namespace Engine
 		static bool IsFixed() { return m_bIsFixed; }
 
 		void Update();
+		void Reset();
 
 	private:
 		static bool m_bIsFixed;

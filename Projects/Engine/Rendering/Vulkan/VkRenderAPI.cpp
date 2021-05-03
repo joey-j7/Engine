@@ -35,7 +35,7 @@ namespace Engine
 
 	VkRenderAPI::~VkRenderAPI()
 	{
-		VkResult err = vkDeviceWaitIdle(Device);
+		VkResult err = vk(DeviceWaitIdle, Device);
 		Verify(err);
 
 		m_pRenderer2D.reset();
@@ -47,15 +47,15 @@ namespace Engine
 
 		SwapchainCtx.Deinit();
 
-		vkDestroySurfaceKHR(Instance, Surface, nullptr);
+		vk(DestroySurfaceKHR, Instance, Surface, nullptr);
 
-		vkDestroyDevice(Device, Allocator);
-		vkDestroyInstance(Instance, Allocator);
+		vk(DestroyDevice, Device, Allocator);
+		vk(DestroyInstance, Instance, Allocator);
 	}
 
 	void VkRenderAPI::Swap()
 	{
-		VkResult err = vkAcquireNextImageKHR(
+		VkResult err = vk(AcquireNextImageKHR, 
 			Device,
 			SwapchainCtx.Swapchain,
 			std::numeric_limits<uint64_t>::max(),
@@ -86,9 +86,19 @@ namespace Engine
 
 		presentInfo.pImageIndices = &SwapchainCtx.FrameIndex;
 
-		vkQueuePresentKHR(SwapchainCtx.PresentQueue, &presentInfo);
+		vk(QueuePresentKHR, SwapchainCtx.PresentQueue, &presentInfo);
 
 		SwapchainCtx.SemaphoreIndex = (SwapchainCtx.SemaphoreIndex + 1) % SwapchainCtx.FrameCount;
+	}
+
+	void VkRenderAPI::Suspend()
+	{
+		
+	}
+
+	void VkRenderAPI::Resume()
+	{
+		
 	}
 
 	CommandEngine* VkRenderAPI::GetCommandEngine(const std::string& sName)
@@ -139,7 +149,9 @@ namespace Engine
 			create_info.ppEnabledExtensionNames = extensions_ext;
 
 			// Create Vulkan Instance
-			err = vkCreateInstance(&create_info, Allocator, &Instance);
+			PFN_vkCreateInstance pfnCreateInstance = (PFN_vkCreateInstance)glfwGetInstanceProcAddress(NULL, "vkCreateInstance");
+			err = pfnCreateInstance(&create_info, Allocator, &Instance);
+			
 			Verify(err);
 			free(extensions_ext);
 
@@ -153,23 +165,27 @@ namespace Engine
 			debug_report_ci.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
 			debug_report_ci.pfnCallback = debug_report;
 			debug_report_ci.pUserData = NULL;
-			err = vkCreateDebugReportCallbackEXT(Instance, &debug_report_ci, Allocator, &DebugReport);
+
+			// err = ((PFN_vkCreateDebugReportCallbackEXT)glfwGetInstanceProcAddress(VkRenderAPI::Get().Instance, "vkRCreateDebugReportCallbackEXT"))(Instance, &debug_report_ci, Allocator, & DebugReport);
+			err = vk(CreateDebugReportCallbackEXT, Instance, &debug_report_ci, Allocator, &DebugReport);
 			Verify(err);
 #else
-			// Create Vulkan Instance without any debug feature
-			err = vkCreateInstance(&create_info, Allocator, &Instance);
+			// Create Vulkan Instance
+			PFN_vkCreateInstance pfnCreateInstance = (PFN_vkCreateInstance)glfwGetInstanceProcAddress(NULL, "vkCreateInstance");
+			err = pfnCreateInstance(&create_info, Allocator, &Instance);
+
 			Verify(err);
 #endif
 		}
 
 		// Select GPU
 		{
-			uint32_t gpu_count;
-			err = vkEnumeratePhysicalDevices(Instance, &gpu_count, NULL);
+			uint32_t gpu_count = 0;
+			err = vk(EnumeratePhysicalDevices, Instance, &gpu_count, NULL);
 			Verify(err);
 
 			VkPhysicalDevice* gpus = (VkPhysicalDevice*)malloc(sizeof(VkPhysicalDevice) * gpu_count);
-			err = vkEnumeratePhysicalDevices(Instance, &gpu_count, gpus);
+			err = vk(EnumeratePhysicalDevices, Instance, &gpu_count, gpus);
 			Verify(err);
 
 			// If a number >1 of GPUs got reported, you should find the best fit GPU for your purpose
@@ -182,9 +198,9 @@ namespace Engine
 		// Select graphics queue family
 		{
 			uint32_t count;
-			vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, &count, NULL);
+			vk(GetPhysicalDeviceQueueFamilyProperties, PhysicalDevice, &count, NULL);
 			VkQueueFamilyProperties* queues = (VkQueueFamilyProperties*)malloc(sizeof(VkQueueFamilyProperties) * count);
-			vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, &count, queues);
+			vk(GetPhysicalDeviceQueueFamilyProperties, PhysicalDevice, &count, queues);
 			for (uint32_t i = 0; i < count; i++)
 				if (queues[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 				{
@@ -211,9 +227,9 @@ namespace Engine
 			create_info.pQueueCreateInfos = queue_info;
 			create_info.enabledExtensionCount = device_extension_count;
 			create_info.ppEnabledExtensionNames = device_extensions;
-			err = vkCreateDevice(PhysicalDevice, &create_info, Allocator, &Device);
+			err = vk(CreateDevice, PhysicalDevice, &create_info, Allocator, &Device);
 			Verify(err);
-			vkGetDeviceQueue(Device, QueueFamily, 0, &Queue);
+			vk(GetDeviceQueue, Device, QueueFamily, 0, &Queue);
 		}
 
 		/* Create Window Surface */
@@ -234,7 +250,7 @@ namespace Engine
 		m_CommandEngines.emplace("Screen", new VkCommandEngine(CommandEngine::E_DIRECT, "Screen"));
 		m_ScreenCommandEngine = m_CommandEngines["Screen"];
 
-		vkGetPhysicalDeviceFeatures(PhysicalDevice, &Features);
+		vk(GetPhysicalDeviceFeatures, PhysicalDevice, &Features);
 		
 		/* Initialize Renderers */
 		m_pRenderer2D = std::unique_ptr<VkRenderer2D>(

@@ -42,7 +42,8 @@ namespace Engine
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
 
-		if (vkCreateRenderPass(api.Device, &renderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS) {
+		auto res = vk(CreateRenderPass, api.Device, &renderPassInfo, nullptr, &m_RenderPass);
+		if (res != VK_SUCCESS) {
 			throw std::runtime_error("failed to create render pass!");
 		}
 
@@ -62,7 +63,8 @@ namespace Engine
 		pipelineLayoutInfo.setLayoutCount = 0;
 		pipelineLayoutInfo.pushConstantRangeCount = 0;
 
-		if (vkCreatePipelineLayout(api.Device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) {
+		res = vk(CreatePipelineLayout, api.Device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
+		if (res != VK_SUCCESS) {
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 
@@ -130,8 +132,8 @@ namespace Engine
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-		VkResult err = vkCreateGraphicsPipelines(api.Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
-		VkRenderAPI::Verify(err);
+		res = vk(CreateGraphicsPipelines, api.Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_Pipeline);
+		VkRenderAPI::Verify(res);
 
 		/* Setup RenderPass Swap Info */
 		m_RenderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -161,8 +163,8 @@ namespace Engine
 			framebufferInfo.height = api.SwapchainCtx.Extent.height;
 			framebufferInfo.layers = 1;
 
-			err = vkCreateFramebuffer(api.Device, &framebufferInfo, nullptr, &m_Framebuffers[i]);
-			api.Verify(err);
+			res = vk(CreateFramebuffer, api.Device, &framebufferInfo, nullptr, &m_Framebuffers[i]);
+			api.Verify(res);
 		}
 	}
 
@@ -170,13 +172,13 @@ namespace Engine
 	{
 		VkRenderAPI& api = VkRenderAPI::Get();
 
-		vkDestroyPipeline(api.Device, m_Pipeline, nullptr);
-		vkDestroyPipelineLayout(api.Device, m_PipelineLayout, nullptr);
-		vkDestroyRenderPass(api.Device, m_RenderPass, nullptr);
+		vk(DestroyPipeline, api.Device, m_Pipeline, nullptr);
+		vk(DestroyPipelineLayout, api.Device, m_PipelineLayout, nullptr);
+		vk(DestroyRenderPass, api.Device, m_RenderPass, nullptr);
 
 		for (auto& framebuffer : m_Framebuffers)
 		{
-			vkDestroyFramebuffer(api.Device, framebuffer, nullptr);
+			vk(DestroyFramebuffer, api.Device, framebuffer, nullptr);
 		}
 	}
 
@@ -194,7 +196,7 @@ namespace Engine
 		const VkCommandBuffer& commandBuffer = m_pCommandEngine->GetCommandBuffer();
 
 		m_RenderPassBeginInfo.framebuffer = m_Framebuffers[VkRenderAPI::Get().SwapchainCtx.FrameIndex];
-		vkCmdBeginRenderPass(commandBuffer, &m_RenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vk(CmdBeginRenderPass, commandBuffer, &m_RenderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		return true;
 	}
@@ -206,8 +208,8 @@ namespace Engine
 
 		const VkCommandBuffer& commandBuffer = m_pCommandEngine->GetCommandBuffer();
 
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
-		vkCmdDraw(commandBuffer, m_uiVertexCount, m_uiInstanceCount, 0, 0);
+		vk(CmdBindPipeline, commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Pipeline);
+		vk(CmdDraw, commandBuffer, m_uiVertexCount, m_uiInstanceCount, 0, 0);
 
 		return true;
 	}
@@ -218,7 +220,7 @@ namespace Engine
 			return false;
 
 		const VkCommandBuffer& commandBuffer = m_pCommandEngine->GetCommandBuffer();
-		vkCmdEndRenderPass(commandBuffer);
+		vk(CmdEndRenderPass, commandBuffer);
 
 		return true;
 	}

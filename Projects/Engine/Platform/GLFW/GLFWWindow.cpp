@@ -36,6 +36,10 @@ namespace Engine {
 
 	void GLFWWindow::Init(const WindowProps& props)
 	{
+		/* Don't recreate */
+		if (m_Window)
+			return;
+		
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
@@ -108,7 +112,12 @@ namespace Engine {
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 		{
+			// Identified as a minimize event, not necessary
+			if (width == 0 || height == 0)
+				return;
+
 			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
+
 			data.Width = width;
 			data.Height = height;
 
@@ -258,7 +267,11 @@ namespace Engine {
 
 	void GLFWWindow::Reset()
 	{
-		Init(WindowProps(m_Data.Title, m_Data.Width, m_Data.Height));
+		/* Not necessary */
 	}
 
+	void GLFWWindow::Wait()
+	{
+		glfwWaitEvents();
+	}
 }

@@ -70,6 +70,8 @@ namespace Engine {
 		static Window* Create(const WindowProps& props = WindowProps());
 		virtual void Reset() = 0;
 
+		virtual void Wait() = 0;
+
 	protected:
 		virtual void Shutdown() = 0;
 

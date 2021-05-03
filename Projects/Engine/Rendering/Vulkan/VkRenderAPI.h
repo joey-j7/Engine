@@ -10,6 +10,8 @@
 namespace Engine {
 	class VkCommandEngine;
 
+#define vk(_vkName, ...) ((PFN_vk##_vkName)glfwGetInstanceProcAddress(VkRenderAPI::Get().Instance, "vk" #_vkName))(__VA_ARGS__);
+
 	class Engine_API VkRenderAPI : public RenderAPI
 	{
 	public:
@@ -28,6 +30,9 @@ namespace Engine {
 
 		virtual void Swap() override;
 		virtual void Present() override;
+
+		virtual void Suspend() override;
+		virtual void Resume() override;
 
 		virtual CommandEngine* GetCommandEngine(const std::string& sName) override;
 

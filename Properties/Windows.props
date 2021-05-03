@@ -4,16 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <CB_PLATFORM>Windows</CB_PLATFORM>
   </PropertyGroup>
-  <PropertyGroup />
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <PreprocessorDefinitions>CB_PLATFORM_WINDOWS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>
-		$(SolutionDir)Projects\Engine;$(SolutionDir)Libraries\glfw\include;$(SolutionDir)Libraries\glm;$(SolutionDir)Libraries\skia;$(SolutionDir)Libraries\spdlog\include;$(SolutionDir)Libraries\Glad\include;$(SolutionDir)Libraries\imgui;$(MSBuildThisFileDirectory);
-		$(VK_SDK_PATH)\include;%(AdditionalIncludeDirectories)
-	  </AdditionalIncludeDirectories>
-    </ClCompile>
-  </ItemDefinitionGroup>
+    
   <ItemGroup>
     <BuildMacro Include="CB_PLATFORM">
       <Value>$(CB_PLATFORM)</Value>

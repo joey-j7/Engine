@@ -48,10 +48,10 @@ namespace Engine
 		m_Canvas->scale(scale, scale);
 		
 		// Draw a rectangle with red paint
-		float t = static_cast<float>(DeltaTime::GetTime());
+		const float t = static_cast<float>(DeltaTime::GetTime());
 		
 		paint.setAntiAlias(true);
-		int r = 0.f + glm::abs(glm::sin(t)) * 30;
+		const SkScalar r = 0.f + glm::abs(glm::sin(t)) * 30;
 		SkScalar radii[] = { r, r, r, r, r, r, r, r };
 		SkMatrix translation;
 
@@ -190,7 +190,8 @@ namespace Engine
 
 	bool VkRenderer2D::CreateSkiaBackendContext(GrVkBackendContext& context) {
 		GrVkGetProc getProc = [](const char* proc_name, VkInstance instance, VkDevice device) {
-			return device ? vkGetDeviceProcAddr(device, proc_name) : vkGetInstanceProcAddr(instance, proc_name);
+			if (device) return vk(GetDeviceProcAddr, device, proc_name);
+			return vk(GetInstanceProcAddr, instance, proc_name);
 		};
 
 		uint32_t skia_features = 0;

@@ -18,9 +18,14 @@ namespace Engine
 	{
 		if (m_Initialized)
 			return;
-
+		
 		m_pWindow = std::unique_ptr<Window>(Window::Create());
 		m_pWindow->SetEventCallback(std::bind(&Application::Call, &Application::Get(), std::placeholders::_1));
+
+		if (!glfwVulkanSupported())
+		{
+			m_APIType = RenderAPI::E_OPENGL;
+		}
 
 		switch(m_APIType)
 		{

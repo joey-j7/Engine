@@ -5,12 +5,6 @@
     <CB_BUILD_MODE>Debug</CB_BUILD_MODE>
   </PropertyGroup>
   <PropertyGroup />
-  <ItemDefinitionGroup>
-    <ClCompile />
-    <ClCompile>
-      <PreprocessorDefinitions>CB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="CB_BUILD_MODE">
       <Value>$(CB_BUILD_MODE)</Value>
