@@ -11,14 +11,14 @@ namespace Engine
 		if (m_State != STOPPED)
 			return false;
 
-		m_State = PLAYING;
+		m_State = ACTIVE;
 
 		return true;
 	}
 
 	bool DynamicObject::Pause()
 	{
-		if (m_State != PLAYING)
+		if (m_State != ACTIVE)
 			return false;
 
 		m_State = PAUSED;
@@ -28,10 +28,10 @@ namespace Engine
 
 	bool DynamicObject::Resume()
 	{
-		if (m_State == PLAYING || m_State == STOPPED)
+		if (m_State == ACTIVE || m_State == STOPPED)
 			return false;
 
-		m_State = PLAYING;
+		m_State = ACTIVE;
 		return true;
 	}
 

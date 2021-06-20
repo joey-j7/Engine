@@ -1,4 +1,5 @@
-#pragma once
+#include "Application.h"
+#include "General/Common.h"
 
 extern Engine::Application* Engine::CreateApplication();
 Engine::Application* app = nullptr;

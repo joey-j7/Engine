@@ -5,6 +5,8 @@
 #include <include/gpu/vk/GrVkBackendContext.h>
 #include <include/core/SkColorSpace.h>
 
+#include <map>
+
 namespace Engine
 {
 	class VkRenderAPI;
@@ -18,6 +20,8 @@ namespace Engine
 	class Engine_API VkRenderer2D : public Renderer2D
 	{
 	public:
+		static std::vector<Vk2DFormatInfo> DesiredFormatInfos(const std::vector<VkSurfaceFormatKHR>& formats);
+
 		VkRenderer2D() {};
 		VkRenderer2D(VkRenderAPI& API);
 		
@@ -26,6 +30,8 @@ namespace Engine
 		virtual void Swap() override;
 		virtual void Present() override;
 
+		bool IsSupported(SkColorType color) const;
+
 	protected:
 		virtual void CreateContext() override;
 		virtual void CreateSurface() override;
@@ -33,20 +39,6 @@ namespace Engine
 		bool CreateSkiaBackendContext(GrVkBackendContext& backend_context);
 		bool GetPhysicalDeviceFeaturesSkia(uint32_t* sk_features) const;
 
-		static std::vector<Vk2DFormatInfo> DesiredFormatInfos() {
-			return { {VK_FORMAT_R8G8B8A8_SRGB, kRGBA_8888_SkColorType,
-					 SkColorSpace::MakeSRGB()},
-					{VK_FORMAT_B8G8R8A8_SRGB, kRGBA_8888_SkColorType,
-					 SkColorSpace::MakeSRGB()},
-					{VK_FORMAT_R16G16B16A16_SFLOAT, kRGBA_F16_SkColorType,
-					 SkColorSpace::MakeSRGBLinear()},
-					{VK_FORMAT_R8G8B8A8_UNORM, kRGBA_8888_SkColorType,
-					 SkColorSpace::MakeSRGB()},
-					{VK_FORMAT_B8G8R8A8_UNORM, kBGRA_8888_SkColorType,
-					 SkColorSpace::MakeSRGB()}
-			};
-		}
-		
 		VkRenderAPI* m_pAPI = nullptr;
 		GrVkBackendContext m_VkContext;
 

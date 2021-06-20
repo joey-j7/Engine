@@ -22,12 +22,13 @@
 
 #ifdef CB_ENABLE_ASSERTS
 	#if CB_PLATFORM_ANDROID
-		#define CB_ASSERT(x, ...) { if(!(x)) { CB_ERROR("Assertion Failed: {0}", __VA_ARGS__); __builtin_trap(); } }
-		#define CB_CORE_ASSERT(x, ...) { if(!(x)) { CB_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __builtin_trap(); } }
+		#define CB_BREAK() __builtin_trap()
 	#else
-		#define CB_ASSERT(x, ...) { if(!(x)) { CB_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
-		#define CB_CORE_ASSERT(x, ...) { if(!(x)) { CB_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+		#define CB_BREAK() __debugbreak()
 	#endif
+
+	#define CB_ASSERT(x, ...) { if(!(x)) { CB_ERROR("Assertion Failed: {0}", __VA_ARGS__); CB_BREAK(); } }
+	#define CB_CORE_ASSERT(x, ...) { if(!(x)) { CB_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); CB_BREAK(); } }
 #else
 	#define CB_ASSERT(x, ...)
 	#define CB_CORE_ASSERT(x, ...)

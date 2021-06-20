@@ -21,11 +21,30 @@ namespace Engine
 
 		m_bInitialized = true;
 		m_bRunning = true;
-		
+
 		CB_CORE_INFO("{0} rendering API has been initialized", GetName());
 
 		return true;
 	};
+
+	bool RenderAPI::Deinit()
+	{
+		if (!m_bInitialized)
+			return false;
+
+		m_bInitialized = false;
+		m_bRunning = false;
+
+		CB_CORE_INFO("{0} rendering API has been deinitialized", GetName());
+
+		return true;
+	}
+
+	void RenderAPI::Reset()
+	{
+		Deinit();
+		Init();
+	}
 
 	RenderFile* RenderAPI::Load(const std::string& filePath, FileLoader::Type pathType)
 	{

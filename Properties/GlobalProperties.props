@@ -55,17 +55,6 @@
     <AndroidAPILevel>android-19</AndroidAPILevel>
     <ShowAndroidPathsVerbosity>Low</ShowAndroidPathsVerbosity>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Platform)'=='ARM'">
-	<ClangTarget Condition="'$(AndroidHeaderTriple)'=='arm-linux-androideabi'">armv7a-linux-androideabi$(AndroidAPILevelNumber)</ClangTarget>
-    <ClangTarget Condition="'$(AndroidHeaderTriple)'!='arm-linux-androideabi'">$(AndroidHeaderTriple)$(AndroidAPILevelNumber)</ClangTarget>
-    <ArchiveToolExe>$(LLVMToolchainPrebuiltRoot)\bin\llvm-ar.exe</ArchiveToolExe>
-    <StripToolExe>$(LLVMToolchainPrebuiltRoot)\bin\llvm-strip.exe</StripToolExe>
-    <StlIncludeDirectories></StlIncludeDirectories>
-    <StlLibraryPath></StlLibraryPath>
-    <Sysroot>$(LLVMToolchainPrebuiltRoot)\sysroot</Sysroot>
-    <SysrootLink>$(Sysroot)</SysrootLink>
-    <ExcludePath>$(LLVMToolchainPrebuiltRoot)\bin;$(VS_NdkRoot)\toolchains\$(AndroidHeaderTriple)-4.9\prebuilt\windows-x86_64\bin;$(MSBuildBinPath);$(MSBuildFrameworkToolsPath);$(SystemRoot)</ExcludePath>    
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='ARM64'" Label="Globals">
     <Keyword>Android</Keyword>
     <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
@@ -75,17 +64,6 @@
     <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
     <AndroidAPILevel>android-21</AndroidAPILevel>
     <ShowAndroidPathsVerbosity>Low</ShowAndroidPathsVerbosity>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Platform)'=='ARM64'">
-    <ClangTarget Condition="'$(AndroidHeaderTriple)'=='arm-linux-androideabi'">armv7a-linux-androideabi$(AndroidAPILevelNumber)</ClangTarget>
-    <ClangTarget Condition="'$(AndroidHeaderTriple)'!='arm-linux-androideabi'">$(AndroidHeaderTriple)$(AndroidAPILevelNumber)</ClangTarget>
-    <ArchiveToolExe>$(LLVMToolchainPrebuiltRoot)\bin\llvm-ar.exe</ArchiveToolExe>
-    <StripToolExe>$(LLVMToolchainPrebuiltRoot)\bin\llvm-strip.exe</StripToolExe>
-    <StlIncludeDirectories></StlIncludeDirectories>
-    <StlLibraryPath></StlLibraryPath>
-    <Sysroot>$(LLVMToolchainPrebuiltRoot)\sysroot</Sysroot>
-    <SysrootLink>$(Sysroot)</SysrootLink>
-    <ExcludePath>$(LLVMToolchainPrebuiltRoot)\bin;$(VS_NdkRoot)\toolchains\$(AndroidHeaderTriple)-4.9\prebuilt\windows-x86_64\bin;$(MSBuildBinPath);$(MSBuildFrameworkToolsPath);$(SystemRoot)</ExcludePath>    
   </PropertyGroup>
   
   <ImportGroup Label="PropertySheets" />
@@ -104,7 +82,6 @@
 		$(SolutionDir)Libraries\spdlog\include;
 		$(SolutionDir)Libraries\Glad\include;
 		$(SolutionDir)Libraries\imgui;
-		%(AdditionalIncludeDirectories)
 	</CB_INCLUDE_PATHS_DEFAULT>
 	
 	<CB_INCLUDE_PATHS_WINDOWS>
@@ -112,7 +89,22 @@
 		$(VK_SDK_PATH)\include;
 	</CB_INCLUDE_PATHS_WINDOWS>
 	
-	<CB_INCLUDE_PATHS_ANDROID>$(LLVMToolchainPrebuiltRoot)\sysroot\usr\include\$(AndroidHeaderTriple);$(LLVMToolchainPrebuiltRoot)\lib64\clang\$(LLVMVersion)\include;$(VS_NdkRoot)\sources\android\support\include;$(LLVMToolchainPrebuiltRoot)\sysroot\usr\include;$(VS_NdkRoot)\sources\android\native_app_glue;</CB_INCLUDE_PATHS_ANDROID>
+	<CB_INCLUDE_PATHS_ANDROID>
+		<!-- $(LLVMToolchainPrebuiltRoot)\sysroot\usr\include\$(AndroidHeaderTriple);
+		$(LLVMToolchainPrebuiltRoot)\lib64\clang\$(LLVMVersion)\include;
+		$(VS_NdkRoot)\sources\android\support\include;$(LLVMToolchainPrebuiltRoot)\sysroot\usr\include;
+		$(VS_NdkRoot)\sources\android\native_app_glue; -->
+		
+		<!-- $(VS_NdkRoot)\sysroot\usr\include; -->
+		$(VS_NdkRoot)\sources\android\native_app_glue;
+	</CB_INCLUDE_PATHS_ANDROID>
+	
+	<CB_ISYSTEM_PATHS_ANDROID>
+		<!-- $(LLVMToolchainPrebuiltRoot)\\sysroot\\usr\\include\\$(AndroidHeaderTriple); -->
+		<!-- $(LLVMToolchainPrebuiltRoot)\\lib64\\clang\\$(LLVMVersion)\\include; -->
+		<!-- $(VS\_NdkRoot)\\sources\\android\\support\\include; -->
+		<!-- $(LLVMToolchainPrebuiltRoot)\\sysroot\\usr\\include; -->
+	</CB_ISYSTEM_PATHS_ANDROID>
 
 	<!-- Preprocessors -->
 	<CB_PREPROCESSORS_DEFAULT>
@@ -189,9 +181,10 @@
 	</CB_LIBRARY_PATHS_WINDOWS_64>
 	
 	<CB_LIBRARY_PATHS_ANDROID>
-		$(Sysroot)\usr\lib\$(AndroidHeaderTriple);
-		$(Sysroot)\usr\lib\$(AndroidHeaderTriple)\$(AndroidAPILevelNumber);
-		$(LLVMToolchainPrebuiltRoot)\sysroot\usr\lib\$(AndroidHeaderTriple)\$(AndroidAPILevelNumber);
+		<!-- $(Sysroot)\usr\lib\$(AndroidHeaderTriple); -->
+		<!-- $(Sysroot)\usr\lib\$(AndroidHeaderTriple)\$(AndroidAPILevelNumber); -->
+		<!-- $(LLVMToolchainPrebuiltRoot)\sysroot\usr\lib\$(AndroidHeaderTriple)\$(AndroidAPILevelNumber); -->
+		
 		<!-- $(Sysroot)\usr\lib; -->
 		<!-- $(VS_NdkRoot)\platforms\android-27\arch-arm\usr\lib; -->
 		<!-- $(ToolchainPrebuiltPath)\lib\gcc\$(AndroidHeaderTriple)\$(ToolchainFullVersionName); -->
@@ -200,7 +193,7 @@
 	
 	<!-- Libraries -->
 	<CB_LIBRARIES_WINDOWS>skia.lib;vulkan-1.lib;opengl32.lib</CB_LIBRARIES_WINDOWS>
-	<CB_LIBRARIES_ANDROID>skia;GLFW;Glad;GLESv3;m;EGL;$(StlLibraryName)</CB_LIBRARIES_ANDROID>
+	<CB_LIBRARIES_ANDROID>skia;GLFW;Glad;GLESv3;m;EGL;camera2ndk</CB_LIBRARIES_ANDROID>
 
   </PropertyGroup>
   

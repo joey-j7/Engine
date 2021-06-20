@@ -9,7 +9,7 @@ namespace Engine
 	class Engine_API LayeredObject : public DynamicObject
 	{
 	public:
-		LayeredObject(const std::string& sName = "Unnamed Object") : DynamicObject(sName) {};
+		LayeredObject(const std::string& sName = "Unnamed Layered Object") : DynamicObject(sName) {};
 
 		void PushLayer(Layer* pLayer);
 		void PushOverlay(Layer* pLayer);
@@ -26,8 +26,6 @@ namespace Engine
 		virtual bool Pause() override;
 		virtual bool Resume() override;
 		virtual bool Stop() override;
-
-		virtual void Call(Event& e);
 
 		LayerStack m_LayerStack;
 	};

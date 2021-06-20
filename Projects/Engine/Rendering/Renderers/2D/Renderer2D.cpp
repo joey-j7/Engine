@@ -15,18 +15,18 @@ namespace Engine
 
 	Renderer2D::~Renderer2D()
 	{
-		m_Context.reset();
-		
-		m_Surface = nullptr;
-		m_Canvas = nullptr;
+		Deinit();
 	}
 
-	void Renderer2D::Init()
+	void Renderer2D::Deinit()
 	{
-		CreateContext();
-		SkASSERT(m_Context);
+		if (!m_Context)
+			return;
 
-		CreateSurface();
-		SkASSERT(m_Surface);
+		m_Surface.reset();
+		m_Canvas = nullptr;
+
+		m_Context->abandonContext();
+		m_Context.reset();
 	}
 }

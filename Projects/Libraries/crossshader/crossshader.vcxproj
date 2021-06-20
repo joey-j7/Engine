@@ -166,7 +166,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -175,7 +175,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -186,7 +186,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -201,7 +201,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -210,22 +210,22 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;%(AdditionalIncludeDirectories);$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;%(AdditionalIncludeDirectories);$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;%(AdditionalIncludeDirectories);$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;%(AdditionalIncludeDirectories);$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\crossshader\external\glslang\;$(SolutionDir)Libraries\crossshader\external\spirv-cross\;$(SolutionDir)Libraries\glm\;$(Sysroot)\usr\include;$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

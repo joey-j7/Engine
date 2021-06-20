@@ -61,25 +61,27 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
     <UseOfStl>c++_static</UseOfStl>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
     <UseOfStl>c++_static</UseOfStl>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-24</AndroidAPILevel>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-24</AndroidAPILevel>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -115,54 +117,65 @@
     <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
     <Import Project="$(SolutionDir)Properties\Engine.props" />
     <Import Project="$(SolutionDir)Properties\Android.props" />
     <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
     <Import Project="$(SolutionDir)Properties\Engine.props" />
     <Import Project="$(SolutionDir)Properties\Android.props" />
     <Import Project="$(SolutionDir)Properties\Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
     <Import Project="$(SolutionDir)Properties\Engine.props" />
     <Import Project="$(SolutionDir)Properties\Android.props" />
     <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
     <Import Project="$(SolutionDir)Properties\Engine.props" />
     <Import Project="$(SolutionDir)Properties\Android.props" />
     <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
-  <PropertyGroup />
-  
-   <!-- Windows Win32 -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <IncludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <IncludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <IncludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <IncludePath />
+  </PropertyGroup>
+  <!-- Windows Win32 -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
       <Command>
 	  cd $(SolutionDir)Scripts
 	  cmd /c $(SolutionDir)Scripts\build_skia_windows_win32_debug.bat
 	  </Command>
-	  <Message>Building skia</Message>
+      <Message>Building skia</Message>
     </PreBuildEvent>
-	
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_WINDOWS);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_WINDOWS);
 		$(CB_PREPROCESSORS_DEBUG);
@@ -170,18 +183,15 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-	  
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_WINDOWS_32);
 		%(AdditionalLibraryDirectories);
 	  </AdditionalLibraryDirectories>
-	  
       <AdditionalDependencies>
 		$(CB_LIBRARIES_WINDOWS);
 		%(AdditionalDependencies);
@@ -194,9 +204,8 @@
 	  cd $(SolutionDir)Scripts
 	  cmd /c $(SolutionDir)Scripts\build_skia_windows_win32_release.bat
 	  </Command>
-	  <Message>Building skia</Message>
+      <Message>Building skia</Message>
     </PreBuildEvent>
-	
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
@@ -205,13 +214,11 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_WINDOWS);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_WINDOWS);
 		$(CB_PREPROCESSORS_RELEASE);
@@ -219,49 +226,42 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-	  
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_WINDOWS_32);
 		%(AdditionalLibraryDirectories);
 	  </AdditionalLibraryDirectories>
-	  
       <AdditionalDependencies>
 		$(CB_LIBRARIES_WINDOWS);
 		%(AdditionalDependencies);
 	  </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  
-   <!-- Windows x64 -->
-    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <!-- Windows x64 -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PreBuildEvent>
       <Command>
 	  cd $(SolutionDir)Scripts
 	  cmd /c $(SolutionDir)Scripts\build_skia_windows_x64_debug.bat
 	  </Command>
-	  <Message>Building skia</Message>
+      <Message>Building skia</Message>
     </PreBuildEvent>
-	
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_WINDOWS);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_WINDOWS);
 		$(CB_PREPROCESSORS_DEBUG);
@@ -269,18 +269,15 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-	  
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_WINDOWS_64);
 		%(AdditionalLibraryDirectories);
 	  </AdditionalLibraryDirectories>
-	  
       <AdditionalDependencies>
 		$(CB_LIBRARIES_WINDOWS);
 		%(AdditionalDependencies);
@@ -293,9 +290,8 @@
 	  cd $(SolutionDir)Scripts
 	  cmd /c $(SolutionDir)Scripts\build_skia_windows_x64_release.bat
 	  </Command>
-	  <Message>Building skia</Message>
+      <Message>Building skia</Message>
     </PreBuildEvent>
-	
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
@@ -304,13 +300,11 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_WINDOWS);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_WINDOWS);
 		$(CB_PREPROCESSORS_RELEASE);
@@ -318,48 +312,43 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-	  
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_WINDOWS_64);
 		%(AdditionalLibraryDirectories);
 	  </AdditionalLibraryDirectories>
-	  
       <AdditionalDependencies>
 		$(CB_LIBRARIES_WINDOWS);
 		%(AdditionalDependencies);
 	  </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  
-   <!-- Android ARM -->
+  <!-- Android ARM -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <PreBuildEvent>
       <Command>
 	  cd $(SolutionDir)Scripts
 	  cmd /c $(SolutionDir)Scripts\build_skia_android_arm_debug.bat
 	  </Command>
-	  <Message>Building skia</Message>
+      <Message>Building skia</Message>
     </PreBuildEvent>
-	
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <ExceptionHandling>Enabled</ExceptionHandling>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
-		%(AdditionalIncludeDirectories);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_DEBUG);
@@ -367,14 +356,12 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_ANDROID);
 		%(AdditionalLibraryDirectories);
 	  </AdditionalLibraryDirectories>
-	
       <LibraryDependencies>
 		$(CB_LIBRARIES_ANDROID);
 		%(LibraryDependencies);
@@ -387,21 +374,20 @@
 	  cd $(SolutionDir)Scripts
 	  cmd /c $(SolutionDir)Scripts\build_skia_android_arm_release.bat
 	  </Command>
-	  <Message>Building skia</Message>
+      <Message>Building skia</Message>
     </PreBuildEvent>
-	
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <ExceptionHandling>Enabled</ExceptionHandling>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
-		%(AdditionalIncludeDirectories);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_RELEASE);
@@ -409,43 +395,39 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_ANDROID);
 		%(AdditionalLibraryDirectories);
 	  </AdditionalLibraryDirectories>
-	  
       <LibraryDependencies>
 		$(CB_LIBRARIES_ANDROID);
 		%(LibraryDependencies);
 	  </LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
-  
-   <!-- Android ARM64 -->
+  <!-- Android ARM64 -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <PreBuildEvent>
       <Command>
 	  cd $(SolutionDir)Scripts
 	  cmd /c $(SolutionDir)Scripts\build_skia_android_arm64_debug.bat
 	  </Command>
-	  <Message>Building skia</Message>
+      <Message>Building skia</Message>
     </PreBuildEvent>
-	
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <ExceptionHandling>Enabled</ExceptionHandling>
-	  
       <AdditionalIncludeDirectories>
 	    $(CB_INCLUDE_PATHS_ANDROID);
 		$(CB_INCLUDE_PATHS_DEFAULT);
-		%(AdditionalIncludeDirectories);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_DEBUG);
@@ -453,14 +435,12 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_ANDROID);
 		%(AdditionalLibraryDirectories);
 	  </AdditionalLibraryDirectories>
-	  
       <LibraryDependencies>
 		$(CB_LIBRARIES_ANDROID);
 		%(LibraryDependencies);
@@ -473,21 +453,20 @@
 	  cd $(SolutionDir)Scripts
 	  cmd /c $(SolutionDir)Scripts\build_skia_android_arm64_release.bat
 	  </Command>
-	  <Message>Building skia</Message>
+      <Message>Building skia</Message>
     </PreBuildEvent>
-	
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <ExceptionHandling>Enabled</ExceptionHandling>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
-		%(AdditionalIncludeDirectories);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_RELEASE);
@@ -501,17 +480,19 @@
 		$(CB_LIBRARY_PATHS_ANDROID);
 		%(AdditionalLibraryDirectories);
 	  </AdditionalLibraryDirectories>
-	  
       <LibraryDependencies>
 		$(CB_LIBRARIES_ANDROID);
 		%(LibraryDependencies);
 	  </LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
-  
   <ItemGroup>
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Engine\Application.h" />
+    <ClInclude Include="Engine\Events\Event.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.h" />
     <ClInclude Include="Engine\Files\Config\ConfigFile.h" />
     <ClInclude Include="Engine\Layers\World\WorldManagerLayer.h" />
     <ClInclude Include="Engine\Objects\Buffers\Buffer.h" />
@@ -519,15 +500,10 @@
     <ClInclude Include="Engine\Core.h" />
     <ClInclude Include="Engine\DeltaTime.h" />
     <ClInclude Include="Engine\EntryPoint.h" />
-    <ClInclude Include="Engine\Events\ApplicationEvent.h" />
-    <ClInclude Include="Engine\Events\Event.h" />
-    <ClInclude Include="Engine\Events\KeyEvent.h" />
-    <ClInclude Include="Engine\Events\MouseEvent.h" />
-    <ClInclude Include="Engine\Objects\Components\Component.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Component.h" />
     <ClInclude Include="Engine\Objects\LayeredObject.h" />
     <ClInclude Include="Engine\Objects\DynamicObject.h" />
     <ClInclude Include="Engine\Objects\Object.h" />
-    <ClInclude Include="Engine\Objects\WorldObject.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\DynamicEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\StaticEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\World.h" />
@@ -545,9 +521,13 @@
     <ClInclude Include="Engine\Files\FileManagerBase.h" />
     <ClInclude Include="Engine\Files\FileReference.h" />
     <ClInclude Include="Engine\Managers\IDManager.h" />
+    <ClInclude Include="Platform\Android\Hardware\Camera\AndCamera.h" />
+    <ClInclude Include="Platform\Hardware\Camera\Camera.h" />
     <ClInclude Include="Platform\FileLoader.h" />
     <ClInclude Include="Platform\GLFW\GLFWInput.h" />
     <ClInclude Include="Platform\GLFW\GLFWWindow.h" />
+    <ClInclude Include="Platform\Hardware\HardwareContext.h" />
+    <ClInclude Include="Platform\Windows\Hardware\Camera\WinCamera.h" />
     <ClInclude Include="Rendering\CommandEngine.h" />
     <ClInclude Include="Rendering\Objects\Texture.h" />
     <ClInclude Include="Rendering\OpenGL\Files\GLShaderFile.h" />
@@ -571,16 +551,22 @@
     <ClInclude Include="Rendering\ShaderProgram.h" />
     <ClInclude Include="Rendering\Renderers\2D\Renderer2D.h" />
     <ClInclude Include="Rendering\Vulkan\Files\VkShaderFile.h" />
+    <ClInclude Include="Rendering\Vulkan\Objects\VkHandle.h" />
     <ClInclude Include="Rendering\Vulkan\Objects\VkShaderProgram.h" />
     <ClInclude Include="Rendering\Vulkan\Objects\VkTexture.h" />
     <ClInclude Include="Rendering\Vulkan\Passes\VkDrawPass.h" />
     <ClInclude Include="Rendering\Vulkan\Renderers\2D\VkRenderer2D.h" />
     <ClInclude Include="Rendering\Vulkan\VkCommandEngine.h" />
+    <ClInclude Include="Rendering\Vulkan\Objects\Wrappers\VkWrapper.h" />
     <ClInclude Include="Rendering\Vulkan\VkRenderAPI.h" />
     <ClInclude Include="Rendering\Vulkan\VkSwapchainContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application.cpp" />
+    <ClCompile Include="Engine\Events\Event.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.cpp" />
     <ClCompile Include="Engine\Layers\LayerStack.cpp" />
     <ClCompile Include="Engine\Layers\World\WorldManagerLayer.cpp" />
     <ClCompile Include="Engine\Objects\Buffers\Buffer.cpp" />
@@ -589,6 +575,7 @@
     <ClCompile Include="Engine\Objects\LayeredObject.cpp" />
     <ClCompile Include="Engine\Objects\Object.cpp" />
     <ClCompile Include="Engine\Objects\DynamicObject.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\World.cpp" />
     <ClCompile Include="Engine\Layers\Layer.cpp" />
     <ClCompile Include="Engine\Logger\Log.cpp" />
@@ -604,10 +591,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Platform\Android\Hardware\Camera\AndCamera.cpp" />
     <ClCompile Include="Platform\Android\AndFileLoader.cpp" />
+    <ClCompile Include="Platform\Hardware\Camera\Camera.cpp" />
     <ClCompile Include="Platform\FileLoader.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWInput.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWWindow.cpp" />
+    <ClCompile Include="Platform\Hardware\HardwareContext.cpp" />
     <ClCompile Include="Platform\Windows\WinFileLoader.cpp" />
     <ClCompile Include="Rendering\OpenGL\Files\GLShaderFile.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLCommandEngine.cpp" />
@@ -622,6 +612,7 @@
     <ClCompile Include="Rendering\Vulkan\Files\VkShaderFile.cpp" />
     <ClCompile Include="Rendering\Vulkan\Objects\VkShaderProgram.cpp" />
     <ClCompile Include="Rendering\Vulkan\Objects\VkTexture.cpp" />
+    <ClCompile Include="Rendering\Vulkan\Objects\Wrappers\VkWrapper.cpp" />
     <ClCompile Include="Rendering\Vulkan\Passes\VkDrawPass.cpp" />
     <ClCompile Include="Rendering\Vulkan\Renderers\2D\VkRenderer2D.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkCommandEngine.cpp" />

@@ -24,6 +24,8 @@ namespace Engine
 		m_RenderContext = std::make_shared<RenderContext>();
 		m_RenderContext->Init();
 
+		m_HardwareContext = std::make_shared<HardwareContext>();
+
 		FileLoader::Init();
 
 		m_pScreenEngine = m_RenderContext->GetAPI().GetCommandEngine("Screen");
@@ -32,28 +34,13 @@ namespace Engine
 		PushOverlay(m_WorldManagerLayer);
 
 		m_DeltaTime = std::unique_ptr<DeltaTime>(new DeltaTime());
+		
+		m_bInitialized = true;
 	}
 
 	Application::~Application()
 	{
 		// s_Instance = nullptr;
-	}
-
-	void Application::Call(Event& e)
-	{
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
-
-		EventDispatcher dispatcher1(e);
-		dispatcher1.Dispatch<WindowMinimizeEvent>(BIND_EVENT_FN(OnWindowMinimize));
-
-		EventDispatcher dispatcher2(e);
-		dispatcher2.Dispatch<WindowFocusEvent>(BIND_EVENT_FN(OnWindowFocus));
-
-		EventDispatcher dispatcher3(e);
-		dispatcher3.Dispatch<AppPauseEvent>(BIND_EVENT_FN(OnAppPause));
-
-		LayeredObject::Call(e);
 	}
 
 	void Application::Run()
@@ -67,11 +54,16 @@ namespace Engine
 				continue;
 			}
 			
-			m_RenderContext->GetAPI().Swap();
+			if (!m_RenderContext->GetAPI().Swap())
+			{
+				m_RenderContext->GetWindow().OnUpdate();
+				continue;
+			}
 
 			// Reset rendering for new frame
 			m_pScreenEngine->Reset();
 			m_pScreenEngine->Begin();
+			m_pScreenEngine->Execute();
 		
 			// Retrieve delta time for logic
 			m_DeltaTime->Update();
@@ -93,16 +85,17 @@ namespace Engine
 			// Draw layers
 			Draw(fDeltaTime);
 
-			m_pScreenEngine->Execute();
 			m_RenderContext->GetAPI().Present();
-
 			m_RenderContext->GetWindow().OnUpdate();
 		}
 	}
 
-	bool Application::OnAppPause(AppPauseEvent& e)
+	void Application::SetPaused(bool Paused)
 	{
-		m_bPaused = e.IsPaused();
+		if (m_bPaused == Paused)
+			return;
+		
+		m_bPaused = Paused;
 
 		if (m_bPaused)
 		{
@@ -113,32 +106,29 @@ namespace Engine
 			m_DeltaTime->Reset();
 			m_RenderContext->GetAPI().Resume();
 		}
-		
-		return true;
+
+		OnPauseChangedEvent(m_bPaused);
 	}
 
-	bool Application::OnWindowMinimize(WindowMinimizeEvent& e)
+	void Application::OnWindowMinimize(const bool Minimized)
 	{
-		if (!e.IsMinimized())
-		{
-			m_RenderContext->GetWindow().Reset();
-		}
-
-		AppPauseEvent event(e.IsMinimized());
-		OnAppPause(event);
-		return true;
+		SetPaused(Minimized);
 	}
 
-	bool Application::OnWindowFocus(WindowFocusEvent& e)
+	void Application::OnWindowFocus(const bool Focussed)
 	{
-		AppPauseEvent event(!e.IsFocussed());
-		OnAppPause(event);
-		return true;
+		SetPaused(!Focussed);
 	}
 
-	bool Application::OnWindowClose(WindowCloseEvent& e)
+	void Application::OnWindowResize(uint32_t Width, uint32_t Height)
+	{
+		// m_RenderContext->GetAPI().Deinit();
+		// m_RenderContext->GetWindow().Reset();
+		// m_RenderContext->GetAPI().Init();
+	}
+
+	void Application::OnWindowClose()
 	{
 		m_bRunning = false;
-		return true;
 	}
 }

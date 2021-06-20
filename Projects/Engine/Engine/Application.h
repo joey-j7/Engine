@@ -3,9 +3,7 @@
 #include "Core.h"
 
 #include "Rendering/RenderContext.h"
-
-#include "Engine/Events/Event.h"
-#include "Engine/Events/ApplicationEvent.h"
+#include "Platform/Hardware/HardwareContext.h"
 
 #include "Engine/Layers/World/WorldManagerLayer.h"
 
@@ -15,14 +13,18 @@ namespace Engine
 {
 	class Engine_API Application : public LayeredObject
 	{
+		friend class Window;
+
 	public:
 		Application(const std::string& sName = "Application");
 		virtual ~Application();
 
 		void Run();
-		virtual void Call(Event& e) override;
 
+		// TODO: Move to platform context
+		HardwareContext& GetHardwareContext() const { return *m_HardwareContext; }
 		RenderContext& GetRenderContext() const { return *m_RenderContext; }
+		
 		FileDatabase& GetFileDatabase() const { return *m_Database; }
 		
 		static Application& Get() { return *s_Instance; }
@@ -31,14 +33,19 @@ namespace Engine
 
 		void Exit() { m_bRunning = false; }
 
-	private:
-		bool OnAppPause(AppPauseEvent& e);
+		Event<void, bool> OnPauseChangedEvent;
 
-		bool OnWindowMinimize(WindowMinimizeEvent& e);
-		bool OnWindowFocus(WindowFocusEvent& e);
-		bool OnWindowClose(WindowCloseEvent& e);
+	private:
+		void SetPaused(bool Paused);
+
+		void OnWindowMinimize(const bool Minimized);
+		void OnWindowFocus(const bool Focussed);
+		void OnWindowResize(uint32_t Width, uint32_t Height);
+		void OnWindowClose();
 
 		std::shared_ptr<RenderContext> m_RenderContext;
+		std::shared_ptr<HardwareContext> m_HardwareContext;
+		
 		CommandEngine* m_pScreenEngine;
 
 		std::unique_ptr<FileDatabase> m_Database = nullptr;
@@ -47,6 +54,7 @@ namespace Engine
 
 		std::unique_ptr<DeltaTime> m_DeltaTime;
 
+		bool m_bInitialized = false;
 		bool m_bRunning = true;
 		bool m_bPaused = false;
 

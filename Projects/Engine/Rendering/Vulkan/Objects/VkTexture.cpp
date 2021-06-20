@@ -20,8 +20,8 @@ namespace Engine
 
 	VkTexture::~VkTexture()
 	{
-		vkDestroyImageView(*m_pDevice, m_View, nullptr);
-		vkDestroyImage(*m_pDevice, m_Image, nullptr);
+		vk(DestroyImageView, *m_pDevice, m_View, nullptr);
+		vk(DestroyImage, *m_pDevice, m_Image, nullptr);
 	}
 
 	void VkTexture::Init()
@@ -44,7 +44,7 @@ namespace Engine
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
 
-		VkResult err = vkCreateImageView(*m_pDevice, &createInfo, nullptr, &m_View);
+		VkResult err = vk(CreateImageView, *m_pDevice, &createInfo, nullptr, &m_View);
 		VkRenderAPI::Verify(err);
 	}
 }

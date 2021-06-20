@@ -93,25 +93,27 @@
     <PlatformToolset>Clang_5_0</PlatformToolset>
     <UseOfStl>c++_static</UseOfStl>
     <ConfigurationType>StaticLibrary</ConfigurationType>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
     <UseOfStl>c++_static</UseOfStl>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-24</AndroidAPILevel>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-24</AndroidAPILevel>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
     <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -159,21 +161,30 @@
     <Import Project="$(SolutionDir)Properties\Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-
-   <!-- Windows Win32 -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <IncludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <IncludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <IncludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <IncludePath />
+  </PropertyGroup>
+  <!-- Windows Win32 -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_WINDOWS);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_WINDOWS);
 		$(CB_PREPROCESSORS_DEBUG);
@@ -181,18 +192,15 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-	  
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_WINDOWS);
 		$(CB_LIBRARY_PATHS_WINDOWS_32);
 	  </AdditionalLibraryDirectories>
-	  
       <AdditionalDependencies>
 		$(CB_LIBRARIES_WINDOWS);
 	  </AdditionalDependencies>
@@ -206,13 +214,11 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_WINDOWS);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_WINDOWS);
 		$(CB_PREPROCESSORS_RELEASE);
@@ -220,39 +226,33 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-	  
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_WINDOWS);
 		$(CB_LIBRARY_PATHS_WINDOWS_32);
 	  </AdditionalLibraryDirectories>
-	  
       <AdditionalDependencies>
 		$(CB_LIBRARIES_WINDOWS);
 	  </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  
-   <!-- Windows x64 -->
-    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <!-- Windows x64 -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_WINDOWS);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_WINDOWS);
 		$(CB_PREPROCESSORS_DEBUG);
@@ -260,18 +260,15 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-	  
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_WINDOWS);
 		$(CB_LIBRARY_PATHS_WINDOWS_64);
 	  </AdditionalLibraryDirectories>
-	  
       <AdditionalDependencies>
 		$(CB_LIBRARIES_WINDOWS);
 	  </AdditionalDependencies>
@@ -285,13 +282,11 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_WINDOWS);
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_WINDOWS);
 		$(CB_PREPROCESSORS_RELEASE);
@@ -299,38 +294,35 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-	  
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_WINDOWS);
 		$(CB_LIBRARY_PATHS_WINDOWS_64);
 	  </AdditionalLibraryDirectories>
-	  
       <AdditionalDependencies>
 		$(CB_LIBRARIES_WINDOWS);
 	  </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  
-   <!-- Android ARM -->
+  <!-- Android ARM -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
 		$(StlIncludeDirectories);
-		%(AdditionalIncludeDirectories);
+		
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+	  <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_DEBUG);
@@ -338,13 +330,11 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_ANDROID);
 	  </AdditionalLibraryDirectories>
-	
       <LibraryDependencies>
 		$(CB_LIBRARIES_ANDROID);
 	  </LibraryDependencies>
@@ -353,15 +343,16 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
 		$(StlIncludeDirectories);
-		%(AdditionalIncludeDirectories);
+		
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+	  <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_RELEASE);
@@ -369,31 +360,29 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_ANDROID);
 	  </AdditionalLibraryDirectories>
-	  
       <LibraryDependencies>
 		$(CB_LIBRARIES_ANDROID);
 	  </LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
-  
-   <!-- Android ARM64 -->
+  <!-- Android ARM64 -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-	  
       <AdditionalIncludeDirectories>
 	    $(CB_INCLUDE_PATHS_ANDROID);
 		$(CB_INCLUDE_PATHS_DEFAULT);
-		%(AdditionalIncludeDirectories);
+		
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+	  <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_DEBUG);
@@ -401,13 +390,11 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
-	
     <Link>
       <AdditionalLibraryDirectories>
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_ANDROID);
 	  </AdditionalLibraryDirectories>
-	  
       <LibraryDependencies>
 		$(CB_LIBRARIES_ANDROID);
 	  )</LibraryDependencies>
@@ -416,15 +403,16 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-	  
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
 		$(StlIncludeDirectories);
-		%(AdditionalIncludeDirectories);
+		
 	  </AdditionalIncludeDirectories>
-	  
-	  <PreprocessorDefinitions>
+	  <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_RELEASE);
@@ -437,13 +425,11 @@
 		$(CB_LIBRARY_PATHS_DEFAULT);
 		$(CB_LIBRARY_PATHS_ANDROID);
 	  </AdditionalLibraryDirectories>
-	  
       <LibraryDependencies>
 		$(CB_LIBRARIES_ANDROID);
 	  </LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
-  
   <ItemGroup>
     <ClInclude Include="..\..\..\Libraries\glfw\src\android_joystick.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

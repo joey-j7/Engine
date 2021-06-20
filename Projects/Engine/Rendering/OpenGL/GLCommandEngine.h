@@ -37,8 +37,5 @@ namespace Engine
 
 	protected:
 		// virtual void Signal() override;
-
-		// Prepare to render next frame
-		virtual void AdvanceFrame() override;
 	};
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WorldObject.h"
+#include "Object.h"
 
 namespace Engine
 {
@@ -9,15 +9,15 @@ namespace Engine
 	public:
 		enum State
 		{
-			PLAYING,
+			ACTIVE,
 			PAUSED,
 			STOPPED
 		};
 
-		DynamicObject(const std::string& sName = "Unnamed Object") : Object(sName) {}
+		DynamicObject(const std::string& sName = "Unnamed Dynamic Object") : Object(sName) {}
 		virtual ~DynamicObject() { };
 
-		bool IsActive() const { return m_State == PLAYING; }
+		bool IsActive() const { return m_State == ACTIVE; }
 		bool IsStopped() const { return m_State == STOPPED; }
 
 		State GetState() const { return m_State; }
@@ -35,6 +35,6 @@ namespace Engine
 
 		virtual bool Resume();
 
-		State m_State = PLAYING;
+		State m_State = ACTIVE;
 	};
 }

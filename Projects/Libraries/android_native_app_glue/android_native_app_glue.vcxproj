@@ -58,8 +58,11 @@
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
 		$(StlIncludeDirectories);
-		%(AdditionalIncludeDirectories);
+		
 	  </AdditionalIncludeDirectories>
+	  <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
       <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
@@ -85,8 +88,11 @@
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
 		$(StlIncludeDirectories);
-		%(AdditionalIncludeDirectories);
+		
 	  </AdditionalIncludeDirectories>
+	  <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
       <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
@@ -112,8 +118,11 @@
       <AdditionalIncludeDirectories>
 	    $(CB_INCLUDE_PATHS_ANDROID);
 		$(CB_INCLUDE_PATHS_DEFAULT);
-		%(AdditionalIncludeDirectories);
+		
 	  </AdditionalIncludeDirectories>
+	  <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
       <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
@@ -139,8 +148,11 @@
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
 		$(StlIncludeDirectories);
-		%(AdditionalIncludeDirectories);
+		
 	  </AdditionalIncludeDirectories>
+	  <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
       <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);

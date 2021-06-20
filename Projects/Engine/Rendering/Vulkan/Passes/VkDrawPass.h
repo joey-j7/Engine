@@ -7,6 +7,7 @@
 
 namespace Engine
 {
+	class VkRenderAPI;
 	class VkCommandEngine;
 
 	class Engine_API VkDrawPass : public DrawPass
@@ -15,15 +16,26 @@ namespace Engine
 		VkDrawPass(VkCommandEngine& engine, const ShaderProgram::Descriptor& shaderPipeline);
 		virtual ~VkDrawPass();
 
+		void Init();
+		void Deinit();
+
 		virtual bool Begin() override;
 		virtual bool Draw() override;
 		virtual bool End() override;
 
-	private:
-		VkRenderPass m_RenderPass;
+		const VkCommandBuffer& GetCommandBuffer() const;
 
-		VkClearValue m_ClearValue;
-		VkRenderPassBeginInfo m_RenderPassBeginInfo = {};
+	private:
+		void CreateRenderPass();
+		void CreateGraphicsPipeline();
+		void CreateFramebuffers();
+
+		void CreateCommandBuffers();
+		void FreeCommandBuffers();
+		
+		VkRenderAPI* API = nullptr;
+		
+		VkRenderPass m_RenderPass;
 
 		VkPipeline m_Pipeline;
 		VkPipelineLayout m_PipelineLayout;
@@ -31,5 +43,8 @@ namespace Engine
 		VkCommandEngine* m_pCommandEngine = nullptr;
 
 		std::vector<VkFramebuffer> m_Framebuffers;
+		std::vector<VkCommandBuffer> m_CommandBuffers;
+
+		bool m_Initialized = false;
 	};
 }

@@ -15,12 +15,12 @@ namespace Engine {
 
 		virtual ShaderProgram* Create(const ShaderProgram::Descriptor& descriptor) override { return new GLShaderProgram(descriptor); }
 
-		virtual void Swap() override;
+		virtual bool Swap() override;
 		virtual void Present() override;
 
 		virtual void Suspend() override {};
 		virtual void Resume() override {};
-
+		
 		virtual CommandEngine* GetCommandEngine(const std::string& sName) override;
 
 	private:

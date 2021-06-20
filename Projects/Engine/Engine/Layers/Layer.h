@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Engine/Core.h"
-#include "Engine/Events/Event.h"
-
 #include "Engine/Objects/DynamicObject.h"
 
 namespace Engine
@@ -14,7 +12,7 @@ namespace Engine
 		friend class LayeredObject;
 
 	public:
-		Layer(const std::string& name = "Layer");
+		Layer(const std::string& name = "Unnamed Layer");
 		virtual ~Layer();
 
 		void Reset(const LayerStack& stack)
@@ -32,8 +30,6 @@ namespace Engine
 
 		virtual void LateUpdate(float fDeltaTime) override {};
 		virtual void Draw(float fDeltaTime) override {};
-
-		virtual void Call(Event& event) {}
 
 		uint32_t m_uiAttachCount = 0;
 	};

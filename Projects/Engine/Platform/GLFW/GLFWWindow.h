@@ -24,7 +24,6 @@ namespace Engine {
 		}
 
 		// Window attributes
-		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 		
@@ -40,8 +39,18 @@ namespace Engine {
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown() override;
 
-	private:
+		static void OnResize(GLFWwindow* window, int width, int height);
+		static void OnMinimize(GLFWwindow* window, int iconified);
+		static void OnFocus(GLFWwindow* window, int focussed);
+		static void OnClose(GLFWwindow* window);
+		
+		static void OnKey(GLFWwindow* window, int key, int scancode, int action, int mods);
+		static void OnChar(GLFWwindow* window, unsigned int keycode);
+		
+		static void OnMouseButton(GLFWwindow* window, int button, int action, int mods);
+		static void OnScroll(GLFWwindow* window, double xOffset, double yOffset);
+		static void OnCursorPosition(GLFWwindow* window, double xPos, double yPos);
+
 		GLFWwindow* m_Window = nullptr;
 	};
-
 }

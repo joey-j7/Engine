@@ -19,47 +19,54 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <AndroidBuildType>Gradle</AndroidBuildType>
     <RootNamespace>Launcher</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ProjectVersion>1.0</ProjectVersion>
     <ProjectGuid>{f8317474-a145-4211-8f2a-608cc66cb428}</ProjectGuid>
+    <LaunchActivity Condition="'$(LaunchActivity)' == ''">com.appuil.Launcher.MainActivity</LaunchActivity>
+    <JavaSourceRoots>src\main\java</JavaSourceRoots>
   </PropertyGroup>
   <Import Project="$(AndroidTargetsPath)\Android.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
     <ConfigurationType>Application</ConfigurationType>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
     <ConfigurationType>Application</ConfigurationType>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
     <ConfigurationType>Application</ConfigurationType>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
     <ConfigurationType>Application</ConfigurationType>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
   </PropertyGroup>
   <Import Project="$(AndroidTargetsPath)\Android.props" />
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <OutDir>$(SolutionDir)Builds\$(TargetPlatformIdentifier)\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\$(TargetPlatformIdentifier)\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Builds\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <OutDir>$(SolutionDir)Builds\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Builds\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <OutDir>$(SolutionDir)Builds\$(TargetPlatformIdentifier)\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\$(TargetPlatformIdentifier)\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Builds\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <OutDir>$(SolutionDir)Builds\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediate\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)Builds\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(TargetPlatformIdentifier)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <AntPackage>
@@ -67,8 +74,10 @@
     </AntPackage>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <AntPackage />
     <AntPackage>
       <AndroidAppLibName>$(RootNamespace)</AndroidAppLibName>
+      <AntTarget>debug</AntTarget>
     </AntPackage>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -79,33 +88,50 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <AntPackage>
       <AndroidAppLibName>$(RootNamespace)</AndroidAppLibName>
+      <AntTarget>release</AntTarget>
     </AntPackage>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Content Include="res\values\strings.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <AntBuildXml Include="build.xml">
-      <SubType>Designer</SubType>
-    </AntBuildXml>
-    <AndroidManifest Include="AndroidManifest.xml">
-      <SubType>Designer</SubType>
-    </AndroidManifest>
-    <AntProjectPropertiesFile Include="project.properties" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Launcher\Launcher.vcxproj" />
-  </ItemGroup>
+  <!-- <ItemGroup> -->
+  <!-- <AntBuildXml Include="build.xml"> -->
+  <!-- <SubType>Designer</SubType> -->
+  <!-- </AntBuildXml> -->
+  <!-- <AndroidManifest Include="AndroidManifest.xml"> -->
+  <!-- <SubType>Designer</SubType> -->
+  <!-- </AndroidManifest> -->
+  <!-- <AntProjectPropertiesFile Include="project.properties" /> -->
+  <!-- </ItemGroup> -->
   <ItemGroup>
     <Content Include="$(SolutionDir)Content\**">
       <Link>assets\Content\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemDefinitionGroup>
+    <GradlePackage>
+      <ProjectDirectory>$(ProjectDir)app</ProjectDirectory>
+      <ApplicationName>com.appuil.$(TargetName)</ApplicationName>
+      <ApkFileName>
+      </ApkFileName>
+      <GradlePlugin>gradle:4.2.0</GradlePlugin>
+      <GradleVersion>7.1</GradleVersion>
+    </GradlePackage>
+  </ItemDefinitionGroup>
+  <ImportGroup Label="ExtensionSettings" />
+  <PropertyGroup Label="UserMacros" />
   <ItemGroup>
-    <Content Include="res\values\styles.xml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
+    <GradleTemplate Include="app\build.gradle.template" />
+    <GradleTemplate Include="app\src\main\AndroidManifest.xml.template" />
+    <GradleTemplate Include="build.gradle.template" />
+    <GradleTemplate Include="settings.gradle.template" />
+    <GradleTemplate Include="gradle.properties.template" />
+    <GradleTemplate Include="gradle\wrapper\gradle-wrapper.properties.template" />
+  </ItemGroup>
+  <ItemGroup>
+    <JavaCompile Include="app\src\main\java\com\appuil\Launcher\MainActivity.java" />
+    <JavaCompile Include="app\src\main\java\com\appuil\Launcher\NativeLibrary.java" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Launcher\Launcher.vcxproj" />
   </ItemGroup>
   <Import Project="$(AndroidTargetsPath)\Android.targets" />
   <ImportGroup Label="ExtensionTargets" />

@@ -3,10 +3,11 @@
 #include "../Engine/Objects/Object.h"
 #include "ShaderProgram.h"
 
+#include <vector>
+#include "Rendering/Passes/DrawPass.h"
+
 namespace Engine
 {
-	class DrawPass;
-
 	class Engine_API CommandEngine : public Object
 	{
 	public:
@@ -57,6 +58,9 @@ namespace Engine
 		// Get current fence value
 		uint64_t GetValue() const { return m_uiFenceValue; }
 
+		// Get draw passes
+		const std::vector<DrawPass*>& GetPasses() const { return m_Passes; };
+
 	protected:
 		// Signal a value to fence
 		virtual void Signal()
@@ -64,11 +68,10 @@ namespace Engine
 			m_uiFenceValue++;
 		}
 
-		// Prepare to render next frame
-		virtual void AdvanceFrame() = 0;
-
 		Type m_Type = E_DIRECT;
 		State m_State = E_IDLE;
+
+		std::vector<DrawPass*> m_Passes;
 
 		uint64_t m_uiFenceValue = 0;
 	};

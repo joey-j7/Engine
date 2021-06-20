@@ -21,6 +21,7 @@ namespace Engine
 		// Ensure that the GPU is no longer referencing resources that are about to be
 		// cleaned up by the destructor.
 		WaitForGPU();
+		m_State = E_IDLE;
 
 		// TODO
 	}
@@ -31,6 +32,7 @@ namespace Engine
 			return;
 
 		WaitForGPU();
+		m_State = E_IDLE;
 
 		// TODO
 	}
@@ -57,7 +59,6 @@ namespace Engine
 	void GLCommandEngine::WaitForGPU()
 	{
 		// TODO
-		m_State = E_IDLE;
 	}
 
 	//void GLCommandEngine::Signal()
@@ -76,13 +77,4 @@ namespace Engine
 	//		VkRenderAPI::Verify(err);
 	//	}
 	//}
-
-	void GLCommandEngine::AdvanceFrame()
-	{
-		// If the next frame is not ready to be rendered yet, wait until it is ready.
-		WaitForGPU();
-
-		// Set the fence value for the next frame.
-		m_uiFenceValue = 0;
-	}
 }

@@ -3,20 +3,28 @@
 #include "Objects/VkTexture.h"
 
 #include <vector>
-#include <memory>
+#include <optional>
 
 namespace Engine {
 	class VkRenderAPI;
-
+	
 	struct VkSwapchainContext
 	{
-		VkSwapchainContext() = default;
+		struct SupportDetails {
+			VkSurfaceCapabilitiesKHR Capabilities;
+			std::vector<VkSurfaceFormatKHR> Formats;
+			std::vector<VkPresentModeKHR> PresentModes;
+		};
+		
+		VkSwapchainContext(VkRenderAPI& api);
 		~VkSwapchainContext();
 
-		void Init(Engine::VkRenderAPI& api);
+		void Init();
 		void Deinit();
+		
+		SupportDetails QuerySupport(VkPhysicalDevice device);
 
-		VkSwapchainKHR Swapchain;
+		VkSwapchainKHR Swapchain = VK_NULL_HANDLE;
 
 		std::vector<VkImage> Images;
 		std::vector<VkImageView> Views;
@@ -29,17 +37,22 @@ namespace Engine {
 
 		VkExtent2D Extent;
 
-		VkQueue GraphicsQueue;
-		VkQueue PresentQueue;
-
 		VkSwapchainCreateInfoKHR CreateInfo;
 		
-		VkSurfaceCapabilitiesKHR Capabilities;
-		std::vector<VkSurfaceFormatKHR> Formats;
-		std::vector<VkPresentModeKHR> PresentModes;
-
+		SupportDetails Details;
+		
 	private:
-		bool Initialized = false;
-	};
+		void CheckSupport();
+		
+		VkSurfaceFormatKHR ChooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+		VkPresentModeKHR ChoosePresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+		VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+		
+		void CreateImageViews();
 
+		VkRenderAPI* API = nullptr;
+		
+		bool Initialized = false;
+		bool SupportChecked = false;
+	};
 }

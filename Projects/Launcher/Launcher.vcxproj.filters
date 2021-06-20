@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="DebugWorld.cpp" />
+    <ClCompile Include="$(ANDROID_NDK)\sources\android\native_app_glue\android_native_app_glue.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugWorld.h" />

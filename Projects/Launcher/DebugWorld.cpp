@@ -7,12 +7,14 @@
 DebugWorld::DebugWorld()
 {
 	// Engine::CommandEngine* pEngine = Engine::Application::Get().GetRenderContext().GetAPI().GetCommandEngine("Screen");
-
+	// 
 	// Engine::ShaderProgram::Descriptor shaderDesc;
 	// shaderDesc.Vertex = "default.vert";
 	// shaderDesc.Pixel = "default.frag";
-
+	// 
 	// m_pPass = pEngine->Create(shaderDesc);
+	//
+	Engine::Application::Get().GetHardwareContext().GetCamera().Start();
 }
 
 void DebugWorld::Draw(float fDeltaTime)

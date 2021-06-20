@@ -3,57 +3,57 @@
 
 namespace Engine
 {
-	void LayeredObject::PushLayer(Layer* pLayer)
+	void LayeredObject::PushLayer(Layer* Layer)
 	{
-		m_LayerStack.PushLayer(pLayer);
+		m_LayerStack.PushLayer(Layer);
 	}
 
-	void LayeredObject::PushOverlay(Layer* pLayer)
+	void LayeredObject::PushOverlay(Layer* Layer)
 	{
-		m_LayerStack.PushOverlay(pLayer);
+		m_LayerStack.PushOverlay(Layer);
 	}
 
 	void LayeredObject::Update(float fDeltaTime)
 	{
-		for (Layer* pLayer : m_LayerStack)
+		for (Layer* Layer : m_LayerStack)
 		{
-			if (!pLayer->IsActive())
+			if (!Layer->IsActive())
 				continue;
 
-			pLayer->Update(fDeltaTime);
+			Layer->Update(fDeltaTime);
 		}
 	}
 
 	void LayeredObject::FixedUpdate(float fDeltaTime)
 	{
-		for (Layer* pLayer : m_LayerStack)
+		for (Layer* Layer : m_LayerStack)
 		{
-			if (!pLayer->IsActive())
+			if (!Layer->IsActive())
 				continue;
 
-			pLayer->FixedUpdate(fDeltaTime);
+			Layer->FixedUpdate(fDeltaTime);
 		}
 	}
 
 	void LayeredObject::Draw(float fDeltaTime)
 	{
-		for (Layer* pLayer : m_LayerStack)
+		for (Layer* Layer : m_LayerStack)
 		{
-			if (!pLayer->IsActive())
+			if (!Layer->IsActive())
 				continue;
 
-			pLayer->Draw(fDeltaTime);
+			Layer->Draw(fDeltaTime);
 		}
 	}
 
 	void LayeredObject::LateUpdate(float fDeltaTime)
 	{
-		for (Layer* pLayer : m_LayerStack)
+		for (Layer* Layer : m_LayerStack)
 		{
-			if (!pLayer->IsActive())
+			if (!Layer->IsActive())
 				continue;
 
-			pLayer->LateUpdate(fDeltaTime);
+			Layer->LateUpdate(fDeltaTime);
 		}
 	}
 
@@ -62,9 +62,9 @@ namespace Engine
 		if (!DynamicObject::Play())
 			return false;
 
-		for (Layer* pLayer : m_LayerStack)
+		for (Layer* Layer : m_LayerStack)
 		{
-			pLayer->Play();
+			Layer->Play();
 		}
 
 		return true;
@@ -75,9 +75,9 @@ namespace Engine
 		if (!DynamicObject::Pause())
 			return false;
 
-		for (Layer* pLayer : m_LayerStack)
+		for (Layer* Layer : m_LayerStack)
 		{
-			pLayer->Pause();
+			Layer->Pause();
 		}
 
 		return true;
@@ -88,9 +88,9 @@ namespace Engine
 		if (!DynamicObject::Resume())
 			return false;
 
-		for (Layer* pLayer : m_LayerStack)
+		for (Layer* Layer : m_LayerStack)
 		{
-			pLayer->Resume();
+			Layer->Resume();
 		}
 
 		return true;
@@ -101,21 +101,11 @@ namespace Engine
 		if (!DynamicObject::Stop())
 			return false;
 
-		for (Layer* pLayer : m_LayerStack)
+		for (Layer* Layer : m_LayerStack)
 		{
-			pLayer->Stop();
+			Layer->Stop();
 		}
 
 		return true;
-	}
-
-	void LayeredObject::Call(Event& e)
-	{
-		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin(); )
-		{
-			(*--it)->Call(e);
-			if (e.Handled)
-				break;
-		}
 	}
 }

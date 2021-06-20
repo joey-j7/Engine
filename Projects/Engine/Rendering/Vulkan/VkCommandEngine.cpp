@@ -3,128 +3,157 @@
 #include "VkCommandEngine.h"
 
 #include "VkRenderAPI.h"
+
 #include "Passes/VkDrawPass.h"
 
 namespace Engine
 {
 	DrawPass* VkCommandEngine::Create(const ShaderProgram::Descriptor& shaderPipeline)
 	{
-		return new VkDrawPass(*this, shaderPipeline);
+		VkDrawPass* pass = new VkDrawPass(*this, shaderPipeline);
+		m_Passes.push_back(pass);
+		m_VkPasses.push_back(pass);
+
+		return pass;
 	}
 
 	VkCommandEngine::VkCommandEngine(Type type, const std::string& sName) : CommandEngine(type, sName)
 	{
-		auto& api = VkRenderAPI::Get();
+		API = &VkRenderAPI::Get();
 
-		// Find queue families
-		uint32_t graphicsFamily = UINT_MAX;
-		uint32_t presentFamily = UINT_MAX;
-
-		uint32_t queueFamilyCount = 0;
-		vk(GetPhysicalDeviceQueueFamilyProperties, api.PhysicalDevice, &queueFamilyCount, nullptr);
-
-		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vk(GetPhysicalDeviceQueueFamilyProperties, api.PhysicalDevice, &queueFamilyCount, queueFamilies.data());
-
-		int i = 0;
-		for (const auto& queueFamily : queueFamilies)
-		{
-			if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-			{
-				graphicsFamily = i;
-			}
-
-			VkBool32 presentSupport = false;
-			vk(GetPhysicalDeviceSurfaceSupportKHR, api.PhysicalDevice, i, api.Surface, &presentSupport);
-
-			if (queueFamily.queueCount > 0 && presentSupport)
-			{
-				presentFamily = i;
-			}
-
-			if (graphicsFamily != UINT_MAX && presentFamily != UINT_MAX)
-			{
-				break;
-			}
-
-			i++;
-		}
-
-		/* Create command pool, semaphores, fences */
-		VkCommandPoolCreateInfo poolInfo = {};
-		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.queueFamilyIndex = graphicsFamily == UINT_MAX ? 0 : graphicsFamily;
-
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = 1;
-
-		VkSemaphoreCreateInfo semaphoreInfo = {};
-		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-		VkFenceCreateInfo fenceInfo = {};
-		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-		uint32_t uiFrameCount = api.SwapchainCtx.FrameCount;
-
-		m_CommandBuffers.resize(uiFrameCount);
-
-		m_ImageAcquiredSemaphores.resize(uiFrameCount);
-		m_RenderCompleteSemaphores.resize(uiFrameCount);
-		m_Fences.resize(uiFrameCount);
-
-		VkResult err = vk(CreateCommandPool, api.Device, &poolInfo, nullptr, &m_CommandPool);
-		VkRenderAPI::Verify(err);
-
-		for (uint32_t i = 0; i < uiFrameCount; ++i)
-		{
-			allocInfo.commandPool = m_CommandPool;
-
-			err = vk(AllocateCommandBuffers, api.Device, &allocInfo, &m_CommandBuffers[i]);
-			VkRenderAPI::Verify(err);
-		}
-
-		for (uint32_t i = 0; i < uiFrameCount; ++i)
-		{
-			err = vk(CreateSemaphore, api.Device, &semaphoreInfo, nullptr, &m_ImageAcquiredSemaphores[i]);
-			VkRenderAPI::Verify(err);
-
-			err = vk(CreateSemaphore, api.Device, &semaphoreInfo, nullptr, &m_RenderCompleteSemaphores[i]);
-			VkRenderAPI::Verify(err);
-
-			/* Create the fence used to sync command buffer completion */
-			err = vk(CreateFence, api.Device, &fenceInfo, nullptr, &m_Fences[i]);
-			VkRenderAPI::Verify(err);
-		}
+		Init();
 	}
 
-	VkCommandEngine::~VkCommandEngine()
+	void VkCommandEngine::Init()
 	{
-		// Ensure that the GPU is no longer referencing resources that are about to be
-		// cleaned up by the destructor.
-		WaitForGPU();
+		if (m_Initialized)
+			return;
+
+		CreateCommandPool();
+		CreateSyncObjects();
+
+		m_Initialized = true;
+	}
+
+	void VkCommandEngine::Deinit()
+	{
+		if (!m_Initialized)
+			return;
 
 		auto& api = VkRenderAPI::Get();
 
 		for (uint32_t i = 0; i < api.SwapchainCtx.FrameCount; ++i)
 		{
-			vk(DestroyFence, api.Device, m_Fences[i], nullptr);
-
 			vk(DestroySemaphore, api.Device, m_RenderCompleteSemaphores[i], nullptr);
 			vk(DestroySemaphore, api.Device, m_ImageAcquiredSemaphores[i], nullptr);
+			
+			vk(DestroyFence, api.Device, m_Fences[i], nullptr);
 		}
 
 		vk(DestroyCommandPool, api.Device, m_CommandPool, nullptr);
+
+		m_ImageAcquiredSemaphores.clear();
+		m_RenderCompleteSemaphores.clear();
+		m_Fences.clear();
+		m_SemaphoreFences.clear();
+
+		m_State = E_IDLE;
+		m_uiFenceValue = 0;
+
+		m_Initialized = false;
+	}
+
+	void VkCommandEngine::ResetSemaphoreFence()
+	{
+		m_SemaphoreFences.resize(API->SwapchainCtx.Views.size(), VK_NULL_HANDLE);
+	}
+
+	void VkCommandEngine::CreateCommandPool() {
+		VkRenderAPI::QueueFamilyIndices queueFamilyIndices = API->FindQueueFamilies(API->PhysicalDevice);
+
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
+
+		const auto& res = vk(CreateCommandPool, API->Device, &poolInfo, nullptr, &m_CommandPool);
+		VkRenderAPI::Verify(res);
+	}
+
+	void VkCommandEngine::CreateSyncObjects() {
+		const uint32_t frameCount = API->SwapchainCtx.FrameCount;
+		
+		m_ImageAcquiredSemaphores.resize(frameCount);
+		m_RenderCompleteSemaphores.resize(frameCount);
+		m_Fences.resize(frameCount);
+		m_SemaphoreFences.resize(API->SwapchainCtx.Views.size(), VK_NULL_HANDLE);
+
+		VkSemaphoreCreateInfo semaphoreInfo{};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		
+		VkFenceCreateInfo fenceInfo{};
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		for (size_t i = 0; i < frameCount; i++) {
+			auto res = vk(CreateSemaphore, API->Device, &semaphoreInfo, nullptr, &m_ImageAcquiredSemaphores[i]);
+			VkRenderAPI::Verify(res);
+			res = vk(CreateSemaphore, API->Device, &semaphoreInfo, nullptr, &m_RenderCompleteSemaphores[i]);
+			VkRenderAPI::Verify(res);
+			res = vk(CreateFence, API->Device, &fenceInfo, nullptr, &m_Fences[i]);
+			VkRenderAPI::Verify(res);
+		}
+	}
+
+	VkCommandEngine::~VkCommandEngine()
+	{
+		Deinit();
 	}
 
 	void VkCommandEngine::Reset()
 	{
 		if (m_State == E_RECORDING || m_State == E_IDLE)
 			return;
+	}
 
-		WaitForGPU();
+	void VkCommandEngine::Begin()
+	{
+		if (m_State != E_IDLE) return;
+		m_State = E_RECORDING;
+	}
+
+	void VkCommandEngine::Execute()
+	{
+		if (m_State != E_RECORDING) return;
+		m_State = E_EXECUTING;
+
+		WaitForImageAcquirement();
+		
+		/* Submit graphics queue */
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+		const uint32_t frame = API->SwapchainCtx.FrameIndex;
+		
+		VkSemaphore waitSemaphores[] = { m_ImageAcquiredSemaphores[frame] };
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		submitInfo.commandBufferCount = m_Passes.size();
+
+		const VkCommandBuffer** buffers = new const VkCommandBuffer * [m_Passes.size()];
+
+		for (uint32_t i = 0; i < m_VkPasses.size(); ++i)
+		{
+			buffers[i] = &m_VkPasses[i]->GetCommandBuffer();
+		}
+
+		submitInfo.pCommandBuffers = *buffers;
+
+		VkSemaphore signalSemaphores[] = { GetRenderCompleteSemaphore() };
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
 
 		auto& api = VkRenderAPI::Get();
 
@@ -134,61 +163,27 @@ namespace Engine
 		VkResult err = vk(ResetFences, api.Device, 1, &GetFence());
 		VkRenderAPI::Verify(err);
 
-		err = vk(ResetCommandPool, api.Device, GetCommandPool(), 0);
-		VkRenderAPI::Verify(err);
-	}
-
-	void VkCommandEngine::Begin()
-	{
-		if (m_State != E_IDLE) return;
-		m_State = E_RECORDING;
-
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
-		const VkResult err = vk(BeginCommandBuffer, GetCommandBuffer(), &beginInfo);
-		VkRenderAPI::Verify(err);
-	}
-
-	void VkCommandEngine::Execute()
-	{
-		if (m_State != E_RECORDING) return;
-		m_State = E_EXECUTING;
-
-		// Close buffer
-		VkResult err = vk(EndCommandBuffer, GetCommandBuffer());
+		err = vk(QueueSubmit, VkRenderAPI::Get().GetGraphicsQueue(), 1, &submitInfo, GetFence());
 		VkRenderAPI::Verify(err);
 
-		// Execute
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		VkSemaphore waitSemaphores[] = { GetImageAcquiredSemaphore() };
-		VkSemaphore signalSemaphores[] = { GetRenderCompleteSemaphore() };
-
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitDstStageMask = waitStages;
-		submitInfo.pWaitSemaphores = waitSemaphores;
-
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &GetCommandBuffer();
-
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = signalSemaphores;
-
-		// Signal
-		Signal();
-
-		err = vk(QueueSubmit, VkRenderAPI::Get().SwapchainCtx.GraphicsQueue, 1, &submitInfo, GetFence());
-		VkRenderAPI::Verify(err);
+		delete[] buffers;
 	}
 
 	void VkCommandEngine::WaitForGPU()
 	{
-		vk(WaitForFences, VkRenderAPI::Get().Device, 1, &GetFence(), VK_TRUE, std::numeric_limits<uint64_t>::max());
-		m_State = E_IDLE;
+		vk(WaitForFences, API->Device, 1, &GetFence(), VK_TRUE, UINT64_MAX);
+	}
+
+	void VkCommandEngine::WaitForImageAcquirement()
+	{
+		const uint32_t semaphore = API->SwapchainCtx.SemaphoreIndex;
+
+		if (m_SemaphoreFences[semaphore] != VK_NULL_HANDLE) {
+			vk(WaitForFences, API->Device, 1, &m_SemaphoreFences[semaphore], VK_TRUE, UINT64_MAX);
+		}
+
+		const uint32_t frame = API->SwapchainCtx.FrameIndex;
+		m_SemaphoreFences[semaphore] = m_Fences[frame];
 	}
 
 	const VkCommandPool& VkCommandEngine::GetCommandPool() const
@@ -196,24 +191,24 @@ namespace Engine
 		return m_CommandPool;
 	}
 
-	const VkCommandBuffer& VkCommandEngine::GetCommandBuffer() const
-	{
-		return m_CommandBuffers[VkRenderAPI::Get().SwapchainCtx.FrameIndex];
-	}
-
 	const VkSemaphore& VkCommandEngine::GetImageAcquiredSemaphore() const
 	{
-		return m_ImageAcquiredSemaphores[VkRenderAPI::Get().SwapchainCtx.SemaphoreIndex];
+		return m_ImageAcquiredSemaphores[VkRenderAPI::Get().SwapchainCtx.FrameIndex];
 	}
 
 	const VkSemaphore& VkCommandEngine::GetRenderCompleteSemaphore() const
 	{
-		return m_RenderCompleteSemaphores[VkRenderAPI::Get().SwapchainCtx.SemaphoreIndex];
+		return m_RenderCompleteSemaphores[VkRenderAPI::Get().SwapchainCtx.FrameIndex];
 	}
 
 	const VkFence& VkCommandEngine::GetFence() const
 	{
 		return m_Fences[VkRenderAPI::Get().SwapchainCtx.FrameIndex];
+	}
+
+	const VkFence& VkCommandEngine::GetSemaphoreFence() const
+	{
+		return m_SemaphoreFences[VkRenderAPI::Get().SwapchainCtx.SemaphoreIndex];
 	}
 
 	//void VkCommandEngine::Signal()
@@ -232,13 +227,4 @@ namespace Engine
 	//		VkRenderAPI::Verify(err);
 	//	}
 	//}
-
-	void VkCommandEngine::AdvanceFrame()
-	{
-		// If the next frame is not ready to be rendered yet, wait until it is ready.
-		WaitForGPU();
-
-		// Set the fence value for the next frame.
-		m_uiFenceValue = 0;
-	}
 }

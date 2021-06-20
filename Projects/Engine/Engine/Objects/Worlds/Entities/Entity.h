@@ -5,6 +5,9 @@
 #include <memory>
 #include <cstdint>
 
+#include "Engine/Objects/Object.h"
+#include "Engine/Events/Event.h"
+
 namespace Engine
 {
 	class World;
@@ -12,7 +15,7 @@ namespace Engine
 
 	extern std::atomic_uint32_t TypeIdCounter;
 
-	class Engine_API Entity
+	class Engine_API Entity : public Object
 	{
 	public:
 		friend class World;
@@ -23,8 +26,8 @@ namespace Engine
 			E_DYNAMIC
 		};
 
-		Entity() {}
-		virtual ~Entity() {}
+		Entity(const std::string& sName = "Unnamed Entity") : Object(sName) {}
+		virtual ~Entity();
 		
 		World* GetWorld() const { return m_pWorld; }
 		Type GetType() const { return m_Type; }
@@ -39,10 +42,20 @@ namespace Engine
 		template <class T>
 		bool RemoveComponent();
 
+		const Entity* GetParent() const { return Parent; }
+		void SetParent(Entity* Object);
+
+		const std::list<Entity*>& GetChildren() const { return Children; }
+
+		Event<void, Entity*, Entity*> OnParentChange;
+		
 	protected:
 		virtual void Awake() = 0;
 		virtual bool OnDestroy() { return true; }
 
+		Entity* Parent = nullptr;
+		std::list<Entity*> Children;
+		
 		World* m_pWorld = nullptr;
 		uint32_t m_uiID = 0;
 
@@ -80,13 +93,61 @@ namespace Engine
 		
 		if (T* obj = GetComponent<T>())
 		{
-			return *obj;
+			if (!obj->HasForcedUniqueness())
+				return *obj;
 		}
 
-		std::unique_ptr<T> component = std::make_unique<T>();
-		m_Components.insert(GetComponentID<T>(), component);
+		std::unique_ptr<T> Component = std::make_unique<T>();
 
-		return *component.get();
+		// Check for prohibited components first
+		bool HasIllegalComponents = false;
+
+		if (Component->HasForcedUniqueness())
+		{
+			if (GetComponent<T>())
+			{
+				CB_CORE_ERROR("Tried to add unique component {0} while it already exists!", typeid(T).name());
+				HasIllegalComponents = true;
+			}
+		}
+
+		if (HasIllegalComponents)
+		{
+			Component.reset();
+			return nullptr;
+		}
+
+		for (std::type_info TypeInfo : Component->GetProhibitedComponents())
+		{
+			if (GetComponent<TypeInfo>())
+			{
+				CB_CORE_ERROR("Tried to add component {0} while the entity contains incompatible component {1}!", typeid(T).name(), TypeInfo.name());
+				AddComponent<T>();
+
+				HasIllegalComponents = true;
+			}
+		}
+
+		if (HasIllegalComponents)
+		{
+			Component.reset();
+			return nullptr;
+		}
+
+		// Add dependency components second
+		for (std::type_info TypeInfo : Component->GetDependencyComponents())
+		{
+			if (!GetComponent<TypeInfo>())
+			{
+				CB_CORE_INFO("Added dependency component {0} for component {1}", TypeInfo.name(), typeid(T).name());
+				AddComponent<T>();
+			}
+		}
+
+		// Now add component
+		m_Components.insert(GetComponentID<T>(), Component);
+
+		return *Component.get();
 	}
 
 	template <class T>

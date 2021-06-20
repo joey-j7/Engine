@@ -10,6 +10,11 @@
 
 #include "spdlog/spdlog.h"
 
+#ifdef CB_PLATFORM_ANDROID
+#include <android/log.h>
+#include "spdlog/sinks/android_sink.h"
+#endif
+
 namespace Engine
 {
 	struct Engine_API ScreenMessage
@@ -38,6 +43,15 @@ namespace Engine
 
 	private:
 		static void AddScreenMessage(const std::string& message, Color color, float fTimer);
+		
+		static inline Type Level = 
+			#ifdef CB_DEBUG
+				E_TRACE
+			#else
+				E_WARN
+			#endif
+		;
+
 		static std::vector<ScreenMessage> m_ScreenLogger;
 	};
 
@@ -45,6 +59,9 @@ namespace Engine
 	void Log::Add(Log::Type type, bool isCore, float timer, const char* fmt, const Args &... args)
 	{
 #ifndef CB_DIST
+		if (type < Level)
+			return;
+		
 		Color col = Color(1.0f);
 		static const std::string typeNames[] = { "TRACE", "INFO", "WARN", "ERROR", "FATAL" };
 
@@ -113,9 +130,22 @@ namespace Engine
 		message += formatted.data();
 		AddScreenMessage(message, col, timer);
 
+		const char* msg = message.c_str();
+
 #ifdef CB_PLATFORM_WINDOWS
 		message += '\n';
-		OutputDebugString(message.c_str());
+		OutputDebugString(msg);
+#else
+		__android_log_write(
+			type == E_FATAL ? ANDROID_LOG_FATAL :
+			type == E_ERROR ? ANDROID_LOG_ERROR :
+			type == E_WARN ? ANDROID_LOG_WARN :
+			type == E_INFO ? ANDROID_LOG_INFO :
+			type == E_TRACE ? ANDROID_LOG_VERBOSE :
+			ANDROID_LOG_UNKNOWN,
+			"Engine",
+			msg
+		);
 #endif
 #endif
 	}

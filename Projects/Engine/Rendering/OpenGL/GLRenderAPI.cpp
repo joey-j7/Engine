@@ -20,9 +20,9 @@ namespace Engine
 		m_ScreenCommandEngine = m_CommandEngines["Screen"];
 	}
 
-	void GLRenderAPI::Swap()
+	bool GLRenderAPI::Swap()
 	{
-
+		return true;
 	}
 
 	void GLRenderAPI::Present()

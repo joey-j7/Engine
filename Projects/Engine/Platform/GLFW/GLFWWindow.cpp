@@ -1,14 +1,11 @@
 #include "pch.h"
 
 #include "GLFWWindow.h"
-
-#include "Engine/Events/ApplicationEvent.h"
-#include "Engine/Events/MouseEvent.h"
-#include "Engine/Events/KeyEvent.h"
-
 #include "Rendering/RenderContext.h"
 
 #include <glad/glad.h>
+
+#include "Engine/Application.h"
 
 namespace Engine {
 
@@ -17,6 +14,14 @@ namespace Engine {
 	static void GLFWErrorCallback(int error, const char* description)
 	{
 		CB_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
+	}
+
+	Window::Window()
+	{
+		OnMinimizeEvent.Bind(&Application::Get(), &Application::OnWindowMinimize);
+		OnFocusEvent.Bind(&Application::Get(), &Application::OnWindowFocus);
+		OnResizeEvent.Bind(&Application::Get(), &Application::OnWindowResize);
+		OnCloseEvent.Bind(&Application::Get(), &Application::OnWindowClose);
 	}
 
 	Window* Window::Create(const WindowProps& props)
@@ -43,9 +48,6 @@ namespace Engine {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
-
-		if (s_GLFWInitialized)
-			Shutdown();
 
 		if (!s_GLFWInitialized)
 		{
@@ -81,7 +83,7 @@ namespace Engine {
 			CB_CORE_ASSERT(status, "Failed to initialize Glad!");
 		}
 
-		glfwSetWindowUserPointer(m_Window, &m_Data);
+		glfwSetWindowUserPointer(m_Window, this);
 		SetVSync(true);
 		SetTrippleBuffering(false);
 
@@ -110,131 +112,25 @@ namespace Engine {
 #endif
 
 		// Set GLFW callbacks
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-		{
-			// Identified as a minimize event, not necessary
-			if (width == 0 || height == 0)
-				return;
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* Window, int Width, int Height) { OnResize(Window, Width, Height); });
+		glfwSetWindowIconifyCallback(m_Window, OnMinimize);
+		glfwSetWindowFocusCallback(m_Window, OnFocus);
+		glfwSetWindowCloseCallback(m_Window, OnClose);
 
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
+		glfwSetKeyCallback(m_Window, OnKey);
+		glfwSetCharCallback(m_Window, OnChar);
 
-			data.Width = width;
-			data.Height = height;
+		glfwSetMouseButtonCallback(m_Window, OnMouseButton);
+		glfwSetScrollCallback(m_Window, OnScroll);
+		glfwSetCursorPosCallback(m_Window, OnCursorPosition);
 
-			WindowResizeEvent event(width, height);
-			data.EventCallback(event);
-		});
-
-		glfwSetWindowIconifyCallback(m_Window, [](GLFWwindow* window, int iconified)
-		{
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
-			WindowMinimizeEvent event(iconified);
-			data.EventCallback(event);
-		});
-
-		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focussed)
-		{
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
-			WindowFocusEvent event(focussed);
-			data.EventCallback(event);
-		});
-
-		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
-		{
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
-			WindowCloseEvent event;
-			data.EventCallback(event);
-		});
-
-		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-		{
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
-
-			switch (action)
-			{
-			case GLFW_PRESS:
-			{
-				KeyPressedEvent event(key, 0);
-				data.EventCallback(event);
-				break;
-			}
-			case GLFW_RELEASE:
-			{
-				KeyReleasedEvent event(key);
-				data.EventCallback(event);
-				break;
-			}
-			case GLFW_REPEAT:
-			{
-				KeyPressedEvent event(key, 1);
-				data.EventCallback(event);
-				break;
-			}
-			}
-		});
-
-		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode)
-		{
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
-
-			KeyTypedEvent event(keycode);
-			data.EventCallback(event);
-		});
-
-		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
-		{
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
-
-			switch (action)
-			{
-			case GLFW_PRESS:
-			{
-				MouseButtonPressedEvent event(button);
-				data.EventCallback(event);
-				break;
-			}
-			case GLFW_RELEASE:
-			{
-				MouseButtonReleasedEvent event(button);
-				data.EventCallback(event);
-				break;
-			}
-			}
-		});
-
-		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
-		{
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
-
-			MouseScrolledEvent event((float)xOffset, (float)yOffset);
-			data.EventCallback(event);
-		});
-
-		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
-		{
-			Window::Data& data = *(Window::Data*)glfwGetWindowUserPointer(window);
-
-			MouseMovedEvent event((float)xPos, (float)yPos);
-			data.EventCallback(event);
-		});
-
-		CB_CORE_INFO("Created window {0} with dimensions ({1} x {2})", props.Title, props.Width, props.Height);
+		CB_CORE_INFO("Created a window {0} with dimensions ({1} x {2})", props.Title, props.Width, props.Height);
 	}
 
 	void GLFWWindow::Shutdown()
 	{
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
-	}
-
-	void GLFWWindow::OnUpdate()
-	{
-		glfwPollEvents();
-
-		if (RenderContext::GetAPIType() == RenderAPI::E_OPENGL)
-		{
-			glfwSwapBuffers(m_Window);
-		}
 	}
 
 	void GLFWWindow::SetVSync(bool enabled)
@@ -267,11 +163,120 @@ namespace Engine {
 
 	void GLFWWindow::Reset()
 	{
-		/* Not necessary */
+		glfwDestroyWindow(m_Window);
+		m_Window = nullptr;
+
+		const WindowProps props(m_Data.Title, m_Data.Width, m_Data.Height);
+		Init(props);
 	}
 
 	void GLFWWindow::Wait()
 	{
 		glfwWaitEvents();
+	}
+
+	/* Events */
+	void GLFWWindow::OnUpdate()
+	{
+		glfwPollEvents();
+
+		if (RenderContext::GetAPIType() == RenderAPI::E_OPENGL)
+		{
+			glfwSwapBuffers(m_Window);
+		}
+	}
+	
+	void GLFWWindow::OnResize(GLFWwindow* Window, int Width, int Height)
+	{
+		// Identified as a minimize event, not necessary
+		if (Width == 0 || Height == 0)
+			return;
+
+		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+
+		AppWindow.m_Data.Width = Width;
+		AppWindow.m_Data.Height = Height;
+
+		AppWindow.OnResizeEvent(Width, Height);
+	}
+	
+	void GLFWWindow::OnMinimize(GLFWwindow* Window, int Minimized)
+	{
+		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+		AppWindow.OnMinimizeEvent(Minimized == 1);
+	}
+
+	void GLFWWindow::OnFocus(GLFWwindow* Window, int Focussed)
+	{
+		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+		AppWindow.OnFocusEvent(Focussed == 1);
+	}
+
+	void GLFWWindow::OnClose(GLFWwindow* Window)
+	{
+		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+		AppWindow.OnCloseEvent();
+	}
+
+	void GLFWWindow::OnKey(GLFWwindow* Window, int Key, int Scancode, int Action, int Mods)
+	{
+		switch (Action)
+		{
+		case GLFW_PRESS:
+		{
+			GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+			AppWindow.OnKeyPressedEvent(Key, 0);
+			break;
+		}
+		case GLFW_RELEASE:
+		{
+			GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+			AppWindow.OnKeyReleasedEvent(Key);
+			break;
+		}
+		case GLFW_REPEAT:
+		{
+			GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+			AppWindow.OnKeyPressedEvent(Key, 1);
+			break;
+		}
+		}
+	}
+
+	void GLFWWindow::OnChar(GLFWwindow* Window, unsigned Keycode)
+	{
+		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+		AppWindow.OnCharEvent(Keycode);
+	}
+
+	void GLFWWindow::OnMouseButton(GLFWwindow* Window, int Button, int Action, int Mods)
+	{
+		switch (Action)
+		{
+		case GLFW_PRESS:
+		{
+			GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+			AppWindow.OnMousePressedEvent(Button);
+			break;
+		}
+		case GLFW_RELEASE:
+		{
+			GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+			AppWindow.OnMouseReleasedEvent(Button);
+			break;
+		}
+		}
+	}
+
+	void GLFWWindow::OnScroll(GLFWwindow* Window, double xOffset, double yOffset)
+	{
+		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+		AppWindow.OnScrollEvent(xOffset, yOffset);
+	}
+	
+	void GLFWWindow::OnCursorPosition(GLFWwindow* Window, double xPos, double yPos)
+	{
+		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+		AppWindow.OnCursorPositionEvent(xPos, yPos);
 	}
 }

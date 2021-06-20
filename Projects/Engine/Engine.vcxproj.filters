@@ -2,10 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Engine\Events\ApplicationEvent.h" />
-    <ClInclude Include="Engine\Events\Event.h" />
-    <ClInclude Include="Engine\Events\KeyEvent.h" />
-    <ClInclude Include="Engine\Events\MouseEvent.h" />
     <ClInclude Include="Engine\Application.h" />
     <ClInclude Include="Engine\Core.h" />
     <ClInclude Include="Engine\EntryPoint.h" />
@@ -63,12 +59,21 @@
     <ClInclude Include="Rendering\Renderers\2D\Renderer2D.h" />
     <ClInclude Include="Rendering\Vulkan\Renderers\2D\VkRenderer2D.h" />
     <ClInclude Include="Rendering\Renderers\2D\UI\Shapes\UIRect.h" />
-    <ClInclude Include="Engine\Objects\Components\Component.h" />
-    <ClInclude Include="Engine\Objects\WorldObject.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Component.h" />
     <ClInclude Include="Engine\Objects\DynamicObject.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\DynamicEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Entity.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\StaticEntity.h" />
+    <ClInclude Include="Rendering\Vulkan\Objects\Wrappers\VkWrapper.h" />
+    <ClInclude Include="Rendering\Vulkan\Objects\VkHandle.h" />
+    <ClInclude Include="Platform\Hardware\Camera\Camera.h" />
+    <ClInclude Include="Platform\Android\Hardware\Camera\AndCamera.h" />
+    <ClInclude Include="Platform\Windows\Hardware\Camera\WinCamera.h" />
+    <ClInclude Include="Platform\Hardware\HardwareContext.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.h" />
+    <ClInclude Include="Engine\Events\Event.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -111,5 +116,14 @@
     <ClCompile Include="Rendering\Renderers\2D\Renderer2D.cpp" />
     <ClCompile Include="Rendering\Vulkan\Renderers\2D\VkRenderer2D.cpp" />
     <ClCompile Include="Engine\Objects\DynamicObject.cpp" />
+    <ClCompile Include="Rendering\Vulkan\Objects\Wrappers\VkWrapper.cpp" />
+    <ClCompile Include="Platform\Hardware\Camera\Camera.cpp" />
+    <ClCompile Include="Platform\Android\Hardware\Camera\AndCamera.cpp" />
+    <ClCompile Include="Platform\Hardware\HardwareContext.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
+    <ClCompile Include="Engine\Events\Event.cpp" />
   </ItemGroup>
 </Project>

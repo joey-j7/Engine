@@ -8,20 +8,40 @@
 #include "Renderers/2D/VkRenderer2D.h"
 #include "Rendering/RenderContext.h"
 
-#ifdef CB_DEBUG
-static VKAPI_ATTR VkBool32 VKAPI_CALL debug_report(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t object, size_t location, int32_t messageCode, const char* pLayerPrefix, const char* pMessage, void* pUserData)
-{
-	(void)flags; (void)object; (void)location; (void)messageCode; (void)pUserData; (void)pLayerPrefix; // Unused arguments
-	fprintf(stderr, "[vulkan] ObjectType: %i\nMessage: %s\n\n", objectType, pMessage);
+#include <set>
+
+#include "Passes/VkDrawPass.h"
+
+#ifdef CB_DEBUG && defined(CB_PLATFORM_WINDOWS)
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+	const std::string s = std::string("[VULKAN] ") + pCallbackData->pMessage;
+	
+	switch (messageSeverity)
+	{
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+		CB_CORE_ERROR(s.c_str());
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+		CB_CORE_WARN(s.c_str());
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+		CB_CORE_INFO(s.c_str());
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+	default:
+		CB_CORE_TRACE(s.c_str());
+		break;
+	}
+	
 	return VK_FALSE;
 }
-#endif // IMGUI_VULKAN_DEBUG_REPORT
+#endif 
 
 namespace Engine
 {
 	VkRenderAPI* VkRenderAPI::s_Instance = nullptr;
 
-	VkRenderAPI::VkRenderAPI(RenderContext& renderContext) : RenderAPI(renderContext)
+	VkRenderAPI::VkRenderAPI(RenderContext& renderContext) : RenderAPI(renderContext), SwapchainCtx(*this)
 	{
 		CB_CORE_ASSERT(!s_Instance, "VkRenderAPI already exists!");
 		s_Instance = this;
@@ -48,32 +68,41 @@ namespace Engine
 		SwapchainCtx.Deinit();
 
 		vk(DestroySurfaceKHR, Instance, Surface, nullptr);
-
-		vk(DestroyDevice, Device, Allocator);
-		vk(DestroyInstance, Instance, Allocator);
 	}
 
-	void VkRenderAPI::Swap()
+	bool VkRenderAPI::Swap()
 	{
-		VkResult err = vk(AcquireNextImageKHR, 
+		m_ScreenCommandEngine->WaitForGPU();
+		
+		VkResult res = vk(
+			AcquireNextImageKHR, 
 			Device,
 			SwapchainCtx.Swapchain,
-			std::numeric_limits<uint64_t>::max(),
+			UINT64_MAX,
 			m_ScreenCommandEngine->GetImageAcquiredSemaphore(),
 			VK_NULL_HANDLE,
-			&SwapchainCtx.FrameIndex
+			&SwapchainCtx.SemaphoreIndex
 		);
-
-		Verify(err);
-
+		
+		if (res == VK_ERROR_OUT_OF_DATE_KHR) {
+			Reset();
+			return false;
+		}
+		
+		if (res != VK_SUBOPTIMAL_KHR)
+		{
+			Verify(res);
+		}
+		
 		m_pRenderer2D->Swap();
+		return true;
 	}
 
 	void VkRenderAPI::Present()
 	{
 		m_pRenderer2D->Present();
-		
-		VkPresentInfoKHR presentInfo = {};
+
+		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
 		VkSemaphore signalSemaphores[] = { m_ScreenCommandEngine->GetRenderCompleteSemaphore() };
@@ -84,11 +113,20 @@ namespace Engine
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = swapChains;
 
-		presentInfo.pImageIndices = &SwapchainCtx.FrameIndex;
+		presentInfo.pImageIndices = &SwapchainCtx.SemaphoreIndex;
 
-		vk(QueuePresentKHR, SwapchainCtx.PresentQueue, &presentInfo);
+		const auto res = vk(QueuePresentKHR, PresentQueue, &presentInfo);
 
-		SwapchainCtx.SemaphoreIndex = (SwapchainCtx.SemaphoreIndex + 1) % SwapchainCtx.FrameCount;
+		if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
+		{
+			Reset();
+		}
+		else
+		{
+			Verify(res);
+		}
+
+		SwapchainCtx.FrameIndex = (SwapchainCtx.FrameIndex + 1) % SwapchainCtx.FrameCount;
 	}
 
 	void VkRenderAPI::Suspend()
@@ -111,154 +149,338 @@ namespace Engine
 		return it->second;
 	}
 
+	VkRenderAPI::QueueFamilyIndices VkRenderAPI::FindQueueFamilies(VkPhysicalDevice device)
+	{
+		QueueFamilyIndices indices;
+
+		uint32_t queueFamilyCount = 0;
+		vk(GetPhysicalDeviceQueueFamilyProperties, device, &queueFamilyCount, nullptr);
+
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vk(GetPhysicalDeviceQueueFamilyProperties, device, &queueFamilyCount, queueFamilies.data());
+
+		int32_t i = 0;
+		for (const auto& queueFamily : queueFamilies) {
+			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+				indices.GraphicsFamily = i;
+			}
+
+			VkBool32 presentSupport = false;
+			vk(GetPhysicalDeviceSurfaceSupportKHR, device, i, Surface, &presentSupport);
+
+			if (presentSupport) {
+				indices.PresentFamily = i;
+			}
+
+			if (indices.isComplete()) {
+				break;
+			}
+
+			i++;
+		}
+
+		return indices;
+	}
+	
 	bool VkRenderAPI::Init()
 	{
 		if (m_bInitialized)
 			return false;
 
-		m_sName = "Vulkan";
-
-		VkResult err;
-
-		// Setup Vulkan
-		CB_CORE_ASSERT(glfwVulkanSupported(), "GLFW: Vulkan is not supported by the system");
-
-		uint32_t extensions_count = 0;
-		const char** extensions = glfwGetRequiredInstanceExtensions(&extensions_count);
-
-		// Create Vulkan Instance
+		if (!m_InitializedOnce)
 		{
-			VkInstanceCreateInfo create_info = {};
-			create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-			create_info.enabledExtensionCount = extensions_count;
-			create_info.ppEnabledExtensionNames = extensions;
+			m_sName = "Vulkan";
 
-#if defined(CB_DEBUG) && !defined(CB_PLATFORM_ANDROID)
-			// Enabling multiple validation layers grouped as LunarG standard validation
-			const char* layers[] = {
-				"VK_LAYER_KHRONOS_validation"
-			};
-			create_info.enabledLayerCount = 1;
-			create_info.ppEnabledLayerNames = layers;
+			// Setup Vulkan
+			CB_CORE_ASSERT(glfwVulkanSupported(), "GLFW: Vulkan is not supported by the system");
 
-			// Enable debug report extension (we need additional storage, so we duplicate the user array to add our new extension to it)
-			const char** extensions_ext = (const char**)malloc(sizeof(const char*) * (extensions_count + 1));
-			memcpy(extensions_ext, extensions, extensions_count * sizeof(const char*));
-			extensions_ext[extensions_count] = "VK_EXT_debug_report";
-			create_info.enabledExtensionCount = extensions_count + 1;
-			create_info.ppEnabledExtensionNames = extensions_ext;
+			CreateInstance();
 
-			// Create Vulkan Instance
-			PFN_vkCreateInstance pfnCreateInstance = (PFN_vkCreateInstance)glfwGetInstanceProcAddress(NULL, "vkCreateInstance");
-			err = pfnCreateInstance(&create_info, Allocator, &Instance);
-			
-			Verify(err);
-			free(extensions_ext);
-
-			// Get the function pointer (required for any extensions)
-			auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(Instance, "vkCreateDebugReportCallbackEXT");
-			CB_CORE_ASSERT(vkCreateDebugReportCallbackEXT != NULL, "Function pointer extension is not supported!");
-
-			// Setup the debug report callback
-			VkDebugReportCallbackCreateInfoEXT debug_report_ci = {};
-			debug_report_ci.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-			debug_report_ci.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-			debug_report_ci.pfnCallback = debug_report;
-			debug_report_ci.pUserData = NULL;
-
-			// err = ((PFN_vkCreateDebugReportCallbackEXT)glfwGetInstanceProcAddress(VkRenderAPI::Get().Instance, "vkRCreateDebugReportCallbackEXT"))(Instance, &debug_report_ci, Allocator, & DebugReport);
-			err = vk(CreateDebugReportCallbackEXT, Instance, &debug_report_ci, Allocator, &DebugReport);
-			Verify(err);
-#else
-			// Create Vulkan Instance
-			PFN_vkCreateInstance pfnCreateInstance = (PFN_vkCreateInstance)glfwGetInstanceProcAddress(NULL, "vkCreateInstance");
-			err = pfnCreateInstance(&create_info, Allocator, &Instance);
-
-			Verify(err);
+#if defined(CB_DEBUG) && defined(CB_PLATFORM_WINDOWS)
+			SetupDebugMessages();
 #endif
+
+			/* Create GLFW Window and screen related buffers */
+			CreateSurface();
+
+			PickPhysicalDevice();
+			CreateLogicalDevice();
+
+			/* Initialize Renderers, create context (necessary for swapchain image format selection) */
+			m_pRenderer2D = std::unique_ptr<VkRenderer2D>(
+				new VkRenderer2D(*this)
+			);
 		}
-
-		// Select GPU
-		{
-			uint32_t gpu_count = 0;
-			err = vk(EnumeratePhysicalDevices, Instance, &gpu_count, NULL);
-			Verify(err);
-
-			VkPhysicalDevice* gpus = (VkPhysicalDevice*)malloc(sizeof(VkPhysicalDevice) * gpu_count);
-			err = vk(EnumeratePhysicalDevices, Instance, &gpu_count, gpus);
-			Verify(err);
-
-			// If a number >1 of GPUs got reported, you should find the best fit GPU for your purpose
-			// e.g. VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU if available, or with the greatest memory available, etc.
-			// for sake of simplicity we'll just take the first one, assuming it has a graphics queue family.
-			PhysicalDevice = gpus[0];
-			free(gpus);
-		}
-
-		// Select graphics queue family
-		{
-			uint32_t count;
-			vk(GetPhysicalDeviceQueueFamilyProperties, PhysicalDevice, &count, NULL);
-			VkQueueFamilyProperties* queues = (VkQueueFamilyProperties*)malloc(sizeof(VkQueueFamilyProperties) * count);
-			vk(GetPhysicalDeviceQueueFamilyProperties, PhysicalDevice, &count, queues);
-			for (uint32_t i = 0; i < count; i++)
-				if (queues[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-				{
-					QueueFamily = i;
-					break;
-				}
-			free(queues);
-			CB_CORE_ASSERT(QueueFamily != -1, "Invalid graphic queue family!");
-		}
-
-		// Create Logical Device (with 1 queue)
-		{
-			int device_extension_count = 1;
-			const char* device_extensions[] = { "VK_KHR_swapchain" };
-			const float queue_priority[] = { 1.0f };
-			VkDeviceQueueCreateInfo queue_info[1] = {};
-			queue_info[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queue_info[0].queueFamilyIndex = QueueFamily;
-			queue_info[0].queueCount = 1;
-			queue_info[0].pQueuePriorities = queue_priority;
-			VkDeviceCreateInfo create_info = {};
-			create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-			create_info.queueCreateInfoCount = sizeof(queue_info) / sizeof(queue_info[0]);
-			create_info.pQueueCreateInfos = queue_info;
-			create_info.enabledExtensionCount = device_extension_count;
-			create_info.ppEnabledExtensionNames = device_extensions;
-			err = vk(CreateDevice, PhysicalDevice, &create_info, Allocator, &Device);
-			Verify(err);
-			vk(GetDeviceQueue, Device, QueueFamily, 0, &Queue);
-		}
-
-		/* Create Window Surface */
-		auto& window = m_pRenderContext->GetWindow();
-
-		err = glfwCreateWindowSurface(
-			Instance,
-			(GLFWwindow*)window.GetWindow(),
-			Allocator,
-			&Surface
-		);
-
-		Verify(err);
-
-		/* Create swap chain */
-		SwapchainCtx.Init(*this);
-
-		m_CommandEngines.emplace("Screen", new VkCommandEngine(CommandEngine::E_DIRECT, "Screen"));
-		m_ScreenCommandEngine = m_CommandEngines["Screen"];
-
-		vk(GetPhysicalDeviceFeatures, PhysicalDevice, &Features);
 		
-		/* Initialize Renderers */
-		m_pRenderer2D = std::unique_ptr<VkRenderer2D>(
-			new VkRenderer2D(*this)
-		);
+		m_pRenderer2D->CreateContext();
+		
+		/* Create swap chain and image views */
+		SwapchainCtx.Init();
+		
+		for (auto it1 : m_CommandEngines)
+		{
+			for (auto it2 : it1.second->GetVkPasses())
+			{
+				it2->Init();
+			}
 
-		m_pRenderer2D->Init();
+			it1.second->ResetSemaphoreFence();
+		}
+
+		if (!m_InitializedOnce)
+		{
+			/* Create screen render pass, graphics pipeline (draw pass) */
+			/* SPECIFIED BY USER */
+
+			/* Create command pool, command buffers and sync objects (command engine) */
+			m_CommandEngines.emplace("Screen", new VkCommandEngine(CommandEngine::E_DIRECT, "Screen"));
+			m_ScreenCommandEngine = m_CommandEngines["Screen"];
+
+			vk(GetPhysicalDeviceFeatures, PhysicalDevice, &Features);
+
+			m_InitializedOnce = true;
+		}
+		
+		/* Create 2D renderer surface */
+		m_pRenderer2D->CreateSurface();
 
 		return RenderAPI::Init();
+	}
+
+	bool VkRenderAPI::Deinit()
+	{
+		if (!m_bInitialized)
+			return false;
+		
+		for (auto it1 : m_CommandEngines)
+		{
+			it1.second->WaitForGPU();
+			
+			for (auto it2 : it1.second->GetVkPasses())
+			{
+				it2->Deinit();
+			}
+		}
+
+		m_pRenderer2D->Deinit();
+		SwapchainCtx.Deinit();
+		
+		return RenderAPI::Deinit();
+	}
+
+	void VkRenderAPI::CreateInstance()
+	{
+#if defined(CB_DEBUG) && defined(CB_PLATFORM_WINDOWS)
+		if (!CheckValidationLayerSupport()) {
+			throw std::runtime_error("validation layers requested, but not available!");
+		}
+#endif
+
+		VkApplicationInfo appInfo{};
+		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		appInfo.pApplicationName = "App";
+		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.pEngineName = "The Nest";
+		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+		appInfo.apiVersion = VK_API_VERSION_1_0;
+
+		VkInstanceCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		createInfo.pApplicationInfo = &appInfo;
+
+		auto extensions = GetRequiredExtensions();
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+		createInfo.ppEnabledExtensionNames = extensions.data();
+
+		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+
+#if defined(CB_DEBUG) && defined(CB_PLATFORM_WINDOWS)
+			createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+			createInfo.ppEnabledLayerNames = ValidationLayers.data();
+
+			PopulateDebugMessengerCreateInfo(debugCreateInfo);
+			createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
+#else
+			createInfo.enabledLayerCount = 0;
+			createInfo.pNext = nullptr;
+#endif
+
+		const auto res = vk(CreateInstance, &createInfo, nullptr, &Instance);
+		Verify(res);
+	}
+	
+	std::vector<const char*> VkRenderAPI::GetRequiredExtensions() {
+		uint32_t glfwExtensionCount = 0;
+		const char** glfwExtensions;
+		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+#if defined(CB_DEBUG) && defined(CB_PLATFORM_WINDOWS)
+			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+
+		return extensions;
+	}
+	
+#if defined(CB_DEBUG) && defined(CB_PLATFORM_WINDOWS)
+	void VkRenderAPI::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
+		createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		createInfo.pfnUserCallback = debugCallback;
+	}
+	
+	bool VkRenderAPI::CheckValidationLayerSupport() {
+		uint32_t layerCount;
+		vk(EnumerateInstanceLayerProperties, &layerCount, nullptr);
+
+		std::vector<VkLayerProperties> availableLayers(layerCount);
+		vk(EnumerateInstanceLayerProperties, &layerCount, availableLayers.data());
+
+		for (const char* layerName : ValidationLayers) {
+			bool layerFound = false;
+
+			for (const auto& layerProperties : availableLayers) {
+				if (strcmp(layerName, layerProperties.layerName) == 0) {
+					layerFound = true;
+					break;
+				}
+			}
+
+			if (!layerFound) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+	
+	void VkRenderAPI::SetupDebugMessages()
+	{
+        VkDebugUtilsMessengerCreateInfoEXT createInfo;
+        PopulateDebugMessengerCreateInfo(createInfo);
+
+        if (CreateDebugUtilsMessengerEXT(Instance, &createInfo, nullptr, &DebugMessenger) != VK_SUCCESS) {
+            throw std::runtime_error("failed to set up debug messenger!");
+        }
+	}
+
+	VkResult VkRenderAPI::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
+		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vk(GetInstanceProcAddr, instance, "vkCreateDebugUtilsMessengerEXT");
+		if (func != nullptr) {
+			return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+		}
+		
+		return VK_ERROR_EXTENSION_NOT_PRESENT;
+	}
+#endif
+
+	void VkRenderAPI::CreateSurface()
+	{
+		const auto res = glfwCreateWindowSurface(Instance,
+			static_cast<GLFWwindow*>(m_pRenderContext->GetWindow().GetWindow()),
+			nullptr,
+			&Surface
+		);
+		Verify(res);
+	}
+
+	void VkRenderAPI::PickPhysicalDevice() {
+		uint32_t deviceCount = 0;
+		vk(EnumeratePhysicalDevices, Instance, &deviceCount, nullptr);
+
+		if (deviceCount == 0) {
+			throw std::runtime_error("failed to find GPUs with Vulkan support!");
+		}
+
+		std::vector<VkPhysicalDevice> devices(deviceCount);
+		vk(EnumeratePhysicalDevices, Instance, &deviceCount, devices.data());
+
+		for (const auto& device : devices) {
+			if (IsDeviceSuitable(device)) {
+				PhysicalDevice = device;
+				break;
+			}
+		}
+
+		if (PhysicalDevice == VK_NULL_HANDLE) {
+			throw std::runtime_error("failed to find a suitable GPU!");
+		}
+	}
+
+	void VkRenderAPI::CreateLogicalDevice() {
+		QueueFamilyIndices indices = FindQueueFamilies(PhysicalDevice);
+
+		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+		std::set<uint32_t> uniqueQueueFamilies = { indices.GraphicsFamily.value(), indices.PresentFamily.value() };
+
+		float queuePriority = 1.0f;
+		for (uint32_t queueFamily : uniqueQueueFamilies) {
+			VkDeviceQueueCreateInfo queueCreateInfo{};
+			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.queueFamilyIndex = queueFamily;
+			queueCreateInfo.queueCount = 1;
+			queueCreateInfo.pQueuePriorities = &queuePriority;
+			queueCreateInfos.push_back(queueCreateInfo);
+		}
+
+		VkPhysicalDeviceFeatures deviceFeatures{};
+
+		VkDeviceCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+		createInfo.pQueueCreateInfos = queueCreateInfos.data();
+
+		createInfo.pEnabledFeatures = &deviceFeatures;
+
+		createInfo.enabledExtensionCount = static_cast<uint32_t>(DeviceExtensions.size());
+		createInfo.ppEnabledExtensionNames = DeviceExtensions.data();
+
+#if defined(CB_DEBUG) && defined(CB_PLATFORM_WINDOWS)
+			createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+			createInfo.ppEnabledLayerNames = ValidationLayers.data();
+#else
+			createInfo.enabledLayerCount = 0;
+#endif
+
+		const auto res = vk(CreateDevice, PhysicalDevice, &createInfo, nullptr, &Device);
+		Verify(res);
+
+		vk(GetDeviceQueue, Device, indices.GraphicsFamily.value(), 0, &GraphicsQueue);
+		vk(GetDeviceQueue, Device, indices.PresentFamily.value(), 0, &PresentQueue);
+	}
+
+	bool VkRenderAPI::IsDeviceSuitable(VkPhysicalDevice device)
+	{
+		QueueFamilyIndices indices = FindQueueFamilies(device);
+
+		const bool extensionsSupported = CheckDeviceExtensionSupport(device);
+
+		bool swapChainAdequate = false;
+		if (extensionsSupported) {
+			VkSwapchainContext::SupportDetails swapChainSupport = SwapchainCtx.QuerySupport(device);
+			swapChainAdequate = !swapChainSupport.Formats.empty() && !swapChainSupport.PresentModes.empty();
+		}
+
+		return indices.isComplete() && extensionsSupported && swapChainAdequate;
+	}
+
+	bool VkRenderAPI::CheckDeviceExtensionSupport(VkPhysicalDevice device) const {
+		uint32_t extensionCount;
+		vk(EnumerateDeviceExtensionProperties, device, nullptr, &extensionCount, nullptr);
+
+		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+		vk(EnumerateDeviceExtensionProperties, device, nullptr, &extensionCount, availableExtensions.data());
+
+		std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
+
+		for (const auto& extension : availableExtensions) {
+			requiredExtensions.erase(extension.extensionName);
+		}
+
+		return requiredExtensions.empty();
 	}
 }

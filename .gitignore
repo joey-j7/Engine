@@ -2,6 +2,11 @@
 .vs/
 Builds/
 Intermediate/
+.workspace/
+.gradle/
+.idea/
+build/
+jniLibs/
 
 # Files
 *.user

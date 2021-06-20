@@ -14,18 +14,18 @@ namespace Engine
 		Renderer2D();
 		virtual ~Renderer2D();
 
-		void Init();
-
 		virtual void Swap() = 0;
 		virtual void Present() = 0;
-		
-	protected:
+
 		virtual void CreateContext() = 0;
+		virtual void Deinit();
+		
 		virtual void CreateSurface() = 0;
 		
+	protected:
 		sk_sp<GrDirectContext> m_Context = nullptr;
-		
 		sk_sp<SkSurface> m_Surface = nullptr;
+		
 		SkCanvas* m_Canvas = nullptr;
 
 		bool m_Initialized = false;

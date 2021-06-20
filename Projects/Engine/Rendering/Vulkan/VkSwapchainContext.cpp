@@ -6,210 +6,37 @@
 #include "VkRenderAPI.h"
 #include "Engine/Application.h"
 
+#include <map>
+#include "Renderers/2D/VkRenderer2D.h"
+
 namespace Engine
 {
+	VkSwapchainContext::VkSwapchainContext(VkRenderAPI& api)
+	{
+		API = &api;
+	}
+
 	VkSwapchainContext::~VkSwapchainContext()
 	{
 		Deinit();
 	}
 
-	void VkSwapchainContext::Init(Engine::VkRenderAPI& api)
+	void VkSwapchainContext::Init()
 	{
 		if (Initialized)
 			return;
 
-		Engine::RenderContext& renderContext = api.GetRenderContext();
-		auto& window = renderContext.GetWindow();
+		CheckSupport();
 
-		// Query swap chain support
-		vk(GetPhysicalDeviceSurfaceCapabilitiesKHR, api.PhysicalDevice, api.Surface, &Capabilities);
+		const auto res = vk(CreateSwapchainKHR, API->Device, &CreateInfo, nullptr, &Swapchain);
+		VkRenderAPI::Verify(res);
 
-		uint32_t formatCount;
-		vk(GetPhysicalDeviceSurfaceFormatsKHR, api.PhysicalDevice, api.Surface, &formatCount, nullptr);
-
-		if (formatCount != 0)
-		{
-			Formats.resize(formatCount);
-			vk(GetPhysicalDeviceSurfaceFormatsKHR, api.PhysicalDevice, api.Surface, &formatCount, Formats.data());
-		}
-
-		uint32_t presentModeCount;
-		vk(GetPhysicalDeviceSurfacePresentModesKHR, api.PhysicalDevice, api.Surface, &presentModeCount, nullptr);
-
-		if (presentModeCount != 0)
-		{
-			PresentModes.resize(presentModeCount);
-			vk(GetPhysicalDeviceSurfacePresentModesKHR, api.PhysicalDevice, api.Surface, &presentModeCount, PresentModes.data());
-		}
-
-		// Get swap chain image count
-		MinImageCount = Capabilities.minImageCount + 1;
-		if (Capabilities.maxImageCount > 0 && MinImageCount > Capabilities.maxImageCount)
-		{
-			MinImageCount = Capabilities.maxImageCount;
-		}
-
-		// Choose swap chain format
-		VkSurfaceFormatKHR surfaceFormat = Formats[0];
-
-		for (const auto& availableFormat : Formats)
-		{
-			if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-			{
-				surfaceFormat = availableFormat;
-				break;
-			}
-		}
-
-		// Choose swap chain present mode
-		auto& Window = Engine::Application::Get().GetRenderContext().GetWindow();
-		const bool VSync = Window.IsVSync();
-		const bool TrippleBuffering = Window.IsTrippleBuffering();
-
-		VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-
-		if (!VSync || TrippleBuffering)
-		{
-			for (const auto& availablePresentMode : PresentModes)
-			{
-				if (!VSync && availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
-				{
-					presentMode = availablePresentMode;
-					break;
-				}
-
-				if (VSync && TrippleBuffering && availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-				{
-					presentMode = availablePresentMode;
-					break;
-				}
-			}
-		}
-
-		// Choose swap extent
-		VkExtent2D extent = Capabilities.currentExtent;
-		if (Capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-		{
-			extent = Capabilities.currentExtent;
-		}
-		else
-		{
-			VkExtent2D actualExtent = { window.GetWidth(), window.GetHeight() };
-
-			actualExtent.width = std::max(Capabilities.minImageExtent.width, std::min(Capabilities.maxImageExtent.width, actualExtent.width));
-			actualExtent.height = std::max(Capabilities.minImageExtent.height, std::min(Capabilities.maxImageExtent.height, actualExtent.height));
-
-			extent = actualExtent;
-		}
-
-		CreateInfo = {};
-		CreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		CreateInfo.surface = api.Surface;
-
-		CreateInfo.minImageCount = MinImageCount;
-		CreateInfo.imageFormat = surfaceFormat.format;
-		CreateInfo.imageColorSpace = surfaceFormat.colorSpace;
-		CreateInfo.imageExtent = extent;
-		CreateInfo.imageArrayLayers = 1;
-		CreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-			VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-			VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-
-		// Find queue families
-		uint32_t graphicsFamily = UINT_MAX;
-		uint32_t presentFamily = UINT_MAX;
-
-		uint32_t queueFamilyCount = 0;
-		vk(GetPhysicalDeviceQueueFamilyProperties, api.PhysicalDevice, &queueFamilyCount, nullptr);
-
-		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vk(GetPhysicalDeviceQueueFamilyProperties, api.PhysicalDevice, &queueFamilyCount, queueFamilies.data());
-
-		int i = 0;
-		for (const auto& queueFamily : queueFamilies)
-		{
-			if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-			{
-				graphicsFamily = i;
-			}
-
-			VkBool32 presentSupport = false;
-			vk(GetPhysicalDeviceSurfaceSupportKHR, api.PhysicalDevice, i, api.Surface, &presentSupport);
-
-			if (queueFamily.queueCount > 0 && presentSupport)
-			{
-				presentFamily = i;
-			}
-
-			if (graphicsFamily != UINT_MAX && presentFamily != UINT_MAX)
-			{
-				break;
-			}
-
-			i++;
-		}
-
-		graphicsFamily = graphicsFamily == UINT_MAX ? 0 : graphicsFamily;
-		presentFamily = presentFamily == UINT_MAX ? 0 : presentFamily;
-
-		/* Create queues */
-		vk(GetDeviceQueue, api.Device, graphicsFamily, 0, &GraphicsQueue);
-		vk(GetDeviceQueue, api.Device, presentFamily, 0, &PresentQueue);
-
-		/* Create swap chain */
-		uint32_t queueFamilyIndices[] = { graphicsFamily, presentFamily };
-
-		if (graphicsFamily != presentFamily)
-		{
-			CreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			CreateInfo.queueFamilyIndexCount = 2;
-			CreateInfo.pQueueFamilyIndices = queueFamilyIndices;
-		}
-		else
-		{
-			CreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		}
-
-		CreateInfo.preTransform = Capabilities.currentTransform;
-		CreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-		CreateInfo.presentMode = presentMode;
-		CreateInfo.clipped = VK_TRUE;
-
-		CreateInfo.oldSwapchain = VK_NULL_HANDLE;
-
-		const VkResult err = vk(CreateSwapchainKHR, api.Device, &CreateInfo, api.Allocator, &Swapchain);
-		Engine::VkRenderAPI::Verify(err);
-
-		vk(GetSwapchainImagesKHR, api.Device, Swapchain, &FrameCount, nullptr);
+		vk(GetSwapchainImagesKHR, API->Device, Swapchain, &FrameCount, nullptr);
 		Images.resize(FrameCount);
-		Views.resize(FrameCount);
-		vk(GetSwapchainImagesKHR, api.Device, Swapchain, &FrameCount, Images.data());
+		vk(GetSwapchainImagesKHR, API->Device, Swapchain, &FrameCount, Images.data());
 
-		Extent = extent;
-
-		// Create views
-		VkImageViewCreateInfo imageCreateInfo = {};
-		imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		imageCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		imageCreateInfo.format = CreateInfo.imageFormat;
-		imageCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		imageCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		imageCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		imageCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-		imageCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		imageCreateInfo.subresourceRange.baseMipLevel = 0;
-		imageCreateInfo.subresourceRange.levelCount = 1;
-		imageCreateInfo.subresourceRange.baseArrayLayer = 0;
-		imageCreateInfo.subresourceRange.layerCount = 1;
-
-		for (uint32_t i = 0; i < FrameCount; ++i)
-		{
-			imageCreateInfo.image = Images[i];
-
-			VkResult err = vk(CreateImageView, api.Device, &imageCreateInfo, nullptr, &Views[i]);
-			api.Verify(err);
-		}
-
+		CreateImageViews();
+		
 		Initialized = true;
 	}
 
@@ -218,15 +45,208 @@ namespace Engine
 		if (!Initialized)
 			return;
 
-		auto& api = Engine::VkRenderAPI::Get();
-
 		for (auto view : Views)
 		{
-			vk(DestroyImageView, api.Device, view, nullptr);
+			vk(DestroyImageView, API->Device, view, nullptr);
 		}
 
-		vk(DestroySwapchainKHR, api.Device, Swapchain, nullptr);
+		vk(DestroySwapchainKHR, API->Device, Swapchain, nullptr);
+
+		FrameIndex = 0;
+		SemaphoreIndex = 0;
+
+		Images.clear();
+		Views.clear();
 
 		Initialized = false;
+	}
+	
+	VkSwapchainContext::SupportDetails VkSwapchainContext::QuerySupport(VkPhysicalDevice Device)
+	{
+		SupportDetails details;
+
+		vk(GetPhysicalDeviceSurfaceCapabilitiesKHR, Device, API->Surface, &details.Capabilities);
+
+		uint32_t formatCount;
+		vk(GetPhysicalDeviceSurfaceFormatsKHR, Device, API->Surface, &formatCount, nullptr);
+
+		if (formatCount != 0) {
+			details.Formats.resize(formatCount);
+			vk(GetPhysicalDeviceSurfaceFormatsKHR, Device, API->Surface, &formatCount, details.Formats.data());
+		}
+
+		uint32_t presentModeCount;
+		vk(GetPhysicalDeviceSurfacePresentModesKHR, Device, API->Surface, &presentModeCount, nullptr);
+
+		if (presentModeCount != 0) {
+			details.PresentModes.resize(presentModeCount);
+			vk(GetPhysicalDeviceSurfacePresentModesKHR, Device, API->Surface, &presentModeCount, details.PresentModes.data());
+		}
+
+		return details;
+	}
+
+	void VkSwapchainContext::CheckSupport()
+	{
+		if (SupportChecked)
+		{
+			Extent = ChooseExtent(Details.Capabilities);
+			return;
+		}
+		
+		Details = QuerySupport(API->PhysicalDevice);
+
+		const VkSurfaceFormatKHR surfaceFormat = ChooseSurfaceFormat(Details.Formats);
+		const VkPresentModeKHR presentMode = ChoosePresentMode(Details.PresentModes);
+
+		Extent = ChooseExtent(Details.Capabilities);
+
+		MinImageCount = FrameCount = Details.Capabilities.minImageCount + 1;
+		if (Details.Capabilities.maxImageCount > 0 && MinImageCount > Details.Capabilities.maxImageCount) {
+			FrameCount = Details.Capabilities.maxImageCount;
+		}
+
+		CreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		CreateInfo.surface = API->Surface;
+
+		CreateInfo.minImageCount = FrameCount;
+		CreateInfo.imageFormat = surfaceFormat.format;
+		CreateInfo.imageColorSpace = surfaceFormat.colorSpace;
+		CreateInfo.imageExtent = Extent;
+		CreateInfo.imageArrayLayers = 1;
+
+		CreateInfo.oldSwapchain = Swapchain;
+
+		CreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+			VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+		VkRenderAPI::QueueFamilyIndices queueIndices = API->FindQueueFamilies(API->PhysicalDevice);
+		uint32_t queueFamilyIndices[] = { queueIndices.GraphicsFamily.value(), queueIndices.PresentFamily.value() };
+
+		if (queueIndices.GraphicsFamily != queueIndices.PresentFamily) {
+			CreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			CreateInfo.queueFamilyIndexCount = 2;
+			CreateInfo.pQueueFamilyIndices = queueFamilyIndices;
+		}
+		else {
+			CreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		}
+
+		CreateInfo.preTransform = Details.Capabilities.currentTransform;
+		CreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		CreateInfo.presentMode = presentMode;
+		CreateInfo.clipped = VK_TRUE;
+
+		SupportChecked = true;
+	}
+
+	VkSurfaceFormatKHR VkSwapchainContext::ChooseSurfaceFormat(
+		const std::vector<VkSurfaceFormatKHR>& availableFormats
+	)
+	{
+		if (availableFormats.size() == 0) {
+			return VkSurfaceFormatKHR();
+		}
+
+		/* Map available formats*/
+		std::map<VkFormat, VkSurfaceFormatKHR> supported_formats;
+		for (uint32_t i = 0; i < availableFormats.size(); i++) {
+			supported_formats[availableFormats[i].format] = availableFormats[i];
+		}
+
+		/* Get desired formats */
+		const VkRenderer2D* renderer2d = static_cast<VkRenderer2D*>(API->GetRenderer2D());
+		const auto format_infos = renderer2d->DesiredFormatInfos(availableFormats);
+		std::vector<VkFormat> desired_formats(format_infos.size());
+		for (size_t i = 0; i < format_infos.size(); ++i) {
+			if (renderer2d->IsSupported(format_infos[i].color_type_))
+			{
+				desired_formats[i] = format_infos[i].format_;
+			}
+			else {
+				desired_formats[i] = VK_FORMAT_UNDEFINED;
+			}
+		}
+
+		// Try to find the first supported format in the list of desired formats.
+		for (size_t i = 0; i < desired_formats.size(); ++i) {
+			auto found = supported_formats.find(desired_formats[i]);
+			if (found != supported_formats.end()) {
+				return found->second;
+			}
+		}
+
+		return availableFormats[0];
+	}
+	
+	VkPresentModeKHR VkSwapchainContext::ChoosePresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+	{
+		const auto& window = API->GetRenderContext().GetWindow();
+		const bool vsync = window.IsVSync();
+		const bool tripple = window.IsTrippleBuffering();
+
+		const VkPresentModeKHR preference =
+			vsync && tripple ?
+			VK_PRESENT_MODE_MAILBOX_KHR :
+			vsync ?
+			VK_PRESENT_MODE_FIFO_KHR :
+			VK_PRESENT_MODE_IMMEDIATE_KHR
+		;
+	
+		for (const auto& availablePresentMode : availablePresentModes)
+		{
+			if (availablePresentMode == preference)
+			{
+				return availablePresentMode;
+			}
+		}
+
+		return VK_PRESENT_MODE_FIFO_KHR;
+	}
+
+	VkExtent2D VkSwapchainContext::ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+		if (capabilities.currentExtent.width != UINT32_MAX) {
+			return capabilities.currentExtent;
+		}
+
+		auto& window = API->GetRenderContext().GetWindow();
+
+		VkExtent2D extent = Details.Capabilities.currentExtent;
+		if (Details.Capabilities.currentExtent.width == UINT_MAX)
+		{
+			VkExtent2D actualExtent = { window.GetWidth(), window.GetHeight() };
+
+			actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+			actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+
+			extent = actualExtent;
+		}
+
+		return extent;
+	}
+
+	void VkSwapchainContext::CreateImageViews() {
+		Views.resize(Images.size());
+
+		for (size_t i = 0; i < Images.size(); i++) {
+			VkImageViewCreateInfo createInfo{};
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image = Images[i];
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = CreateInfo.imageFormat;
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			const auto res = vk(CreateImageView, API->Device, &createInfo, nullptr, &Views[i]);
+			VkRenderAPI::Verify(res);
+		}
 	}
 }

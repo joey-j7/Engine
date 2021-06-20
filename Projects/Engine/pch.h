@@ -46,5 +46,10 @@
 
 /* Windows */
 #ifdef CB_PLATFORM_WINDOWS
-	#include <Windows.h>
+#include <Windows.h>
+#endif
+
+/* Android */
+#ifdef CB_PLATFORM_ANDROID
+
 #endif
