@@ -20,6 +20,7 @@ namespace Engine
 
 		enum State
 		{
+			E_CREATED,
 			E_IDLE,
 			E_RECORDING,
 			E_EXECUTING
@@ -69,7 +70,7 @@ namespace Engine
 		}
 
 		Type m_Type = E_DIRECT;
-		State m_State = E_IDLE;
+		State m_State = E_CREATED;
 
 		std::vector<DrawPass*> m_Passes;
 

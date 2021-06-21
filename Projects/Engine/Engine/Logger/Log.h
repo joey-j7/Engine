@@ -134,6 +134,8 @@ namespace Engine
 
 #ifdef CB_PLATFORM_WINDOWS
 		message += '\n';
+		message += '\0';
+		msg = message.c_str();
 		OutputDebugString(msg);
 #else
 		__android_log_write(

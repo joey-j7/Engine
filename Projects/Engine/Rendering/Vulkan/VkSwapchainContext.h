@@ -26,33 +26,29 @@ namespace Engine {
 
 		VkSwapchainKHR Swapchain = VK_NULL_HANDLE;
 
-		std::vector<VkImage> Images;
-		std::vector<VkImageView> Views;
+		std::vector<VkTexture> Textures;
 
 		uint32_t MinImageCount = 0;
 		uint32_t FrameCount = 2;
 
 		uint32_t FrameIndex = 0;
-		uint32_t SemaphoreIndex = 0;
+		uint32_t ImageIndex = 0;
 
 		VkExtent2D Extent;
 
 		VkSwapchainCreateInfoKHR CreateInfo;
 		
 		SupportDetails Details;
-		
+
 	private:
 		void CheckSupport();
 		
 		VkSurfaceFormatKHR ChooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 		VkPresentModeKHR ChoosePresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 		VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-		
-		void CreateImageViews();
 
 		VkRenderAPI* API = nullptr;
 		
 		bool Initialized = false;
-		bool SupportChecked = false;
 	};
 }

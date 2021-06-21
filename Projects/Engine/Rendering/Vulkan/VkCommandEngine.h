@@ -18,8 +18,8 @@ namespace Engine
 		VkCommandEngine(Type type, const std::string& sName = "Command Engine");
 		virtual ~VkCommandEngine();
 
-		void Init();
-		void Deinit();
+		virtual void Init();
+		virtual void Deinit();
 		
 		virtual DrawPass* Create(const ShaderProgram::Descriptor& shaderPipeline) override;
 
@@ -40,20 +40,23 @@ namespace Engine
 
 		// Wait until GPU has finished executing
 		virtual void WaitForGPU() override;
-		void WaitForImageAcquirement();
 
 		const VkCommandPool& GetCommandPool() const;
+		
+		const VkCommandBuffer& GetCommandBuffer(uint32_t Index) const;
+		void CreateCommandBuffer(
+			VkStructureType Type = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+			VkCommandBufferLevel Level = VK_COMMAND_BUFFER_LEVEL_PRIMARY
+		);
 
-		const VkSemaphore& GetImageAcquiredSemaphore() const;
-		const VkSemaphore& GetRenderCompleteSemaphore() const;
+		const VkSemaphore& GetUsageSemaphore() const;
+		const VkSemaphore& GetRenderSemaphore() const;
 
-		const VkFence& GetFence() const;
-		const VkFence& GetSemaphoreFence() const;
+		const VkFence& GetUsageFence() const;
+		const VkFence& GetRenderFence() const;
 
 		// Get draw passes
 		const std::vector<VkDrawPass*>& GetVkPasses() const { return m_VkPasses; };
-
-		void ResetSemaphoreFence();
 
 	protected:
 		void CreateCommandPool();
@@ -62,13 +65,15 @@ namespace Engine
 		// virtual void Signal() override;
 
 		VkRenderAPI* API = nullptr;
+
 		VkCommandPool m_CommandPool;
+		std::vector<VkCommandBuffer> m_CommandBuffers;
 
-		std::vector<VkSemaphore> m_ImageAcquiredSemaphores;
-		std::vector<VkSemaphore> m_RenderCompleteSemaphores;
+		std::vector<VkSemaphore> m_UsageSemaphores;
+		std::vector<VkSemaphore> m_RenderSemaphores;
 
-		std::vector<VkFence> m_Fences;
-		std::vector<VkFence> m_SemaphoreFences;
+		std::vector<VkFence> m_UsageFences;
+		std::vector<VkFence> m_RenderFences;
 
 		std::vector<VkDrawPass*> m_VkPasses;
 

@@ -28,14 +28,44 @@ namespace Engine
 
 		CheckSupport();
 
-		const auto res = vk(CreateSwapchainKHR, API->Device, &CreateInfo, nullptr, &Swapchain);
+		auto res = vk(CreateSwapchainKHR, API->Device, &CreateInfo, nullptr, &Swapchain);
 		VkRenderAPI::Verify(res);
 
-		vk(GetSwapchainImagesKHR, API->Device, Swapchain, &FrameCount, nullptr);
-		Images.resize(FrameCount);
-		vk(GetSwapchainImagesKHR, API->Device, Swapchain, &FrameCount, Images.data());
+		res = vk(GetSwapchainImagesKHR, API->Device, Swapchain, &FrameCount, nullptr);
+		VkRenderAPI::Verify(res);
 
-		CreateImageViews();
+		std::vector<VkImage> NativeImages;
+		NativeImages.resize(FrameCount);
+		
+		res = vk(GetSwapchainImagesKHR, API->Device, Swapchain, &FrameCount, NativeImages.data());
+		VkRenderAPI::Verify(res);
+
+		// Create textures with image views
+		VkImageViewCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = CreateInfo.imageFormat;
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+		
+		Textures.resize(FrameCount);
+
+		for (uint32_t i = 0; i < NativeImages.size(); ++i)
+		{
+			Textures[i].Init(
+				NativeImages[i],
+				createInfo
+			);
+
+			Textures[i].SetName("Swapchain Texture " + std::to_string(i));
+		}
 		
 		Initialized = true;
 	}
@@ -45,18 +75,20 @@ namespace Engine
 		if (!Initialized)
 			return;
 
-		for (auto view : Views)
+		// Deinit because image views should be destroyed through vkDestroySwapchainKHR
+		for (VkTexture& Texture : Textures)
 		{
-			vk(DestroyImageView, API->Device, view, nullptr);
+			Texture.Deinit();
+			vk(DestroyImageView, API->Device, Texture.GetView(), nullptr);
 		}
+		
+		Textures.clear();
 
 		vk(DestroySwapchainKHR, API->Device, Swapchain, nullptr);
+		Swapchain = VK_NULL_HANDLE;
 
 		FrameIndex = 0;
-		SemaphoreIndex = 0;
-
-		Images.clear();
-		Views.clear();
+		ImageIndex = 0;
 
 		Initialized = false;
 	}
@@ -88,12 +120,6 @@ namespace Engine
 
 	void VkSwapchainContext::CheckSupport()
 	{
-		if (SupportChecked)
-		{
-			Extent = ChooseExtent(Details.Capabilities);
-			return;
-		}
-		
 		Details = QuerySupport(API->PhysicalDevice);
 
 		const VkSurfaceFormatKHR surfaceFormat = ChooseSurfaceFormat(Details.Formats);
@@ -110,7 +136,10 @@ namespace Engine
 		CreateInfo.surface = API->Surface;
 
 		CreateInfo.minImageCount = FrameCount;
+
 		CreateInfo.imageFormat = surfaceFormat.format;
+		VkTexture::m_DefaultCreateInfo.format = CreateInfo.imageFormat;
+		
 		CreateInfo.imageColorSpace = surfaceFormat.colorSpace;
 		CreateInfo.imageExtent = Extent;
 		CreateInfo.imageArrayLayers = 1;
@@ -137,8 +166,6 @@ namespace Engine
 		CreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 		CreateInfo.presentMode = presentMode;
 		CreateInfo.clipped = VK_TRUE;
-
-		SupportChecked = true;
 	}
 
 	VkSurfaceFormatKHR VkSwapchainContext::ChooseSurfaceFormat(
@@ -224,29 +251,5 @@ namespace Engine
 		}
 
 		return extent;
-	}
-
-	void VkSwapchainContext::CreateImageViews() {
-		Views.resize(Images.size());
-
-		for (size_t i = 0; i < Images.size(); i++) {
-			VkImageViewCreateInfo createInfo{};
-			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			createInfo.image = Images[i];
-			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-			createInfo.format = CreateInfo.imageFormat;
-			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-			createInfo.subresourceRange.baseMipLevel = 0;
-			createInfo.subresourceRange.levelCount = 1;
-			createInfo.subresourceRange.baseArrayLayer = 0;
-			createInfo.subresourceRange.layerCount = 1;
-
-			const auto res = vk(CreateImageView, API->Device, &createInfo, nullptr, &Views[i]);
-			VkRenderAPI::Verify(res);
-		}
 	}
 }

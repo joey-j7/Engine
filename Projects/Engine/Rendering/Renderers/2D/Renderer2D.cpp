@@ -15,18 +15,6 @@ namespace Engine
 
 	Renderer2D::~Renderer2D()
 	{
-		Deinit();
-	}
-
-	void Renderer2D::Deinit()
-	{
-		if (!m_Context)
-			return;
-
-		m_Surface.reset();
-		m_Canvas = nullptr;
-
-		m_Context->abandonContext();
-		m_Context.reset();
+		
 	}
 }

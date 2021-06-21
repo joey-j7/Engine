@@ -48,9 +48,13 @@ namespace Engine
 
 		Renderer2D* GetRenderer2D() const { return m_pRenderer2D.get(); }
 
+		bool IsResized() const { return m_bResized; }
+		void OnFramebufferResize(uint32_t Width, uint32_t Height);
+
 	protected:
 		bool m_bInitialized = false;
 		bool m_bRunning = false;
+		bool m_bResized = false;
 		
 		RenderContext* m_pRenderContext = nullptr;
 

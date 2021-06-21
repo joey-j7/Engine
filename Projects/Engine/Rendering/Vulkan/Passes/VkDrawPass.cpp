@@ -112,7 +112,7 @@ namespace Engine
 
 	void VkDrawPass::CreateRenderPass()
 	{
-		VkAttachmentDescription colorAttachment{};
+		VkAttachmentDescription colorAttachment;
 		colorAttachment.format = API->SwapchainCtx.CreateInfo.imageFormat;
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -122,16 +122,16 @@ namespace Engine
 		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-		VkAttachmentReference colorAttachmentRef{};
+		VkAttachmentReference colorAttachmentRef;
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		VkSubpassDescription subpass{};
+		VkSubpassDescription subpass;
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
 
-		VkSubpassDependency dependency{};
+		VkSubpassDependency dependency;
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependency.dstSubpass = 0;
 		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -139,7 +139,7 @@ namespace Engine
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-		VkRenderPassCreateInfo renderPassInfo{};
+		VkRenderPassCreateInfo renderPassInfo;
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = 1;
 		renderPassInfo.pAttachments = &colorAttachment;
@@ -255,13 +255,13 @@ namespace Engine
 	void VkDrawPass::CreateFramebuffers()
 	{
 		const auto& swapchain = API->SwapchainCtx;
-		auto& views = swapchain.Views;
+		auto& views = swapchain.Textures;
 		
 		m_Framebuffers.resize(views.size());
 
         for (size_t i = 0; i < views.size(); i++) {
             VkImageView attachments[] = {
-                views[i]
+                views[i].GetView()
             };
 
             VkFramebufferCreateInfo framebufferInfo{};
@@ -279,7 +279,7 @@ namespace Engine
 	}
 
 	void VkDrawPass::CreateCommandBuffers() {
-		m_CommandBuffers.resize(API->SwapchainCtx.Views.size());
+		m_CommandBuffers.resize(API->SwapchainCtx.Textures.size());
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

@@ -45,6 +45,8 @@ namespace Engine {
 		virtual ~Window() {}
 
 		virtual void OnUpdate() = 0;
+		
+		virtual void GetSize(int32_t& Width, int32_t& Height) const = 0;
 
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;
@@ -68,6 +70,8 @@ namespace Engine {
 		virtual void Wait() = 0;
 
 		Event<void, uint32_t, uint32_t> OnResizeEvent;
+		Event<void, uint32_t, uint32_t> OnFramebufferResizeEvent;
+		
 		Event<void, bool> OnMinimizeEvent;
 		Event<void, bool> OnFocusEvent;
 		Event<void> OnCloseEvent;

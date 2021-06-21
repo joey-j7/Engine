@@ -13,12 +13,14 @@ namespace Engine {
 
 		void OnUpdate() override;
 
-		inline unsigned int GetWidth() const override { return m_Data.Width; }
-		inline unsigned int GetHeight() const override { return m_Data.Height; }
-
-		inline float GetScale() const override { return m_Data.Scale; };
+		void GetSize(int32_t& Width, int32_t& Height) const override;
 		
-		inline void* GetWindow() override
+		unsigned int GetWidth() const override { return m_Data.Width; }
+		unsigned int GetHeight() const override { return m_Data.Height; }
+
+		float GetScale() const override { return m_Data.Scale; };
+		
+		void* GetWindow() override
 		{
 			return m_Window;
 		}
@@ -40,6 +42,8 @@ namespace Engine {
 		virtual void Shutdown() override;
 
 		static void OnResize(GLFWwindow* window, int width, int height);
+		static void OnFramebufferResize(GLFWwindow* window, int width, int height);
+		
 		static void OnMinimize(GLFWwindow* window, int iconified);
 		static void OnFocus(GLFWwindow* window, int focussed);
 		static void OnClose(GLFWwindow* window);

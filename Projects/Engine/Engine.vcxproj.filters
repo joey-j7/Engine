@@ -74,6 +74,7 @@
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.h" />
     <ClInclude Include="Engine\Events\Event.h" />
+    <ClInclude Include="Rendering\Vulkan\VkScreenCommandEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -125,5 +126,6 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
     <ClCompile Include="Engine\Events\Event.cpp" />
+    <ClCompile Include="Rendering\Vulkan\VkScreenCommandEngine.cpp" />
   </ItemGroup>
 </Project>

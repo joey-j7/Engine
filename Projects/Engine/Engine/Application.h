@@ -43,6 +43,8 @@ namespace Engine
 		void OnWindowResize(uint32_t Width, uint32_t Height);
 		void OnWindowClose();
 
+		void OnFramebufferResize(uint32_t Width, uint32_t Height);
+
 		std::shared_ptr<RenderContext> m_RenderContext;
 		std::shared_ptr<HardwareContext> m_HardwareContext;
 		

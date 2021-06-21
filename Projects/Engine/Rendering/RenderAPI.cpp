@@ -42,8 +42,18 @@ namespace Engine
 
 	void RenderAPI::Reset()
 	{
+		Window& Window = GetRenderContext().GetWindow();
+		int32_t Width = 0, Height = 0;
+
+		while (Width == 0 || Height == 0) {
+			Window.GetSize(Width, Height);
+			Window.Wait();
+		}
+		
 		Deinit();
 		Init();
+
+		m_bResized = false;
 	}
 
 	RenderFile* RenderAPI::Load(const std::string& filePath, FileLoader::Type pathType)
@@ -60,5 +70,13 @@ namespace Engine
 	bool RenderAPI::Unload(RenderFile* resource)
 	{
 		return FileDatabase::Get().Unload(resource);
+	}
+
+	void RenderAPI::OnFramebufferResize(uint32_t Width, uint32_t Height)
+	{
+		if (Width <= 0 || Height <= 0)
+			return;
+		
+		m_bResized = true;
 	}
 }

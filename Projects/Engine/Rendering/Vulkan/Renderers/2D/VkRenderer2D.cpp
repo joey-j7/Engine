@@ -82,17 +82,18 @@ namespace Engine
 
 	VkRenderer2D::~VkRenderer2D()
 	{	
-		m_Surfaces.clear();
-
-		m_Surface = nullptr;
+		Deinit();
 		
 		Image.reset();
 	}
 
 	void VkRenderer2D::Swap()
 	{
-		m_Surface = m_Surfaces[m_pAPI->SwapchainCtx.FrameIndex];
+		m_Surface = m_Surfaces[m_pAPI->SwapchainCtx.ImageIndex];
 		m_Canvas = m_Surface->getCanvas();
+
+		GrBackendRenderTarget backendRT = m_Surface->getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
+		backendRT.setVkImageLayout(m_pAPI->SwapchainCtx.Textures[m_pAPI->SwapchainCtx.ImageIndex].GetLayout());
 
 		m_Canvas->clear(SK_ColorWHITE);
 	}
@@ -191,7 +192,7 @@ namespace Engine
 		if (m_Surfaces.size() > 0)
 			return;
 
-		const std::vector<VkImage>& images = m_pAPI->SwapchainCtx.Images;
+		const std::vector<VkTexture>& images = m_pAPI->SwapchainCtx.Textures;
 
 		if (images.size() == 0) {
 			CB_CORE_ERROR("No swapchain images, failed to create Skia surfaces");
@@ -221,8 +222,8 @@ namespace Engine
 		image_info.fSampleCount = 1;
 		image_info.fLevelCount = 1;
 		
-		for (const VkImage& image : images) {
-			image_info.fImage = image;
+		for (const VkTexture& image : images) {
+			image_info.fImage = image.GetImage();
 
 			// TODO(chinmaygarde): Setup the stencil buffer and the sampleCnt.
 			GrBackendRenderTarget backend_render_target(surface_size.fWidth, surface_size.fHeight, 0, image_info);
@@ -233,7 +234,7 @@ namespace Engine
 				backend_render_target,     // backend render target
 				kTopLeft_GrSurfaceOrigin,  // origin
 				desired[0].color_type_,                 // color type
-				std::move(desired[0].color_space_),     // color space
+				desired[0].color_space_,     // color space
 				&props                     // surface properties
 			);
 
@@ -246,6 +247,24 @@ namespace Engine
 
 		m_Surface = m_Surfaces.front();
 		m_Canvas = m_Surface->getCanvas();
+	}
+
+	void VkRenderer2D::Deinit()
+	{
+		if (!m_Context)
+			return;
+
+		for (auto& Surface : m_Surfaces)
+		{
+			Surface.reset();
+		}
+
+		m_Surfaces.clear();
+		
+		m_Canvas = nullptr;
+
+		m_Context->abandonContext();
+		m_Context.reset();
 	}
 
 	bool VkRenderer2D::CreateSkiaBackendContext(GrVkBackendContext& context) {

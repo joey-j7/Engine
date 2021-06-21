@@ -10,11 +10,13 @@
 
 #include <set>
 
+
+#include "VkScreenCommandEngine.h"
 #include "Passes/VkDrawPass.h"
 
-#ifdef CB_DEBUG && defined(CB_PLATFORM_WINDOWS)
+#if CB_DEBUG && defined(CB_PLATFORM_WINDOWS)
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-	const std::string s = std::string("[VULKAN] ") + pCallbackData->pMessage;
+	const std::string s = std::string("[VULKAN] ") + pCallbackData->pMessage + '\0';
 	
 	switch (messageSeverity)
 	{
@@ -72,61 +74,14 @@ namespace Engine
 
 	bool VkRenderAPI::Swap()
 	{
-		m_ScreenCommandEngine->WaitForGPU();
-		
-		VkResult res = vk(
-			AcquireNextImageKHR, 
-			Device,
-			SwapchainCtx.Swapchain,
-			UINT64_MAX,
-			m_ScreenCommandEngine->GetImageAcquiredSemaphore(),
-			VK_NULL_HANDLE,
-			&SwapchainCtx.SemaphoreIndex
-		);
-		
-		if (res == VK_ERROR_OUT_OF_DATE_KHR) {
-			Reset();
-			return false;
-		}
-		
-		if (res != VK_SUBOPTIMAL_KHR)
-		{
-			Verify(res);
-		}
-		
-		m_pRenderer2D->Swap();
-		return true;
+		SwapchainCtx.FrameIndex = (SwapchainCtx.FrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+		return m_ScreenCommandEngine->Swap();
 	}
 
 	void VkRenderAPI::Present()
 	{
-		m_pRenderer2D->Present();
-
-		VkPresentInfoKHR presentInfo{};
-		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-		VkSemaphore signalSemaphores[] = { m_ScreenCommandEngine->GetRenderCompleteSemaphore() };
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = signalSemaphores;
-
-		VkSwapchainKHR swapChains[] = { SwapchainCtx.Swapchain };
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
-
-		presentInfo.pImageIndices = &SwapchainCtx.SemaphoreIndex;
-
-		const auto res = vk(QueuePresentKHR, PresentQueue, &presentInfo);
-
-		if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
-		{
-			Reset();
-		}
-		else
-		{
-			Verify(res);
-		}
-
-		SwapchainCtx.FrameIndex = (SwapchainCtx.FrameIndex + 1) % SwapchainCtx.FrameCount;
+		// Transition swapchain image barrier to PRESENT
+		m_ScreenCommandEngine->Present();
 	}
 
 	void VkRenderAPI::Suspend()
@@ -147,6 +102,39 @@ namespace Engine
 			return nullptr;
 
 		return it->second;
+	}
+
+	VkPipelineStageFlags VkRenderAPI::GetPipelineStageFlags(const VkImageLayout layout)
+	{
+		switch (layout) {
+		case VK_IMAGE_LAYOUT_UNDEFINED:
+			return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		case VK_IMAGE_LAYOUT_GENERAL:
+			return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+		case VK_IMAGE_LAYOUT_PREINITIALIZED:
+			return VK_PIPELINE_STAGE_HOST_BIT;
+		case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+		case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+			return VK_PIPELINE_STAGE_TRANSFER_BIT;
+		case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+			return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL: {
+			VkPipelineStageFlags flags = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
+				VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+
+			if (Features.tessellationShader) {
+				flags |= VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT |
+					VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT;
+			}
+			if (Features.geometryShader) {
+				flags |= VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT;
+			}
+			return flags;
+		}
+		case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+			return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		}
+		return 0;
 	}
 
 	VkRenderAPI::QueueFamilyIndices VkRenderAPI::FindQueueFamilies(VkPhysicalDevice device)
@@ -219,12 +207,12 @@ namespace Engine
 		
 		for (auto it1 : m_CommandEngines)
 		{
+			it1.second->Init();
+			
 			for (auto it2 : it1.second->GetVkPasses())
 			{
 				it2->Init();
 			}
-
-			it1.second->ResetSemaphoreFence();
 		}
 
 		if (!m_InitializedOnce)
@@ -233,8 +221,8 @@ namespace Engine
 			/* SPECIFIED BY USER */
 
 			/* Create command pool, command buffers and sync objects (command engine) */
-			m_CommandEngines.emplace("Screen", new VkCommandEngine(CommandEngine::E_DIRECT, "Screen"));
-			m_ScreenCommandEngine = m_CommandEngines["Screen"];
+			m_ScreenCommandEngine = new VkScreenCommandEngine();
+			m_CommandEngines.emplace("Screen", m_ScreenCommandEngine);
 
 			vk(GetPhysicalDeviceFeatures, PhysicalDevice, &Features);
 
@@ -251,15 +239,12 @@ namespace Engine
 	{
 		if (!m_bInitialized)
 			return false;
+
+		vk(DeviceWaitIdle, Device);
 		
 		for (auto it1 : m_CommandEngines)
 		{
-			it1.second->WaitForGPU();
-			
-			for (auto it2 : it1.second->GetVkPasses())
-			{
-				it2->Deinit();
-			}
+			it1.second->Deinit();
 		}
 
 		m_pRenderer2D->Deinit();

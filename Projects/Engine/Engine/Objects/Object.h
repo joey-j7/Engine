@@ -12,6 +12,7 @@ namespace Engine
 	public:
 		Object(const std::string& sName = "Unnamed Object");
 
+		void SetName(const std::string& sName) { m_sName = sName; }
 		const std::string& GetName() const { return m_sName; }
 
 	protected:

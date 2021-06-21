@@ -18,7 +18,7 @@ namespace Engine
 		virtual void Present() = 0;
 
 		virtual void CreateContext() = 0;
-		virtual void Deinit();
+		virtual void Deinit() {};
 		
 		virtual void CreateSurface() = 0;
 		

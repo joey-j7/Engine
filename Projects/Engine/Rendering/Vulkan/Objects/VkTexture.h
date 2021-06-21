@@ -5,23 +5,44 @@
 
 namespace Engine
 {
+	class VkRenderAPI;
+	
 	class Engine_API VkTexture : public Texture
 	{
 	public:
-		VkTexture(const VkImage& image, const std::string& sName = "Unnamed Texture");
-		VkTexture(const std::string& sName = "Unnamed Texture");
+		static VkImageViewCreateInfo m_DefaultCreateInfo;
 
+		VkTexture(const std::string& sName = "Unnamed Texture");
+		VkTexture(const VkImage& Image, const VkImageViewCreateInfo& CreateInfo, const std::string & sName);
+		
+		virtual ~VkTexture();
+		
+		void SetLayout(
+			VkCommandBuffer CommandBuffer,
+			VkImageLayout NewLayout,
+			VkImageAspectFlags AspectMask = VK_IMAGE_ASPECT_COLOR_BIT
+		);
+
+		static VkAccessFlags GetAccessFlag(const VkImageLayout Layout);
+		
 		const VkImage& GetImage() const { return m_Image; }
 		const VkImageView& GetView() const { return m_View; }
+		const VkImageLayout& GetLayout() const { return m_Layout; }
 
-		virtual ~VkTexture();
-
+		void Init(const VkImage& Image);
+		void Init(const VkImage& Image, const VkImageViewCreateInfo& CreateInfo);
+		void Deinit();
+		
 	private:
-		void Init();
+		bool m_Initialized = false;
 
-		VkDevice* m_pDevice = nullptr;
+		VkRenderAPI& m_API;
 
 		VkImage m_Image;
 		VkImageView m_View;
+
+		VkImageLayout m_Layout = VK_IMAGE_LAYOUT_UNDEFINED;
+		
+		VkImageViewCreateInfo m_CreateInfo;
 	};
 }

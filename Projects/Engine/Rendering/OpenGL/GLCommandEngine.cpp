@@ -66,14 +66,14 @@ namespace Engine
 	//	// Increases fence value
 	//	CommandEngine::Signal();
 
-	//	if (m_uiFenceValue + 1 > m_Fences.size())
+	//	if (m_uiFenceValue + 1 > m_UsageFences.size())
 	//	{
 	//		VkFenceCreateInfo fenceInfo = {};
 	//		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	//		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	//		m_Fences.emplace_back();
-	//		VkResult err = vkCreateFence(m_pContextData->Device, &fenceInfo, nullptr, &m_Fences.back());
+	//		m_UsageFences.emplace_back();
+	//		VkResult err = vkCreateFence(m_pContextData->Device, &fenceInfo, nullptr, &m_UsageFences.back());
 	//		VkRenderAPI::Verify(err);
 	//	}
 	//}

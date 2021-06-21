@@ -36,6 +36,8 @@ namespace Engine
 		virtual void CreateContext() override;
 		virtual void CreateSurface() override;
 
+		virtual void Deinit() override;
+
 		bool CreateSkiaBackendContext(GrVkBackendContext& backend_context);
 		bool GetPhysicalDeviceFeaturesSkia(uint32_t* sk_features) const;
 

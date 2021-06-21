@@ -20,8 +20,10 @@ namespace Engine {
 	{
 		OnMinimizeEvent.Bind(&Application::Get(), &Application::OnWindowMinimize);
 		OnFocusEvent.Bind(&Application::Get(), &Application::OnWindowFocus);
-		OnResizeEvent.Bind(&Application::Get(), &Application::OnWindowResize);
 		OnCloseEvent.Bind(&Application::Get(), &Application::OnWindowClose);
+
+		OnResizeEvent.Bind(&Application::Get(), &Application::OnWindowResize);
+		OnFramebufferResizeEvent.Bind(&Application::Get(), &Application::OnFramebufferResize);
 	}
 
 	Window* Window::Create(const WindowProps& props)
@@ -112,7 +114,9 @@ namespace Engine {
 #endif
 
 		// Set GLFW callbacks
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* Window, int Width, int Height) { OnResize(Window, Width, Height); });
+		glfwSetWindowSizeCallback(m_Window, OnResize);
+		glfwSetFramebufferSizeCallback(m_Window, OnFramebufferResize);
+		
 		glfwSetWindowIconifyCallback(m_Window, OnMinimize);
 		glfwSetWindowFocusCallback(m_Window, OnFocus);
 		glfwSetWindowCloseCallback(m_Window, OnClose);
@@ -185,11 +189,16 @@ namespace Engine {
 			glfwSwapBuffers(m_Window);
 		}
 	}
-	
+
+	void GLFWWindow::GetSize(int32_t& Width, int32_t& Height) const
+	{
+		glfwGetFramebufferSize(m_Window, &Width, &Height);
+	}
+
 	void GLFWWindow::OnResize(GLFWwindow* Window, int Width, int Height)
 	{
 		// Identified as a minimize event, not necessary
-		if (Width == 0 || Height == 0)
+		if (Width <= 0 || Height <= 0)
 			return;
 
 		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
@@ -199,7 +208,21 @@ namespace Engine {
 
 		AppWindow.OnResizeEvent(Width, Height);
 	}
-	
+
+	void GLFWWindow::OnFramebufferResize(GLFWwindow* Window, int Width, int Height)
+	{
+		// Identified as a minimize event, not necessary
+		if (Width <= 0 || Height <= 0)
+			return;
+
+		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
+
+		AppWindow.m_Data.Width = Width;
+		AppWindow.m_Data.Height = Height;
+
+		AppWindow.OnFramebufferResizeEvent(Width, Height);
+	}
+
 	void GLFWWindow::OnMinimize(GLFWwindow* Window, int Minimized)
 	{
 		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);

@@ -9,9 +9,11 @@
 
 namespace Engine {
 	class VkCommandEngine;
+	class VkScreenCommandEngine;
 
 #define vk(_vkName, ...) ((PFN_vk##_vkName)glfwGetInstanceProcAddress(VkRenderAPI::Get().Instance, "vk" #_vkName))(__VA_ARGS__);
-
+#define MAX_FRAMES_IN_FLIGHT 2
+	
 	class Engine_API VkRenderAPI : public RenderAPI
 	{
 	public:
@@ -33,7 +35,8 @@ namespace Engine {
 		static void Verify(VkResult err)
 		{
 			if (err == 0) return;
-			else if (err < 0) { CB_CORE_ASSERT(false, "VkResult " + std::to_string(err)); }
+
+			if (err < 0) { CB_CORE_ASSERT(false, "VkResult " + std::to_string(err)); }
 			else { CB_CORE_ERROR(("VkResult " + std::to_string(err)).c_str()); }
 		}
 		
@@ -50,6 +53,8 @@ namespace Engine {
 
 		VkQueue GetGraphicsQueue() const { return GraphicsQueue; }
 		VkQueue GetPresentQueue() const { return PresentQueue; }
+
+		VkPipelineStageFlags GetPipelineStageFlags(VkImageLayout layout);
 		
 		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
@@ -99,7 +104,7 @@ namespace Engine {
 		VkQueue PresentQueue;
 		
 		std::unordered_map<std::string, VkCommandEngine*> m_CommandEngines;
-		VkCommandEngine* m_ScreenCommandEngine = nullptr;
+		VkScreenCommandEngine* m_ScreenCommandEngine = nullptr;
 
 		bool m_InitializedOnce = false;
 		

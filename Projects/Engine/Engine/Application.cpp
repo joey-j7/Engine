@@ -60,11 +60,6 @@ namespace Engine
 				continue;
 			}
 
-			// Reset rendering for new frame
-			m_pScreenEngine->Reset();
-			m_pScreenEngine->Begin();
-			m_pScreenEngine->Execute();
-		
 			// Retrieve delta time for logic
 			m_DeltaTime->Update();
 			const float fDeltaTime = m_DeltaTime->Get();
@@ -84,7 +79,8 @@ namespace Engine
 
 			// Draw layers
 			Draw(fDeltaTime);
-
+			
+			// Reset rendering for new frame
 			m_RenderContext->GetAPI().Present();
 			m_RenderContext->GetWindow().OnUpdate();
 		}
@@ -122,13 +118,16 @@ namespace Engine
 
 	void Application::OnWindowResize(uint32_t Width, uint32_t Height)
 	{
-		// m_RenderContext->GetAPI().Deinit();
-		// m_RenderContext->GetWindow().Reset();
-		// m_RenderContext->GetAPI().Init();
+
 	}
 
 	void Application::OnWindowClose()
 	{
 		m_bRunning = false;
+	}
+
+	void Application::OnFramebufferResize(uint32_t Width, uint32_t Height)
+	{
+		GetRenderContext().GetAPI().OnFramebufferResize(Width, Height);
 	}
 }
