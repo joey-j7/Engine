@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "VkRenderer2D.h"
 
-#include <include/gpu/vk/GrVkExtensions.h>
 #include <include/core/SkFont.h>
 #include <include/core/SkSurface.h>
 #include <src/gpu/vk/GrVkUtil.h>
@@ -273,15 +272,12 @@ namespace Engine
 			return vk(GetInstanceProcAddr, instance, proc_name);
 		};
 
-		uint32_t skia_features = 0;
-		if (!GetPhysicalDeviceFeaturesSkia(&skia_features)) {
-			return false;
-		}
-
 		context.fInstance = m_pAPI->Instance;
 		context.fPhysicalDevice = m_pAPI->PhysicalDevice;
 		context.fDevice = m_pAPI->Device;
 		context.fQueue = m_pAPI->GetGraphicsQueue();
+
+		context.fDeviceFeatures = &m_pAPI->Features;
 		context.fGraphicsQueueIndex = 0;
 		context.fMinAPIVersion = VK_API_VERSION_1_0;
 		context.fMaxAPIVersion = VK_MAKE_VERSION(1, 1, 0);
@@ -296,7 +292,6 @@ namespace Engine
 #endif
 		;
 		
-		context.fFeatures = skia_features;
 		context.fGetProc = std::move(getProc);
 		context.fOwnsInstanceAndDevice = false;
 
@@ -305,34 +300,14 @@ namespace Engine
 		const char* device_extensions[] = {
 			VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
 		};
-		GrVkExtensions vk_extensions;
-		vk_extensions.init(context.fGetProc, context.fInstance,
-			context.fPhysicalDevice, 0, nullptr,
-			glm::countof(device_extensions), device_extensions);
-		context.fVkExtensions = &vk_extensions;
 		
-		return true;
-	}
-
-	bool VkRenderer2D::GetPhysicalDeviceFeaturesSkia(uint32_t* sk_features) const {
-		if (sk_features == nullptr) {
-			return false;
-		}
-
-		const VkPhysicalDeviceFeatures features = m_pAPI->Features;
-		uint32_t flags = 0;
-
-		if (features.geometryShader) {
-			flags |= kGeometryShader_GrVkFeatureFlag;
-		}
-		if (features.dualSrcBlend) {
-			flags |= kDualSrcBlend_GrVkFeatureFlag;
-		}
-		if (features.sampleRateShading) {
-			flags |= kSampleRateShading_GrVkFeatureFlag;
-		}
-
-		*sk_features = flags;
+		Extensions.init(context.fGetProc, context.fInstance,
+			context.fPhysicalDevice, 0, nullptr,
+			glm::countof(device_extensions), device_extensions
+		);
+		
+		context.fVkExtensions = &Extensions;
+		
 		return true;
 	}
 }

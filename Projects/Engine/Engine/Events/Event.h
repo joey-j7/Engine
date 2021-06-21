@@ -4,6 +4,7 @@
 
 #include "Engine/Core.h"
 #include <string>
+#include <list>
 
 #include "Engine/Objects/Object.h"
 

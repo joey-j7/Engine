@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <memory>
 #include <cstdint>
+#include <typeinfo>
 
 #include "Engine/Objects/Object.h"
 #include "Engine/Events/Event.h"
@@ -119,11 +120,9 @@ namespace Engine
 
 		for (std::type_info TypeInfo : Component->GetProhibitedComponents())
 		{
-			if (GetComponent<TypeInfo>())
+			if (GetComponent<decltype(TypeInfo)>())
 			{
 				CB_CORE_ERROR("Tried to add component {0} while the entity contains incompatible component {1}!", typeid(T).name(), TypeInfo.name());
-				AddComponent<T>();
-
 				HasIllegalComponents = true;
 			}
 		}
@@ -137,10 +136,10 @@ namespace Engine
 		// Add dependency components second
 		for (std::type_info TypeInfo : Component->GetDependencyComponents())
 		{
-			if (!GetComponent<TypeInfo>())
+			if (!GetComponent<decltype(TypeInfo)>())
 			{
 				CB_CORE_INFO("Added dependency component {0} for component {1}", TypeInfo.name(), typeid(T).name());
-				AddComponent<T>();
+				AddComponent<decltype(TypeInfo)>();
 			}
 		}
 

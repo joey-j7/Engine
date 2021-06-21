@@ -3,6 +3,7 @@
 #include "Rendering/Renderers/2D/Renderer2D.h"
 
 #include <include/gpu/vk/GrVkBackendContext.h>
+#include <include/gpu/vk/GrVkExtensions.h>
 #include <include/core/SkColorSpace.h>
 
 #include <map>
@@ -39,11 +40,11 @@ namespace Engine
 		virtual void Deinit() override;
 
 		bool CreateSkiaBackendContext(GrVkBackendContext& backend_context);
-		bool GetPhysicalDeviceFeaturesSkia(uint32_t* sk_features) const;
 
 		VkRenderAPI* m_pAPI = nullptr;
 		GrVkBackendContext m_VkContext;
 
+		GrVkExtensions Extensions;
 		std::vector<sk_sp<SkSurface>> m_Surfaces;
 		
 		sk_sp<SkImage> Image;

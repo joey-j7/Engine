@@ -14,7 +14,7 @@ DebugWorld::DebugWorld()
 	// 
 	// m_pPass = pEngine->Create(shaderDesc);
 	//
-	Engine::Application::Get().GetHardwareContext().GetCamera().Start();
+	// Engine::Application::Get().GetHardwareContext().GetCamera().Start();
 }
 
 void DebugWorld::Draw(float fDeltaTime)
