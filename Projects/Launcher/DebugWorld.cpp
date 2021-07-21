@@ -4,7 +4,12 @@
 #include "Engine/Application.h"
 #include "Rendering/CommandEngine.h"
 
-#include "Engine/UI/Elements/UIEntity.h"
+#include "Engine/Objects/Worlds/Entities/StaticEntity.h"
+
+#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform2DComponent.h"
+#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform3DComponent.h"
+
+#include "Engine/UI/Elements/UIComponent.h"
 
 DebugWorld::DebugWorld()
 {
@@ -18,7 +23,10 @@ DebugWorld::DebugWorld()
 	//
 	// Engine::Application::Get().GetHardwareContext().GetCamera().Start();
 
-	Engine::UIEntity* Entity = new Engine::UIEntity();
+	Engine::StaticEntity* Entity = new Engine::StaticEntity();
+	Entity->AddComponent<Engine::Transform2DComponent>();
+	Entity->AddComponent<Engine::Transform3DComponent>();
+	Entity->AddComponent<Engine::Transform2DComponent>();
 }
 
 void DebugWorld::Draw(float fDeltaTime)

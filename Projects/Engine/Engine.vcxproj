@@ -523,7 +523,7 @@
     <ClInclude Include="Engine\Managers\IDManager.h" />
     <ClInclude Include="Engine\UI\Elements\Panels\Canvas\UICanvasPanel.h" />
     <ClInclude Include="Engine\UI\Elements\UIButton.h" />
-    <ClInclude Include="Engine\UI\Elements\UIEntity.h" />
+    <ClInclude Include="Engine\UI\Elements\UIComponent.h" />
     <ClInclude Include="Platform\Android\Hardware\Camera\AndCamera.h" />
     <ClInclude Include="Platform\Hardware\Camera\Camera.h" />
     <ClInclude Include="Platform\FileLoader.h" />
@@ -580,7 +580,9 @@
     <ClCompile Include="Engine\Objects\LayeredObject.cpp" />
     <ClCompile Include="Engine\Objects\Object.cpp" />
     <ClCompile Include="Engine\Objects\DynamicObject.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\DynamicEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\StaticEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\World.cpp" />
     <ClCompile Include="Engine\Layers\Layer.cpp" />
     <ClCompile Include="Engine\Logger\Log.cpp" />
@@ -589,7 +591,7 @@
     <ClCompile Include="Engine\Files\FileReference.cpp" />
     <ClCompile Include="Engine\Managers\IDManager.cpp" />
     <ClCompile Include="Engine\UI\Elements\UIButton.cpp" />
-    <ClCompile Include="Engine\UI\Elements\UIEntity.cpp" />
+    <ClCompile Include="Engine\UI\Elements\UIComponent.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

@@ -9,7 +9,7 @@ namespace Engine
 	class Engine_API LayeredObject : public DynamicObject
 	{
 	public:
-		LayeredObject(const std::string& sName = "Unnamed Layered Object") : DynamicObject(sName) {};
+		LayeredObject(const std::string& sName = "Layered Object") : DynamicObject(sName) {};
 
 		void PushLayer(Layer* pLayer);
 		void PushOverlay(Layer* pLayer);

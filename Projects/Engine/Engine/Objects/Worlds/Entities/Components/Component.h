@@ -16,15 +16,15 @@ namespace Engine
 		Entity& GetEntity() const { return m_Entity; }
 		bool HasForcedUniqueness() const { return m_ForceUniqueness; }
 		
-		bool IsCompatible(Component* Component) const
+		bool IsCompatible(Component* Comp) const
 		{
-			return std::find(m_ProhibitedTypes.begin(), m_ProhibitedTypes.end(), Component->GetID()) != m_ProhibitedTypes.end();
+			return std::find(m_ProhibitedTypes.begin(), m_ProhibitedTypes.end(), Comp->GetID()) == m_ProhibitedTypes.end();
 		}
 
-		uint32_t GetID() const { return m_ID; }
+		size_t GetID() const { return m_ID; }
 
 	protected:
-		Component(Entity& Entity, const std::string& sName = "Unnamed Component") : Object(sName), m_Entity(Entity) {}
+		Component(Entity& Entity, const std::string& sName = "Component");
 		
 		Entity& m_Entity;
 		bool m_ForceUniqueness = false;
@@ -33,7 +33,7 @@ namespace Engine
 		constexpr void AddProhibitedTypes()
 		{
 			m_ProhibitedTypes.reserve(m_ProhibitedTypes.size() + sizeof...(ProhibitedTypes));
-			void* Add[sizeof...(ProhibitedTypes)] = {
+			const void* Add[sizeof...(ProhibitedTypes)] = {
 				[&]()->void*
 				{
 					static_assert(
@@ -41,31 +41,12 @@ namespace Engine
 						"Type is not a Component"
 					);
 					
-					const uint32_t ID = m_Entity.GetComponentID<ProhibitedTypes>();
+					const size_t ID = m_Entity.GetComponentID<ProhibitedTypes>();
 
 					if (std::find(m_ProhibitedTypes.begin(), m_ProhibitedTypes.end(), ID) != m_ProhibitedTypes.end())
 						return nullptr;
 
 					m_ProhibitedTypes.push_back(ID);
-
-					Component* Comp = m_Entity.GetComponent<ProhibitedTypes>();
-
-					if (!Comp)
-						Comp = (
-							m_Entity.m_PendingComponentsToAdd.find(ID) != m_Entity.m_PendingComponentsToAdd.end() ?
-							m_Entity.m_PendingComponentsToAdd.find(ID)->second :
-							nullptr
-						);
-
-					if (!Comp)
-						return nullptr;
-
-					CB_CORE_ERROR(
-						"Cannot add component {0} to entity {1} because of conflicting component {2}!",
-						GetName(), m_Entity.GetName(), Comp->GetName()
-					);
-
-					m_Prohibited = true;
 					return nullptr;
 				}() ...
 			};
@@ -75,7 +56,7 @@ namespace Engine
 		constexpr void AddDependencyTypes()
 		{
 			m_DependencyTypes.reserve(m_DependencyTypes.size() + sizeof...(DependencyTypes));
-			void* Add[sizeof...(DependencyTypes)] = {
+			const void* Add[sizeof...(DependencyTypes)] = {
 				[&]()->void*
 				{
 					static_assert(
@@ -83,7 +64,7 @@ namespace Engine
 						"Type is not a Component"
 					);
 					
-					const uint32_t ID = m_Entity.GetComponentID<DependencyTypes>();
+					const size_t ID = m_Entity.GetComponentID<DependencyTypes>();
 					
 					if (m_Entity.m_PendingComponentsToAdd.find(ID) != m_Entity.m_PendingComponentsToAdd.end())
 						return nullptr;
@@ -92,27 +73,14 @@ namespace Engine
 
 					if (!m_Entity.GetComponent<DependencyTypes>())
 					{
-						m_Entity.m_PendingComponentsToAdd.emplace(std::pair<uint32_t, Component*>(
+						m_Entity.m_PendingComponentsToAdd.emplace(std::pair<size_t, Component*>(
 							ID,
 							nullptr
 						));
 						
 						Component* Comp = new DependencyTypes(m_Entity);
+						Comp->m_ID = ID;
 						m_Entity.m_PendingComponentsToAdd[ID] = Comp;
-
-						if (!Comp->IsCompatible(this))
-						{
-							CB_CORE_ERROR(
-								"Cannot add component {0} to entity {1} because of conflicting component {2}!",
-								Comp->GetName(), m_Entity.GetName(), GetName()
-							);
-
-							delete Comp;
-							m_Entity.m_PendingComponentsToAdd.erase(ID);
-							m_Prohibited = true;
-							
-							return nullptr;
-						}
 					}
 					
 					return nullptr;
@@ -121,11 +89,9 @@ namespace Engine
 		}
 		
 	private:
-		std::vector<uint32_t> m_DependencyTypes;
-		std::vector<uint32_t> m_ProhibitedTypes;
+		std::vector<size_t> m_DependencyTypes;
+		std::vector<size_t> m_ProhibitedTypes;
 
-		uint32_t m_ID = UINT_MAX;
-		
-		bool m_Prohibited = false;
+		size_t m_ID = 0;
 	};
 }

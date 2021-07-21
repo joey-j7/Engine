@@ -303,7 +303,7 @@ namespace Engine
 		
 		Extensions.init(context.fGetProc, context.fInstance,
 			context.fPhysicalDevice, 0, nullptr,
-			glm::countof(device_extensions), device_extensions
+			static_cast<uint32_t>(glm::countof(device_extensions)), device_extensions
 		);
 		
 		context.fVkExtensions = &Extensions;

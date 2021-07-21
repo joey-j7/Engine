@@ -23,7 +23,7 @@ namespace Engine
 
 		explicit EventHandler(
 			const FunctionType& Function,
-			const std::string& sName = "Unnamed Event Handler"
+			const std::string& sName = "Event Handler"
 		)
 			: m_Function(Function),
 			Object(sName)
@@ -107,7 +107,7 @@ namespace Engine
 
 		virtual std::string ToString() const { return GetName(); }
 
-		Event(const std::string& sName = "Unnamed Event") : Object(sName)
+		Event(const std::string& sName = "Event") : Object(sName)
 		{
 		}
 

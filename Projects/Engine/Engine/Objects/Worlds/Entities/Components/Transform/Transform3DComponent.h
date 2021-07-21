@@ -8,7 +8,6 @@ namespace Engine
 	{
 	public:
 		Transform3DComponent(Entity& Entity, const std::string& sName = "Transform 3D Component");
-
 		
 		const Vector3& GetRotation(bool Local = true) const;
 		void SetRotation(const Vector3& Rotation, bool Local = true);

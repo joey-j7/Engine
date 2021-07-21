@@ -15,7 +15,7 @@ namespace Engine
 		friend class WorldManagerLayer;
 
 	public:
-		World(const std::string& sName = "Unnamed World");
+		World(const std::string& sName = "World");
 		virtual ~World();
 
 		void Add(Entity* pObject);

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Engine/UI/Elements/UIEntity.h"
+#include "Engine/UI/Elements/UIComponent.h"
 
 namespace Engine
 {
-	class Engine_API UIButton : public UIEntity
+	class Engine_API UIButton : public UIComponent
 	{
 	public:
-		UIButton(const std::string& sName = "Unnamed Button") : UIEntity(sName) {}
+		UIButton(Entity& Entity, const std::string& sName = "Button") : UIComponent(Entity, sName) {}
 
 	private:
 		virtual void OnEnter();

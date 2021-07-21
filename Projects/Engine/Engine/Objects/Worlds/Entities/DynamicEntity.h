@@ -10,15 +10,8 @@ namespace Engine
 	public:
 		friend class World;
 		
-		DynamicEntity(const std::string& sName = "Unnamed Entity") : DynamicObject(sName), Entity()
-		{
-			m_Type = E_DYNAMIC;
-		}
-
-		virtual ~DynamicEntity()
-		{
-			OnDestroy();
-		}
+		DynamicEntity(const std::string& sName = "Entity");
+		virtual ~DynamicEntity();
 
 		virtual const std::string& GetName() const { return m_sName; };
 		

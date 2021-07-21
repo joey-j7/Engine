@@ -12,7 +12,7 @@ namespace Engine
 	public:
 		static VkImageViewCreateInfo m_DefaultCreateInfo;
 
-		VkTexture(const std::string& sName = "Unnamed Texture");
+		VkTexture(const std::string& sName = "Texture");
 		VkTexture(const VkImage& Image, const VkImageViewCreateInfo& CreateInfo, const std::string & sName);
 		
 		virtual ~VkTexture();

@@ -12,7 +12,7 @@ namespace Engine
 		friend class LayeredObject;
 
 	public:
-		Layer(const std::string& name = "Unnamed Layer");
+		Layer(const std::string& name = "Layer");
 		virtual ~Layer();
 
 		void Reset(const LayerStack& stack)

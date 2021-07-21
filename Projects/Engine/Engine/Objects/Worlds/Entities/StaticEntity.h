@@ -10,7 +10,7 @@ namespace Engine
 	public:
 		friend class World;
 		
-		StaticEntity(const std::string& sName = "Unnamed Entity") : Object(sName) {}
+		StaticEntity(const std::string& sName = "Entity");
 		virtual const std::string& GetName() const { return m_sName; };
 		
 	protected:

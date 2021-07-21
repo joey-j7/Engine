@@ -1,6 +1,5 @@
 #pragma once
 
-#include <atomic>
 #include <unordered_map>
 #include <cstdint>
 
@@ -23,7 +22,6 @@ namespace Engine
 			E_DYNAMIC
 		};
 
-		Entity() {}
 		virtual ~Entity();
 
 		virtual const std::string& GetName() const = 0;
@@ -35,7 +33,7 @@ namespace Engine
 		template <class T>
 		T* GetComponent() const;
 		
-		const std::unordered_map<uint32_t, Component*>& GetComponents() const
+		const std::unordered_map<size_t, Component*>& GetComponents() const
 		{
 			return m_Components;
 		}
@@ -54,6 +52,8 @@ namespace Engine
 		Event<void, Entity*, Entity*> OnParentChange;
 		
 	protected:
+		Entity() {}
+		
 		virtual void Awake() = 0;
 		virtual bool OnDestroy() { return true; }
 
@@ -67,31 +67,29 @@ namespace Engine
 
 		/* Components */
 		template <class T>
-		static uint32_t GetComponentID();
+		static size_t GetComponentID();
 
-		Component* GetComponentByID(uint32_t ID) const
+		Component* GetComponentByID(size_t ID) const
 		{
 			const auto find = m_Components.find(ID);
 			return (find != m_Components.end() ? find->second : nullptr);
 		}
 		
-		std::unordered_map<uint32_t, Component*> m_Components;
+		std::unordered_map<size_t, Component*> m_Components;
 
 	private:
-		std::unordered_map<uint32_t, Component*> m_PendingComponentsToAdd;
-		static std::atomic_uint32_t TypeIdCounter;
+		std::unordered_map<size_t, Component*> m_PendingComponentsToAdd;
 	};
 	
 	template <class T>
-	uint32_t Entity::GetComponentID()
+	size_t Entity::GetComponentID()
 	{
 		static_assert(
 			std::is_base_of<Component, T>::value,
 			"Type is not a Component"
 		);
 		
-		static uint32_t id = ++TypeIdCounter;
-		return id;
+		return typeid(T).hash_code();
 	}
 	
 	template <class T>
@@ -123,24 +121,49 @@ namespace Engine
 		T* Obj = new T(*this);
 		Obj->m_ID = GetComponentID<T>();
 
-		// Now add component
-		m_Components.insert(std::pair<uint32_t, Component*>(GetComponentID<T>(), Obj));
-
-		// Check for prohibited components
-		bool Prohibited = Obj->m_Prohibited;
-
-		if (!Prohibited)
+		bool Prohibited = false;
+		
+		// Check for prohibited components for dependency components
+		for (auto& Pair : m_PendingComponentsToAdd)
 		{
-			for (auto& Pair : m_PendingComponentsToAdd)
-			{
-				if (!Pair.second)
-					continue;
+			if (!Pair.second)
+				continue;
 
-				if (Pair.second->m_Prohibited)
+			if (!Pair.second->IsCompatible(Obj) || !Obj->IsCompatible(Pair.second))
+			{
+				CB_CORE_ERROR(
+					"Cannot add component {0} to entity {1} because of conflicting component {2}!",
+					Obj->GetName(), GetName(), Pair.second->GetName()
+				);
+
+				Prohibited = true;
+			}
+
+			for (auto& Comp : m_Components)
+			{
+				if (!Pair.second->IsCompatible(Comp.second) || !Comp.second->IsCompatible(Pair.second))
 				{
+					CB_CORE_ERROR(
+						"Cannot add component {0} to entity {1} because of conflicting component {2}!",
+						Pair.second->GetName(), GetName(), Comp.second->GetName()
+					);
+
 					Prohibited = true;
-					break;
 				}
+			}
+		}
+
+		// Check for prohibited components for main component
+		for (auto& Comp : m_Components)
+		{
+			if (!Obj->IsCompatible(Comp.second) || !Comp.second->IsCompatible(Obj))
+			{
+				CB_CORE_ERROR(
+					"Cannot add component {0} to entity {1} because of conflicting component {2}!",
+					Obj->GetName(), GetName(), Comp.second->GetName()
+				);
+
+				Prohibited = true;
 			}
 		}
 
@@ -153,11 +176,13 @@ namespace Engine
 			}
 			
 			m_PendingComponentsToAdd.clear();
-			m_Components.erase(m_Components.find(Obj->m_ID));
 			
 			delete Obj;
 			return nullptr;
 		}
+
+		// Now add component
+		m_Components.insert(std::pair<size_t, Component*>(Obj->m_ID, Obj));
 
 		for (auto& Pair : m_PendingComponentsToAdd)
 		{

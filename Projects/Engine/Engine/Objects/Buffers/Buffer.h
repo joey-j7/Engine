@@ -12,7 +12,7 @@ namespace Engine
 		typedef std::vector<uint32_t> Strides;
 
 	public:
-		Buffer(const std::string& sName = "Unnamed Buffer");
+		Buffer(const std::string& sName = "Buffer");
 		virtual ~Buffer() { delete[] m_pData; };
 
 		virtual void Create(Data* pBuffer, const Strides& uiStrides) = 0;
