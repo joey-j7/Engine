@@ -6,8 +6,7 @@ namespace Engine
 {
 	Transform2DComponent::Transform2DComponent(Entity& Entity, const std::string& sName) : TransformComponent<Vector2>(Entity, sName)
 	{
-		AddDependencyTypes<Transform3DComponent, Transform3DComponent>();
-		AddProhibitedTypes<Transform3DComponent, Transform3DComponent>();
+		AddProhibitedTypes<Transform3DComponent>();
 	}
 	
 	float Transform2DComponent::GetAngle(bool Local) const

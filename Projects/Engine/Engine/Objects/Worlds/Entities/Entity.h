@@ -85,6 +85,11 @@ namespace Engine
 	template <class T>
 	uint32_t Entity::GetComponentID()
 	{
+		static_assert(
+			std::is_base_of<Component, T>::value,
+			"Type is not a Component"
+		);
+		
 		static uint32_t id = ++TypeIdCounter;
 		return id;
 	}
@@ -92,12 +97,22 @@ namespace Engine
 	template <class T>
 	T* Entity::GetComponent() const
 	{
-		return reinterpret_cast<T*>(GetComponentByID(GetComponentID<T>()));
+		static_assert(
+			std::is_base_of<Component, T>::value,
+			"Type is not a Component"
+		);
+		
+		return static_cast<T*>(GetComponentByID(GetComponentID<T>()));
 	}
 	
 	template <class T>
 	T* Entity::AddComponent()
 	{
+		static_assert(
+			std::is_base_of<Component, T>::value,
+			"Type is not a Component"
+		);
+		
 		if (T* obj = GetComponent<T>())
 		{
 			CB_CORE_WARN("Tried to add component {0} while it already exists!", obj->GetName());
@@ -131,6 +146,12 @@ namespace Engine
 
 		if (Prohibited)
 		{
+			for (auto Pair : m_PendingComponentsToAdd)
+			{
+				if (Pair.second)
+					delete Pair.second;
+			}
+			
 			m_PendingComponentsToAdd.clear();
 			m_Components.erase(m_Components.find(Obj->m_ID));
 			
@@ -153,28 +174,17 @@ namespace Engine
 		}
 
 		m_PendingComponentsToAdd.clear();
-
-		/*for (auto& Pair : GetComponents())
-		{
-			if (!Pair.second->IsCompatible(Obj))
-			{
-				CB_CORE_ERROR(
-					"Cannot add component {0} to entity {1} because of conflicting component {2}!",
-					Obj->GetName(), GetName(), Pair.second->GetName()
-				);
-
-				m_Components.erase(m_Components.find(Obj));
-				delete Obj;
-				return nullptr;
-			}
-		}*/
-
 		return Obj;
 	}
 	
 	template <class T>
 	bool Entity::RemoveComponent()
 	{
+		static_assert(
+			std::is_base_of<Component, T>::value,
+			"Type is not a Component"
+		);
+		
 		auto find = m_Components.find(GetComponentID<T>());
 		return find != m_Components.end() ? m_Components.erase(find) : false;
 	}

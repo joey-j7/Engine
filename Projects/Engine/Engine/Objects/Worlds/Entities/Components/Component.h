@@ -32,9 +32,15 @@ namespace Engine
 		template <typename... ProhibitedTypes>
 		constexpr void AddProhibitedTypes()
 		{
+			m_ProhibitedTypes.reserve(m_ProhibitedTypes.size() + sizeof...(ProhibitedTypes));
 			void* Add[sizeof...(ProhibitedTypes)] = {
 				[&]()->void*
 				{
+					static_assert(
+						std::is_base_of<Component, ProhibitedTypes>::value,
+						"Type is not a Component"
+					);
+					
 					const uint32_t ID = m_Entity.GetComponentID<ProhibitedTypes>();
 
 					if (std::find(m_ProhibitedTypes.begin(), m_ProhibitedTypes.end(), ID) != m_ProhibitedTypes.end())
@@ -68,9 +74,15 @@ namespace Engine
 		template <typename... DependencyTypes>
 		constexpr void AddDependencyTypes()
 		{
+			m_DependencyTypes.reserve(m_DependencyTypes.size() + sizeof...(DependencyTypes));
 			void* Add[sizeof...(DependencyTypes)] = {
 				[&]()->void*
 				{
+					static_assert(
+						std::is_base_of<Component, DependencyTypes>::value,
+						"Type is not a Component"
+					);
+					
 					const uint32_t ID = m_Entity.GetComponentID<DependencyTypes>();
 					
 					if (m_Entity.m_PendingComponentsToAdd.find(ID) != m_Entity.m_PendingComponentsToAdd.end())
@@ -95,7 +107,10 @@ namespace Engine
 								Comp->GetName(), m_Entity.GetName(), GetName()
 							);
 
+							delete Comp;
+							m_Entity.m_PendingComponentsToAdd.erase(ID);
 							m_Prohibited = true;
+							
 							return nullptr;
 						}
 					}

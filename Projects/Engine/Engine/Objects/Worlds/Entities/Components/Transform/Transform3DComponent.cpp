@@ -6,8 +6,7 @@ namespace Engine
 {
 	Transform3DComponent::Transform3DComponent(Entity& Entity, const std::string& sName) : TransformComponent<Vector3>(Entity, sName)
 	{
-		AddDependencyTypes<Transform2DComponent, Transform2DComponent>();
-		AddProhibitedTypes<Transform2DComponent, Transform2DComponent>();
+		AddProhibitedTypes<Transform2DComponent>();
 	}
 	
 	const Vector3& Transform3DComponent::GetRotation(bool Local) const
