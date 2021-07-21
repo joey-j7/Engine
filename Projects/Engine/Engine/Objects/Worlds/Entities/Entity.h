@@ -2,24 +2,20 @@
 
 #include <atomic>
 #include <unordered_map>
-#include <memory>
 #include <cstdint>
-#include <typeinfo>
 
-#include "Engine/Objects/Object.h"
 #include "Engine/Events/Event.h"
 
 namespace Engine
 {
 	class World;
 	class Component;
-
-	extern std::atomic_uint32_t TypeIdCounter;
-
-	class Engine_API Entity : public Object
+	
+	class Engine_API Entity
 	{
 	public:
 		friend class World;
+		friend class Component;
 		
 		enum Type
 		{
@@ -27,18 +23,25 @@ namespace Engine
 			E_DYNAMIC
 		};
 
-		Entity(const std::string& sName = "Unnamed Entity") : Object(sName) {}
+		Entity() {}
 		virtual ~Entity();
+
+		virtual const std::string& GetName() const = 0;
 		
 		World* GetWorld() const { return m_pWorld; }
 		Type GetType() const { return m_Type; }
 
 		/* Components */
 		template <class T>
-		T* GetComponent();
-
+		T* GetComponent() const;
+		
+		const std::unordered_map<uint32_t, Component*>& GetComponents() const
+		{
+			return m_Components;
+		}
+		
 		template <class T>
-		T& AddComponent();
+		T* AddComponent();
 
 		template <class T>
 		bool RemoveComponent();
@@ -66,94 +69,112 @@ namespace Engine
 		template <class T>
 		static uint32_t GetComponentID();
 
+		Component* GetComponentByID(uint32_t ID) const
+		{
+			const auto find = m_Components.find(ID);
+			return (find != m_Components.end() ? find->second : nullptr);
+		}
+		
 		std::unordered_map<uint32_t, Component*> m_Components;
-	};
 
+	private:
+		std::unordered_map<uint32_t, Component*> m_PendingComponentsToAdd;
+		static std::atomic_uint32_t TypeIdCounter;
+	};
+	
 	template <class T>
 	uint32_t Entity::GetComponentID()
 	{
-		static_assert(std::is_base_of<Component, T>::value);
-		
 		static uint32_t id = ++TypeIdCounter;
 		return id;
 	}
-
+	
 	template <class T>
-	T* Entity::GetComponent()
+	T* Entity::GetComponent() const
 	{
-		static_assert(std::is_base_of<Component, T>::value);
-
-		auto find = m_Components.find(GetComponentID<T>());
-		return find != m_Components.end() ? find.second : nullptr;
+		return reinterpret_cast<T*>(GetComponentByID(GetComponentID<T>()));
 	}
-
+	
 	template <class T>
-	T& Entity::AddComponent()
+	T* Entity::AddComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value);
-		
 		if (T* obj = GetComponent<T>())
 		{
-			if (!obj->HasForcedUniqueness())
-				return *obj;
+			CB_CORE_WARN("Tried to add component {0} while it already exists!", obj->GetName());
+			return obj;
 		}
 
-		std::unique_ptr<T> Component = std::make_unique<T>();
-
-		// Check for prohibited components first
-		bool HasIllegalComponents = false;
-
-		if (Component->HasForcedUniqueness())
-		{
-			if (GetComponent<T>())
-			{
-				CB_CORE_ERROR("Tried to add unique component {0} while it already exists!", typeid(T).name());
-				HasIllegalComponents = true;
-			}
-		}
-
-		if (HasIllegalComponents)
-		{
-			Component.reset();
-			return nullptr;
-		}
-
-		for (std::type_info TypeInfo : Component->GetProhibitedComponents())
-		{
-			if (GetComponent<decltype(TypeInfo)>())
-			{
-				CB_CORE_ERROR("Tried to add component {0} while the entity contains incompatible component {1}!", typeid(T).name(), TypeInfo.name());
-				HasIllegalComponents = true;
-			}
-		}
-
-		if (HasIllegalComponents)
-		{
-			Component.reset();
-			return nullptr;
-		}
-
-		// Add dependency components second
-		for (std::type_info TypeInfo : Component->GetDependencyComponents())
-		{
-			if (!GetComponent<decltype(TypeInfo)>())
-			{
-				CB_CORE_INFO("Added dependency component {0} for component {1}", TypeInfo.name(), typeid(T).name());
-				AddComponent<decltype(TypeInfo)>();
-			}
-		}
+		// Call constructor and assign
+		T* Obj = new T(*this);
+		Obj->m_ID = GetComponentID<T>();
 
 		// Now add component
-		m_Components.insert(GetComponentID<T>(), Component);
+		m_Components.insert(std::pair<uint32_t, Component*>(GetComponentID<T>(), Obj));
 
-		return *Component.get();
+		// Check for prohibited components
+		bool Prohibited = Obj->m_Prohibited;
+
+		if (!Prohibited)
+		{
+			for (auto& Pair : m_PendingComponentsToAdd)
+			{
+				if (!Pair.second)
+					continue;
+
+				if (Pair.second->m_Prohibited)
+				{
+					Prohibited = true;
+					break;
+				}
+			}
+		}
+
+		if (Prohibited)
+		{
+			m_PendingComponentsToAdd.clear();
+			m_Components.erase(m_Components.find(Obj->m_ID));
+			
+			delete Obj;
+			return nullptr;
+		}
+
+		for (auto& Pair : m_PendingComponentsToAdd)
+		{
+			if (!Pair.second)
+				continue;
+			
+			CB_CORE_INFO(
+				"Added component {0} to entity {1} as a dependency for component {2}",
+				Pair.second->GetName(), GetName(), Obj->GetName()
+			);
+
+			Pair.second->m_ID = Pair.first;
+			m_Components.insert(Pair);
+		}
+
+		m_PendingComponentsToAdd.clear();
+
+		/*for (auto& Pair : GetComponents())
+		{
+			if (!Pair.second->IsCompatible(Obj))
+			{
+				CB_CORE_ERROR(
+					"Cannot add component {0} to entity {1} because of conflicting component {2}!",
+					Obj->GetName(), GetName(), Pair.second->GetName()
+				);
+
+				m_Components.erase(m_Components.find(Obj));
+				delete Obj;
+				return nullptr;
+			}
+		}*/
+
+		return Obj;
 	}
-
+	
 	template <class T>
 	bool Entity::RemoveComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value);
-		
 		auto find = m_Components.find(GetComponentID<T>());
 		return find != m_Components.end() ? m_Components.erase(find) : false;
 	}

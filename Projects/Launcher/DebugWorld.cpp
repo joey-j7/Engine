@@ -4,6 +4,8 @@
 #include "Engine/Application.h"
 #include "Rendering/CommandEngine.h"
 
+#include "Engine/UI/Elements/UIEntity.h"
+
 DebugWorld::DebugWorld()
 {
 	// Engine::CommandEngine* pEngine = Engine::Application::Get().GetRenderContext().GetAPI().GetCommandEngine("Screen");
@@ -15,6 +17,8 @@ DebugWorld::DebugWorld()
 	// m_pPass = pEngine->Create(shaderDesc);
 	//
 	// Engine::Application::Get().GetHardwareContext().GetCamera().Start();
+
+	Engine::UIEntity* Entity = new Engine::UIEntity();
 }
 
 void DebugWorld::Draw(float fDeltaTime)

@@ -66,7 +66,7 @@ namespace Engine {
 		VkSurfaceKHR Surface = VK_NULL_HANDLE;
 		VkSwapchainContext SwapchainCtx;
 		VkPhysicalDeviceFeatures Features;
-
+		
 	protected:
 		void CreateInstance();
 		std::vector<const char*> GetRequiredExtensions();

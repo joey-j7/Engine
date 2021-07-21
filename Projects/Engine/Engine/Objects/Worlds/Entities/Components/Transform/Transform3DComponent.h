@@ -4,16 +4,17 @@
 
 namespace Engine
 {
-	class Engine_API Transform3DComponent : public TransformComponent<glm::vec3>
+	class Engine_API Transform3DComponent : public TransformComponent<Vector3>
 	{
 	public:
-		Transform3DComponent(Entity& Entity, const std::string& sName = "Transform 3D Component") : TransformComponent<glm::vec3>(Entity, sName) {};
+		Transform3DComponent(Entity& Entity, const std::string& sName = "Transform 3D Component");
 
-		const glm::vec3& GetRotation() const;
-		void SetRotation(const glm::vec3& Rotation);
-		void Rotate(const glm::vec3& Rotation, bool Local = true);
+		
+		const Vector3& GetRotation(bool Local = true) const;
+		void SetRotation(const Vector3& Rotation, bool Local = true);
+		void Rotate(const Vector3& Rotation);
 
 	protected:
-		glm::vec3 m_Rotation;
+		Vector3 m_Rotation;
 	};
 }

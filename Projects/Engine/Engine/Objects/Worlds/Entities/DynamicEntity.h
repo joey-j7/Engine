@@ -20,6 +20,8 @@ namespace Engine
 			OnDestroy();
 		}
 
+		virtual const std::string& GetName() const { return m_sName; };
+		
 	protected:
 		virtual void Awake() override {};
 		

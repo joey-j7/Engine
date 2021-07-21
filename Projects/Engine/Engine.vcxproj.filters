@@ -75,6 +75,9 @@
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.h" />
     <ClInclude Include="Engine\Events\Event.h" />
     <ClInclude Include="Rendering\Vulkan\VkScreenCommandEngine.h" />
+    <ClInclude Include="Engine\UI\Elements\UIEntity.h" />
+    <ClInclude Include="Engine\UI\Elements\Panels\Canvas\UICanvasPanel.h" />
+    <ClInclude Include="Engine\UI\Elements\UIButton.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -127,5 +130,8 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
     <ClCompile Include="Engine\Events\Event.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkScreenCommandEngine.cpp" />
+    <ClCompile Include="Engine\UI\Elements\UIEntity.cpp" />
+    <ClCompile Include="Engine\UI\Elements\UIButton.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Component.cpp" />
   </ItemGroup>
 </Project>

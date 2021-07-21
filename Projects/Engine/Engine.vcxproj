@@ -521,6 +521,9 @@
     <ClInclude Include="Engine\Files\FileManagerBase.h" />
     <ClInclude Include="Engine\Files\FileReference.h" />
     <ClInclude Include="Engine\Managers\IDManager.h" />
+    <ClInclude Include="Engine\UI\Elements\Panels\Canvas\UICanvasPanel.h" />
+    <ClInclude Include="Engine\UI\Elements\UIButton.h" />
+    <ClInclude Include="Engine\UI\Elements\UIEntity.h" />
     <ClInclude Include="Platform\Android\Hardware\Camera\AndCamera.h" />
     <ClInclude Include="Platform\Hardware\Camera\Camera.h" />
     <ClInclude Include="Platform\FileLoader.h" />
@@ -565,6 +568,7 @@
   <ItemGroup>
     <ClCompile Include="Engine\Application.cpp" />
     <ClCompile Include="Engine\Events\Event.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Component.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.cpp" />
@@ -584,6 +588,8 @@
     <ClCompile Include="Engine\Files\FileManager.cpp" />
     <ClCompile Include="Engine\Files\FileReference.cpp" />
     <ClCompile Include="Engine\Managers\IDManager.cpp" />
+    <ClCompile Include="Engine\UI\Elements\UIButton.cpp" />
+    <ClCompile Include="Engine\UI\Elements\UIEntity.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

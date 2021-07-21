@@ -118,13 +118,16 @@ namespace Engine
 			fmt::format_to(formatted, fmt, args...);
 			size_t s = formatted.size();
 
+			if (s == 0)
+				return;
+			
 			if (s == formatted.capacity())
 				formatted.resize(s + 1);
 
 			formatted.data()[s] = '\0';
 		}
 		catch (...) {}
-
+		
 		/* Compose and add to screen */
 		message = "[" + time + "][" + name + "][" + typeNames[type] + "] ";
 		message += formatted.data();

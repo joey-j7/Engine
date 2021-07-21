@@ -3,6 +3,8 @@
 
 namespace Engine
 {
+	std::atomic_uint32_t Entity::TypeIdCounter = 0;
+	
 	Entity::~Entity()
 	{
 		SetParent(nullptr);
