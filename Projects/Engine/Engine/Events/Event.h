@@ -9,11 +9,7 @@
 #include "Engine/Objects/Object.h"
 
 namespace Engine
-{	// Events in Engine are currently blocking, meaning when an event occurs it
-	// immediately gets dispatched and must be dealt with right then an there.
-	// For the future, a better strategy might be to buffer events in an event
-	// bus and process them during the "event" part of the update stage.
-	
+{
 	template <typename T, typename ... Args>
 	class Engine_API EventHandler : public Object
 	{
@@ -96,11 +92,13 @@ namespace Engine
 		static std::atomic_uint m_IDCounter;
 	};
 
+#ifdef CB_BUILD_DLL
 	template <typename T, typename ... Args>
 	std::atomic_uint EventHandler<T, Args...>::m_IDCounter(0);
+#endif
 	
 	template <typename T, typename... Args>
-	class Event : public Object
+	class Engine_API Event : public Object
 	{
 	public:
 		typedef EventHandler<T, Args...> HandlerType;
@@ -128,6 +126,33 @@ namespace Engine
 			m_Handlers = std::move(Src.m_Handlers);
 			m_sName = Src.m_sName;
 		}
+		
+		template<typename C>
+		typename HandlerType::IDType Bind(C* Object, T(C::* Function)(Args...))
+		{
+			return Add([Object, Function](Args... args)->T { return (Object->*Function)(args...); },
+				"Event Handler " + std::string(
+					typeid(Function).name()
+				)
+			);
+		}
+
+		template<typename C>
+		typename HandlerType::IDType Unbind(C* Object, T(C::* Function)(Args...))
+		{
+			return Remove([Object, Function](Args... args)->T { return (Object->*Function)(args...); });
+		}
+
+		void Call(Args... Params) const
+		{
+			HandlerCollectionType HandlersCopy = GetHandlersCopy();
+			CallInternal(HandlersCopy, Params...);
+		}
+
+		std::future<T> CallAsync(Args... Params) const
+		{
+			return std::async(std::launch::async, [this](Args... AsyncParams) { all(AsyncParams...); }, Params...);
+		}
 
 		// copy assignment operator
 		Event& operator=(const Event& Src)
@@ -151,16 +176,32 @@ namespace Engine
 			return *this;
 		}
 
-		typename HandlerType::IDType Add(const HandlerType& Handler)
+		void operator()(Args... Params) const
 		{
-			std::lock_guard<std::mutex> lock(m_HandlersLocker);
-			m_Handlers.push_back(Handler);
-			return Handler.GetID();
+			Call(Params...);
 		}
 
-		inline typename HandlerType::IDType Add(const typename HandlerType::FunctionType& Handler)
+		typename HandlerType::IDType operator+=(const HandlerType& Handler)
 		{
-			return Add(HandlerType(Handler));
+			return Add(Handler);
+		}
+
+		typename HandlerType::IDType operator+=(const typename HandlerType::FunctionType& Handler)
+		{
+			return Add(Handler);
+		}
+
+		bool operator-=(const HandlerType& Handler)
+		{
+			return Remove(Handler);
+		}
+
+	protected:
+		typename HandlerType::IDType Add(const typename HandlerType::FunctionType& Handler, const std::string& sName)
+		{
+			std::lock_guard<std::mutex> lock(m_HandlersLocker);
+			m_Handlers.emplace_back(Handler, sName);
+			return m_Handlers.back().GetID();
 		}
 
 		bool Remove(const HandlerType& Handler)
@@ -177,6 +218,11 @@ namespace Engine
 			return false;
 		}
 
+		bool Remove(const typename HandlerType::FunctionType& Handler)
+		{
+			return Remove(HandlerType(Handler));
+		}
+
 		bool RemoveID(const typename HandlerType::IDType& HandlerID)
 		{
 			std::lock_guard<std::mutex> Lock(m_HandlersLocker);
@@ -184,11 +230,11 @@ namespace Engine
 			auto it = std::find_if(
 				m_Handlers.begin(), m_Handlers.end(),
 				[HandlerID](const HandlerType& handler)
-				{
-					return handler.id() == HandlerID;
-				}
+			{
+				return handler.id() == HandlerID;
+			}
 			);
-			
+
 			if (it != m_Handlers.end())
 			{
 				m_Handlers.erase(it);
@@ -198,44 +244,6 @@ namespace Engine
 			return false;
 		}
 
-		void Call(Args... Params) const
-		{
-			HandlerCollectionType HandlersCopy = GetHandlersCopy();
-			CallInternal(HandlersCopy, Params...);
-		}
-
-		std::future<T> CallAsync(Args... Params) const
-		{
-			return std::async(std::launch::async, [this](Args... AsyncParams) { all(AsyncParams...); }, Params...);
-		}
-
-		void operator()(Args... Params) const
-		{
-			Call(Params...);
-		}
-
-		typename HandlerType::IDType operator+=(const HandlerType& Handler)
-		{
-			return Add(Handler);
-		}
-
-		typename HandlerType::IDType operator+=(const typename HandlerType::FunctionType& Handler)
-		{
-			return Add(Handler);
-		}
-
-		template<typename C>
-		typename HandlerType::IDType Bind(C* Object, T(C::* Function)(Args...))
-		{
-			return Add([Object, Function](Args... args)->T { return (Object->*Function)(args...); });
-		};
-
-		bool operator-=(const HandlerType& Handler)
-		{
-			return Remove(Handler);
-		}
-
-	protected:
 		typedef std::list<HandlerType> HandlerCollectionType;
 
 		void CallInternal(const HandlerCollectionType& Handlers, Args... Params) const

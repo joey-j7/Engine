@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rendering/Renderers/2D/Renderer2D.h"
+#include "Rendering/Renderers/Renderer2D.h"
 
 #include <include/gpu/vk/GrVkBackendContext.h>
 #include <include/gpu/vk/GrVkExtensions.h>
@@ -29,7 +29,6 @@ namespace Engine
 		virtual ~VkRenderer2D();
 
 		virtual void Swap() override;
-		virtual void Present() override;
 
 		bool IsSupported(SkColorType color) const;
 

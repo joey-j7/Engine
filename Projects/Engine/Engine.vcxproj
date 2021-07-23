@@ -490,8 +490,7 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Engine\Application.h" />
     <ClInclude Include="Engine\Events\Event.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\RenderComponent.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.h" />
     <ClInclude Include="Engine\Files\Config\ConfigFile.h" />
     <ClInclude Include="Engine\Layers\World\WorldManagerLayer.h" />
@@ -504,6 +503,10 @@
     <ClInclude Include="Engine\Objects\LayeredObject.h" />
     <ClInclude Include="Engine\Objects\DynamicObject.h" />
     <ClInclude Include="Engine\Objects\Object.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent2D.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent3D.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Shapes\UIRect.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Shapes\UIShape.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\DynamicEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\StaticEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\World.h" />
@@ -521,9 +524,9 @@
     <ClInclude Include="Engine\Files\FileManagerBase.h" />
     <ClInclude Include="Engine\Files\FileReference.h" />
     <ClInclude Include="Engine\Managers\IDManager.h" />
-    <ClInclude Include="Engine\UI\Elements\Panels\Canvas\UICanvasPanel.h" />
-    <ClInclude Include="Engine\UI\Elements\UIButton.h" />
-    <ClInclude Include="Engine\UI\Elements\UIComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UICanvasPanel.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\UIClickable.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\UIComponent.h" />
     <ClInclude Include="Platform\Android\Hardware\Camera\AndCamera.h" />
     <ClInclude Include="Platform\Hardware\Camera\Camera.h" />
     <ClInclude Include="Platform\FileLoader.h" />
@@ -549,28 +552,29 @@
     <ClInclude Include="Engine\Files\Rendering\ShaderFile.h" />
     <ClInclude Include="Engine\Files\Rendering\TextureFile.h" />
     <ClInclude Include="Rendering\Passes\RenderPass.h" />
-    <ClInclude Include="Rendering\Renderers\2D\UI\Shapes\UIRect.h" />
-    <ClInclude Include="Rendering\Renderers\2D\UI\UIElement.h" />
+    <ClInclude Include="Rendering\Renderers\Renderer.h" />
+    <ClInclude Include="Rendering\Renderers\Renderer3D.h" />
     <ClInclude Include="Rendering\ShaderProgram.h" />
-    <ClInclude Include="Rendering\Renderers\2D\Renderer2D.h" />
+    <ClInclude Include="Rendering\Renderers\Renderer2D.h" />
     <ClInclude Include="Rendering\Vulkan\Files\VkShaderFile.h" />
     <ClInclude Include="Rendering\Vulkan\Objects\VkHandle.h" />
     <ClInclude Include="Rendering\Vulkan\Objects\VkShaderProgram.h" />
     <ClInclude Include="Rendering\Vulkan\Objects\VkTexture.h" />
     <ClInclude Include="Rendering\Vulkan\Passes\VkDrawPass.h" />
-    <ClInclude Include="Rendering\Vulkan\Renderers\2D\VkRenderer2D.h" />
+    <ClInclude Include="Rendering\Vulkan\Renderers\VkRenderer2D.h" />
+    <ClInclude Include="Rendering\Vulkan\Renderers\VkRenderer3D.h" />
     <ClInclude Include="Rendering\Vulkan\VkCommandEngine.h" />
     <ClInclude Include="Rendering\Vulkan\Objects\Wrappers\VkWrapper.h" />
     <ClInclude Include="Rendering\Vulkan\VkRenderAPI.h" />
     <ClInclude Include="Rendering\Vulkan\VkScreenCommandEngine.h" />
     <ClInclude Include="Rendering\Vulkan\VkSwapchainContext.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\UIText.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application.cpp" />
     <ClCompile Include="Engine\Events\Event.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Component.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\RenderComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.cpp" />
     <ClCompile Include="Engine\Layers\LayerStack.cpp" />
     <ClCompile Include="Engine\Layers\World\WorldManagerLayer.cpp" />
@@ -580,6 +584,10 @@
     <ClCompile Include="Engine\Objects\LayeredObject.cpp" />
     <ClCompile Include="Engine\Objects\Object.cpp" />
     <ClCompile Include="Engine\Objects\DynamicObject.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent2D.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent3D.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Shapes\UIRect.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Shapes\UIShape.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\DynamicEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\StaticEntity.cpp" />
@@ -590,8 +598,8 @@
     <ClCompile Include="Engine\Files\FileManager.cpp" />
     <ClCompile Include="Engine\Files\FileReference.cpp" />
     <ClCompile Include="Engine\Managers\IDManager.cpp" />
-    <ClCompile Include="Engine\UI\Elements\UIButton.cpp" />
-    <ClCompile Include="Engine\UI\Elements\UIComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\UIClickable.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\UIComponent.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -617,17 +625,21 @@
     <ClCompile Include="Rendering\Passes\RenderPass.cpp" />
     <ClCompile Include="Rendering\RenderContext.cpp" />
     <ClCompile Include="Rendering\RenderAPI.cpp" />
-    <ClCompile Include="Rendering\Renderers\2D\Renderer2D.cpp" />
+    <ClCompile Include="Rendering\Renderers\Renderer2D.cpp" />
+    <ClCompile Include="Rendering\Renderers\Renderer.cpp" />
+    <ClCompile Include="Rendering\Renderers\Renderer3D.cpp" />
     <ClCompile Include="Rendering\Vulkan\Files\VkShaderFile.cpp" />
     <ClCompile Include="Rendering\Vulkan\Objects\VkShaderProgram.cpp" />
     <ClCompile Include="Rendering\Vulkan\Objects\VkTexture.cpp" />
     <ClCompile Include="Rendering\Vulkan\Objects\Wrappers\VkWrapper.cpp" />
     <ClCompile Include="Rendering\Vulkan\Passes\VkDrawPass.cpp" />
-    <ClCompile Include="Rendering\Vulkan\Renderers\2D\VkRenderer2D.cpp" />
+    <ClCompile Include="Rendering\Vulkan\Renderers\VkRenderer2D.cpp" />
+    <ClCompile Include="Rendering\Vulkan\Renderers\VkRenderer3D.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkCommandEngine.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkRenderAPI.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkScreenCommandEngine.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkSwapchainContext.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\UIText.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Libraries\Glad\Glad.vcxproj">

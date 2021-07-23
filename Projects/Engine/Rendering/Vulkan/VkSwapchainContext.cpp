@@ -7,7 +7,7 @@
 #include "Engine/Application.h"
 
 #include <map>
-#include "Renderers/2D/VkRenderer2D.h"
+#include "Renderers/VkRenderer2D.h"
 
 namespace Engine
 {

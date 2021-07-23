@@ -1,14 +1,16 @@
 #pragma once
 
-#include "Engine/UI/Elements/UIComponent.h"
+#include "UIComponent.h"
 
 namespace Engine
 {
-	class Engine_API UIButton : public UIComponent
+	class Engine_API UIClickable : public UIComponent
 	{
 	public:
-		UIButton(Entity& Entity, const std::string& sName = "Button") : UIComponent(Entity, sName) {}
+		UIClickable(Entity& Entity, const std::string& sName = "Button") : UIComponent(Entity, sName) {}
 
+		virtual void Draw() override {}
+		
 	private:
 		virtual void OnEnter();
 		virtual void OnExit();
@@ -21,4 +23,6 @@ namespace Engine
 		bool IsHovered = false;
 		bool IsPressed = false;
 	};
+	
+	Engine_REGISTER_COMP(UIClickable);
 }

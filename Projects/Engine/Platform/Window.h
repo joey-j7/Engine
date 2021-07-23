@@ -69,23 +69,23 @@ namespace Engine {
 
 		virtual void Wait() = 0;
 
-		Event<void, uint32_t, uint32_t> OnResizeEvent;
-		Event<void, uint32_t, uint32_t> OnFramebufferResizeEvent;
+		Event<void, uint32_t, uint32_t> OnResize = Event<void, uint32_t, uint32_t>("Window::OnResize");
+		Event<void, uint32_t, uint32_t> OnFramebufferResize = Event<void, uint32_t, uint32_t>("Window::OnFramebufferResize");
 		
-		Event<void, bool> OnMinimizeEvent;
-		Event<void, bool> OnFocusEvent;
-		Event<void> OnCloseEvent;
+		Event<void, bool> OnMinimize = Event<void, bool>("Window::OnMinimize");
+		Event<void, bool> OnFocus = Event<void, bool>("Window::OnFocus");
+		Event<void> OnClose = Event<void>("Window::OnClose");
 
-		Event<void, uint32_t> OnCharEvent;
+		Event<void, uint32_t> OnChar = Event<void, uint32_t>("Window::OnChar");
 
-		Event<void, uint32_t> OnMousePressedEvent;
-		Event<void, uint32_t> OnMouseReleasedEvent;
+		Event<void, uint32_t> OnMousePressed = Event<void, uint32_t>("Window::OnMousePressed");
+		Event<void, uint32_t> OnMouseReleased = Event<void, uint32_t>("Window::OnMouseReleased");
 
-		Event<void, int32_t, int32_t> OnKeyPressedEvent;
-		Event<void, int32_t> OnKeyReleasedEvent;
+		Event<void, int32_t, int32_t> OnKeyPressed = Event<void, int32_t, int32_t>("Window::OnKeyPressed");
+		Event<void, int32_t> OnKeyReleased = Event<void, int32_t>("Window::OnKeyReleased");
 		
-		Event<void, double, double> OnScrollEvent;
-		Event<void, double, double> OnCursorPositionEvent;
+		Event<void, double, double> OnScroll = Event<void, double, double>("Window::OnScroll");
+		Event<void, double, double> OnCursorPosition = Event<void, double, double>("Window::OnCursorPosition");
 
 	protected:
 		virtual void Shutdown() = 0;

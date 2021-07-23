@@ -103,7 +103,7 @@ namespace Engine
 			m_RenderContext->GetAPI().Resume();
 		}
 
-		OnPauseChangedEvent(m_bPaused);
+		OnPauseChanged(m_bPaused);
 	}
 
 	void Application::OnWindowMinimize(const bool Minimized)

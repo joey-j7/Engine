@@ -2,6 +2,7 @@
 
 #include "Engine/Core.h"
 #include <string>
+#include <stdexcept>
 
 // The most simple class is called an object, an object has a name and can exist outside of any world
 
@@ -24,10 +25,17 @@ namespace Engine
 	{
 	public:
 		Object(const std::string& sName = "Object");
+		virtual ~Object();
 
 		void SetName(const std::string& sName) { m_sName = sName; }
 		const std::string& GetName() const { return m_sName; }
 
+		// Disable new keyword
+		// inline void* operator new (std::size_t) throw(std::bad_alloc) {
+		// 	extern void* bare_new_erroneously_called();
+		// 	return bare_new_erroneously_called();
+		// }
+		
 	protected:
 		std::string m_sName = "";
 	};

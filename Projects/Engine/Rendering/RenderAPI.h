@@ -5,7 +5,8 @@
 #include "Engine/Files/FileDatabase.h"
 #include "ShaderProgram.h"
 
-#include "Renderers/2D/Renderer2D.h"
+#include "Renderers/Renderer2D.h"
+#include "Renderers/Renderer3D.h"
 
 namespace Engine
 {
@@ -47,6 +48,7 @@ namespace Engine
 		RenderContext& GetRenderContext() const { return *m_pRenderContext; }
 
 		Renderer2D* GetRenderer2D() const { return m_pRenderer2D.get(); }
+		Renderer3D* GetRenderer3D() const { return m_pRenderer3D.get(); }
 
 		bool IsResized() const { return m_bResized; }
 		void OnFramebufferResize(uint32_t Width, uint32_t Height);
@@ -59,6 +61,7 @@ namespace Engine
 		RenderContext* m_pRenderContext = nullptr;
 
 		std::unique_ptr<Renderer2D> m_pRenderer2D;
+		std::unique_ptr<Renderer3D> m_pRenderer3D;
 	};
 
 }

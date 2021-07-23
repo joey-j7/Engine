@@ -41,19 +41,19 @@ namespace Engine {
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown() override;
 
-		static void OnResize(GLFWwindow* window, int width, int height);
-		static void OnFramebufferResize(GLFWwindow* window, int width, int height);
+		static void OnResizeCallback(GLFWwindow* window, int width, int height);
+		static void OnFramebufferResizeCallback(GLFWwindow* window, int width, int height);
 		
-		static void OnMinimize(GLFWwindow* window, int iconified);
-		static void OnFocus(GLFWwindow* window, int focussed);
-		static void OnClose(GLFWwindow* window);
+		static void OnMinimizeCallback(GLFWwindow* window, int iconified);
+		static void OnFocusCallback(GLFWwindow* window, int focussed);
+		static void OnCloseCallback(GLFWwindow* window);
 		
-		static void OnKey(GLFWwindow* window, int key, int scancode, int action, int mods);
-		static void OnChar(GLFWwindow* window, unsigned int keycode);
+		static void OnKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+		static void OnCharCallback(GLFWwindow* window, unsigned int keycode);
 		
-		static void OnMouseButton(GLFWwindow* window, int button, int action, int mods);
-		static void OnScroll(GLFWwindow* window, double xOffset, double yOffset);
-		static void OnCursorPosition(GLFWwindow* window, double xPos, double yPos);
+		static void OnMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+		static void OnScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
+		static void OnCursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
 
 		GLFWwindow* m_Window = nullptr;
 	};

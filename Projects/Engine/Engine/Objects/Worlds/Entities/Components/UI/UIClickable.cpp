@@ -1,25 +1,24 @@
 #include "pch.h"
-#include "UIButton.h"
-
+#include "UIClickable.h"
 
 namespace Engine
 {
-	void UIButton::OnEnter()
+	void UIClickable::OnEnter()
 	{
 		IsHovered = true;
 	}
 
-	void UIButton::OnExit()
+	void UIClickable::OnExit()
 	{
 		IsHovered = false;
 	}
 
-	void UIButton::OnPressed()
+	void UIClickable::OnPressed()
 	{
 		IsPressed = true;
 	}
 
-	void UIButton::OnReleased()
+	void UIClickable::OnReleased()
 	{
 		if (IsHovered)
 		{
@@ -29,7 +28,7 @@ namespace Engine
 		IsPressed = false;
 	}
 
-	void UIButton::OnClicked()
+	void UIClickable::OnClicked()
 	{
 		
 	}

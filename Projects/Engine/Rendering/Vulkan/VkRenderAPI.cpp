@@ -5,11 +5,12 @@
 #include "VkCommandEngine.h"
 #include "Files/VkShaderFile.h"
 
-#include "Renderers/2D/VkRenderer2D.h"
+#include "Renderers/VkRenderer2D.h"
+#include "Renderers/VkRenderer3D.h"
+
 #include "Rendering/RenderContext.h"
 
 #include <set>
-
 
 #include "VkScreenCommandEngine.h"
 #include "Passes/VkDrawPass.h"
@@ -61,6 +62,7 @@ namespace Engine
 		Verify(err);
 
 		m_pRenderer2D.reset();
+		m_pRenderer3D.reset();
 		
 		for (auto& it : m_CommandEngines)
 		{
@@ -197,6 +199,10 @@ namespace Engine
 			/* Initialize Renderers, create context (necessary for swapchain image format selection) */
 			m_pRenderer2D = std::unique_ptr<VkRenderer2D>(
 				new VkRenderer2D(*this)
+			);
+
+			m_pRenderer3D = std::unique_ptr<VkRenderer3D>(
+				new VkRenderer3D()
 			);
 		}
 		
