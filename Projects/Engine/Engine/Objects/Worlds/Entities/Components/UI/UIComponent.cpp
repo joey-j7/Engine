@@ -12,7 +12,8 @@
 
 namespace Engine
 {
-	UIComponent::UIComponent(Entity& Entity, const std::string& sName) : RenderComponent(Entity, sName)
+	UIComponent::UIComponent(Entity& Entity, const std::string& sName) : RenderComponent(Entity, sName),
+		m_Window(Application::Get().GetRenderContext().GetWindow())
 	{
 		if (!GetEntity().GetComponent<TransformComponent3D>())
 		{
@@ -146,6 +147,41 @@ namespace Engine
 		MarkDirty();
 	}
 
+	void UIComponent::ApplyAlignment(Vector2& ScreenPosition, const Vector2& ScreenScale) const
+	{
+		switch (m_Alignment)
+		{
+		case(E_TOP):
+		case(E_CENTER):
+		case(E_BOTTOM):
+			ScreenPosition.x -= m_Width * ScreenScale.x * 0.5f;
+			break;
+		case(E_TOP_RIGHT):
+		case(E_CENTER_RIGHT):
+		case(E_BOTTOM_RIGHT):
+			ScreenPosition.x -= m_Width * ScreenScale.x;
+			break;
+		default:
+			break;
+		}
+
+		switch (m_Alignment)
+		{
+		case(E_CENTER_LEFT):
+		case(E_CENTER):
+		case(E_CENTER_RIGHT):
+			ScreenPosition.y -= m_Height * ScreenScale.x * 0.5f;
+			break;
+		case(E_BOTTOM_LEFT):
+		case(E_BOTTOM):
+		case(E_BOTTOM_RIGHT):
+			ScreenPosition.y -= m_Height * ScreenScale.x;
+			break;
+		default:
+			break;
+		}
+	}
+
 	void UIComponent::BeginDraw()
 	{
 		m_Canvas = Application::Get().GetRenderContext().GetAPI().GetRenderer2D()->GetCanvas();
@@ -212,14 +248,26 @@ namespace Engine
 
 		if (HasIdenticalStroke)
 		{
-			m_Paint.setStrokeWidth(m_BorderWidth);
+			m_Paint.setStrokeWidth(
+				static_cast<SkScalar>(m_BorderWidth)
+			);
 		}
 		
 		// Transform
-		const Vector2& ScreenPosition = GetPosition();
+		Vector2 ScreenPosition = GetPosition();
 		const float ScreenRotation = GetRotation();
-		const Vector2& ScreenScale = GetScale();
-		
+		Vector2 ScreenScale = GetScale();
+
+		if (m_ScaleWithDPI)
+		{
+			ScreenScale.x *= m_Window.GetScale();
+			ScreenScale.y *= m_Window.GetScale();
+		}
+
+		// Alignment
+		ApplyAlignment(ScreenPosition, ScreenScale);
+
+		// Apply
 		m_Canvas->translate(
 			ScreenPosition.x,
 			ScreenPosition.y
@@ -309,6 +357,7 @@ namespace Engine
 			return;
 
 		m_Width = Width;
+		
 		m_Bounds.lowerBound.x = 0.f;
 		m_Bounds.upperBound.x = static_cast<float>(Width);
 		
@@ -321,6 +370,7 @@ namespace Engine
 			return;
 
 		m_Height = Height;
+		
 		m_Bounds.lowerBound.y = 0.f;
 		m_Bounds.upperBound.y = static_cast<float>(Height);
 		
@@ -333,17 +383,55 @@ namespace Engine
 		SetHeight(Height);
 	}
 
+	void UIComponent::ScaleWithDPI(bool Scale)
+	{
+		if (m_ScaleWithDPI == Scale)
+			return;
+
+		m_ScaleWithDPI = Scale;
+		MarkDirty();
+	}
+
 	void UIComponent::SetAntialiasing(bool AA)
 	{
 		m_UseAntialiasing = AA;
 	}
 
+	void UIComponent::SetAlignment(Alignment Alignment)
+	{
+		if (m_Alignment == Alignment)
+			return;
+
+		m_Alignment = Alignment;
+		
+		MarkDirty();
+	}
+
 	const AABB UIComponent::GetBounds() const
 	{
 		AABB Bounds = m_Bounds;
+
+		Vector2 Scale = GetScale();
+		Vector2 Position = GetPosition();
+
+		if (m_ScaleWithDPI)
+		{
+			Scale *= m_Window.GetScale();
+		}
+
+		// Alignment
+		ApplyAlignment(Position, Scale);
 		
-		Bounds.lowerBound += Vector2(GetPosition());
-		Bounds.upperBound += Vector2(GetPosition());
+		Bounds.lowerBound.x *= Scale.x;
+		Bounds.lowerBound.y *= Scale.y;
+		Bounds.upperBound.x *= Scale.x;
+		Bounds.upperBound.y *= Scale.y;
+		
+		Vector2 Lower = Bounds.lowerBound;
+		Vector2 Upper = Bounds.upperBound;
+		
+		Bounds.lowerBound += Position;
+		Bounds.upperBound += Position;
 		
 		return Bounds;
 	}

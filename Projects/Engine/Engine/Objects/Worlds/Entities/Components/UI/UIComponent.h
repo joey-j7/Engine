@@ -8,7 +8,21 @@
 
 namespace Engine
 {
+	class Window;
 	class Renderer2D;
+	
+	enum Alignment
+	{
+		E_TOP_LEFT = 0,
+		E_TOP = 1,
+		E_TOP_RIGHT = 2,
+		E_CENTER_LEFT = 3,
+		E_CENTER = 4,
+		E_CENTER_RIGHT = 5,
+		E_BOTTOM_LEFT = 6,
+		E_BOTTOM = 7,
+		E_BOTTOM_RIGHT = 8
+	};
 	
 	class Engine_API UIComponent : public RenderComponent
 	{
@@ -104,8 +118,14 @@ namespace Engine
 
 		void SetSize(uint32_t Width, uint32_t Height);
 
+		bool ScalesWithDPI() const { return m_ScaleWithDPI; }
+		void ScaleWithDPI(bool Scale);
+
 		bool GetAntialiasing() const { return m_UseAntialiasing; }
 		virtual void SetAntialiasing(bool AA);
+
+		Alignment GetAlignment() const { return m_Alignment; }
+		void SetAlignment(Alignment Alignment);
 
 		virtual const AABB GetBounds() const override;
 
@@ -125,13 +145,19 @@ namespace Engine
 		uint32_t m_Height = 50;
 
 		AABB m_Bounds;
+		Window& m_Window;
+
+		Alignment m_Alignment = E_TOP_LEFT;
 		
 		bool m_ShowFill = true;
 		bool m_UseAntialiasing = true;
+		bool m_ScaleWithDPI = true;
 		
 		Vector4 Padding;
 
 	private:
+		void ApplyAlignment(Vector2& ScreenPosition, const Vector2& ScreenScale) const;
+		
 		virtual void BeginDraw() override;
 		virtual void Draw() override = 0;
 		virtual void EndDraw() override;

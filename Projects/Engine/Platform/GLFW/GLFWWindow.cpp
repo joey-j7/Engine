@@ -184,6 +184,14 @@ namespace Engine {
 		return glfwGetMouseButton(m_Window, 0) == GLFW_PRESS;
 	}
 
+	DVector2 GLFWWindow::GetMousePosition() const
+	{
+		DVector2 Position;
+		glfwGetCursorPos(m_Window, &Position.x, &Position.y);
+
+		return Position;
+	}
+
 	/* Events */
 	void GLFWWindow::OnUpdate()
 	{

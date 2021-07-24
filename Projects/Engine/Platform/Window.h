@@ -7,6 +7,8 @@
 #include "Engine/Core.h"
 #include "Engine/Events/Event.h"
 
+#include "Engine/General/Math.h"
+
 namespace Engine {
 
 	struct WindowProps
@@ -68,6 +70,7 @@ namespace Engine {
 		virtual void Reset() = 0;
 
 		virtual bool IsMousePressed() const = 0;
+		virtual DVector2 GetMousePosition() const = 0;
 
 		virtual void Wait() = 0;
 

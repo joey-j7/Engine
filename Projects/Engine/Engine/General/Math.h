@@ -442,45 +442,6 @@ namespace Engine
         }
     };
 
-#define CREATE_VEC_DEF_S(r, t, op, t2, cn) template Engine_API r t::operator##op(const t2& Other) cn
-
-#define CREATE_VEC_DEF(n) CREATE_VEC_DEF_S(void, Vector##n, =, Vector##n); \
-	CREATE_VEC_DEF_S(void, Vector##n, =, glm::vec##n); \
-	CREATE_VEC_DEF_S(void, Vector##n, =, b2Vec##n); \
-    CREATE_VEC_DEF_S(Vector##n&, Vector##n, +=, Vector##n); \
-	CREATE_VEC_DEF_S(Vector##n&, Vector##n, +=, glm::vec##n); \
-	CREATE_VEC_DEF_S(Vector##n&, Vector##n, +=, b2Vec##n); \
-    CREATE_VEC_DEF_S(Vector##n&, Vector##n, -=, Vector##n); \
-	CREATE_VEC_DEF_S(Vector##n&, Vector##n, -=, glm::vec##n); \
-	CREATE_VEC_DEF_S(Vector##n&, Vector##n, -=, b2Vec##n); \
-    CREATE_VEC_DEF_S(Vector##n&, Vector##n, *=, Vector##n); \
-	CREATE_VEC_DEF_S(Vector##n&, Vector##n, *=, glm::vec##n); \
-	CREATE_VEC_DEF_S(Vector##n&, Vector##n, *=, b2Vec##n); \
-    CREATE_VEC_DEF_S(Vector##n&, Vector##n, /=, Vector##n); \
-	CREATE_VEC_DEF_S(Vector##n&, Vector##n, /=, glm::vec##n); \
-	CREATE_VEC_DEF_S(Vector##n&, Vector##n, /=, b2Vec##n); \
-    CREATE_VEC_DEF_S(bool, Vector##n, ==, Vector##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, ==, glm::vec##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, ==, b2Vec##n, const); \
-    CREATE_VEC_DEF_S(bool, Vector##n, !=, Vector##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, !=, glm::vec##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, !=, b2Vec##n, const); \
-    CREATE_VEC_DEF_S(bool, Vector##n, >=, Vector##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, >=, glm::vec##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, >=, b2Vec##n, const); \
-    CREATE_VEC_DEF_S(bool, Vector##n, <=, Vector##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, <=, glm::vec##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, <=, b2Vec##n, const); \
-    CREATE_VEC_DEF_S(bool, Vector##n, >, Vector##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, >, glm::vec##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, >, b2Vec##n, const); \
-    CREATE_VEC_DEF_S(bool, Vector##n, <, Vector##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, <, glm::vec##n, const); \
-	CREATE_VEC_DEF_S(bool, Vector##n, <, b2Vec##n, const);
-
-    CREATE_VEC_DEF(2);
-    CREATE_VEC_DEF(3);
-
     typedef glm::vec4 Vector4;
     typedef glm::vec4 Color;
 
@@ -493,6 +454,11 @@ namespace Engine
     typedef glm::uvec2 UVector2;
     typedef glm::uvec3 UVector3;
     typedef glm::uvec4 UVector4;
+
+    typedef glm::dvec1 DVector1;
+    typedef glm::dvec2 DVector2;
+    typedef glm::dvec3 DVector3;
+    typedef glm::dvec4 DVector4;
 
     typedef glm::mat4 Matrix;
     typedef glm::quat Quaternion;

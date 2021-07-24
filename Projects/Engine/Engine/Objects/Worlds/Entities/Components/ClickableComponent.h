@@ -15,6 +15,9 @@ namespace Engine
 	protected:
 		virtual void OnEnter(double XPosition, double YPosition) override;
 		virtual void OnExit(double XPosition, double YPosition) override;
+		
+		virtual void OnPressed() override;
+		virtual void OnReleased() override;
 	};
 	
 	Engine_REGISTER_COMP(ClickableComponent);

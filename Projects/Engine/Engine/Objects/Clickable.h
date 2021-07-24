@@ -17,16 +17,18 @@ namespace Engine
 		virtual void OnHover(double XPosition, double YPosition);
 		virtual void OnExit(double XPosition, double YPosition);
 
-		virtual void OnPressed(double XPosition, double YPosition);
-		virtual void OnReleased(double XPosition, double YPosition);
+		virtual void OnPressed();
+		virtual void OnReleased();
 
-		virtual void OnClicked(double XPosition, double YPosition);
+		virtual void OnClicked();
 
 		bool m_IsHovered = false;
 		bool m_IsPressed = false;
 
 	private:
 		void OnCursorPosition(double XPosition, double YPosition);
+		void OnMousePressed(uint32_t MouseButton);
+		void OnMouseReleased(uint32_t MouseButton);
 
 		Window& m_Window;
 	};

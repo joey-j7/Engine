@@ -33,7 +33,7 @@ namespace Engine
 		m_WorldManagerLayer = new WorldManagerLayer();
 		PushOverlay(m_WorldManagerLayer);
 
-		m_DeltaTime = std::unique_ptr<DeltaTime>(new DeltaTime());
+		m_DeltaTime = std::make_unique<DeltaTime>();
 		
 		m_bInitialized = true;
 	}

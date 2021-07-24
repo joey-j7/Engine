@@ -48,10 +48,11 @@ namespace Engine
 		std::shared_ptr<RenderContext> m_RenderContext;
 		std::shared_ptr<HardwareContext> m_HardwareContext;
 		
-		CommandEngine* m_pScreenEngine;
+		CommandEngine* m_pScreenEngine = nullptr;
 
 		std::unique_ptr<FileDatabase> m_Database = nullptr;
 
+		// Managed by LayerStack
 		WorldManagerLayer* m_WorldManagerLayer = nullptr;
 
 		std::unique_ptr<DeltaTime> m_DeltaTime;

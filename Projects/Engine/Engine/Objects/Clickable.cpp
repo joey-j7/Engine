@@ -9,6 +9,8 @@ namespace Engine
 	Clickable::Clickable() : m_Window(Application::Get().GetRenderContext().GetWindow())
 	{
 		m_Window.OnCursorPosition.Bind(this, &Clickable::OnCursorPosition);
+		m_Window.OnMousePressed.Bind(this, &Clickable::OnMousePressed);
+		m_Window.OnMouseReleased.Bind(this, &Clickable::OnMouseReleased);
 	}
 
 	Clickable::~Clickable()
@@ -32,22 +34,22 @@ namespace Engine
 		CB_CORE_INFO("Exit");
 	}
 
-	void Clickable::OnPressed(double XPosition, double YPosition)
+	void Clickable::OnPressed()
 	{
 		m_IsPressed = true;
 	}
 
-	void Clickable::OnReleased(double XPosition, double YPosition)
+	void Clickable::OnReleased()
 	{
 		if (m_IsHovered)
 		{
-			OnClicked(XPosition, YPosition);
+			OnClicked();
 		}
 
 		m_IsPressed = false;
 	}
 
-	void Clickable::OnClicked(double XPosition, double YPosition)
+	void Clickable::OnClicked()
 	{
 
 	}
@@ -57,7 +59,6 @@ namespace Engine
 		const AABB Bounds = GetBounds();
 		
 		const bool Hover = CollisionCheck::Contains(Bounds, Vector2(XPosition, YPosition));
-		const bool Press = m_Window.IsMousePressed();
 		
 		if (Hover && !m_IsHovered)
 			OnEnter(XPosition, YPosition);
@@ -65,10 +66,27 @@ namespace Engine
 			OnHover(XPosition, YPosition);
 		else if (!Hover && m_IsHovered)
 			OnExit(XPosition, YPosition);
+	}
 
-		if (Press && !m_IsPressed)
-			OnPressed(XPosition, YPosition);
-		else if (!Press && m_IsPressed)
-			OnReleased(XPosition, YPosition);
+	void Clickable::OnMousePressed(uint32_t MouseButton)
+	{
+		if (MouseButton != 0)
+			return;
+		
+		if (m_IsHovered && !m_IsPressed)
+		{
+			OnPressed();
+		}
+	}
+
+	void Clickable::OnMouseReleased(uint32_t MouseButton)
+	{
+		if (MouseButton != 0)
+			return;
+		
+		if (m_IsPressed)
+		{
+			OnReleased();
+		}
 	}
 }
