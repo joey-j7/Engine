@@ -179,6 +179,11 @@ namespace Engine {
 		glfwWaitEvents();
 	}
 
+	bool GLFWWindow::IsMousePressed() const
+	{
+		return glfwGetMouseButton(m_Window, 0) == GLFW_PRESS;
+	}
+
 	/* Events */
 	void GLFWWindow::OnUpdate()
 	{

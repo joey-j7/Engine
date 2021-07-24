@@ -73,7 +73,7 @@
     <ClInclude Include="Rendering\Vulkan\VkScreenCommandEngine.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\UIComponent.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UICanvasPanel.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\UIClickable.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\ClickableComponent.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\UIText.h" />
     <ClInclude Include="Rendering\Renderers\Renderer.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\RenderComponent.h" />
@@ -83,6 +83,17 @@
     <ClInclude Include="Rendering\Vulkan\Renderers\VkRenderer3D.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Shapes\UIShape.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Shapes\UIRect.h" />
+    <ClInclude Include="Engine\Objects\Clickable.h" />
+    <ClInclude Include="Engine\Physics\PhysicsEngine.h" />
+    <ClInclude Include="Engine\Physics\2D\PhysicsEngine2D.h" />
+    <ClInclude Include="Engine\Physics\3D\PhysicsEngine3D.h" />
+    <ClInclude Include="Engine\Physics\2D\Box2DEngine.h" />
+    <ClInclude Include="Engine\Physics\3D\PhysXEngine.h" />
+    <ClInclude Include="Engine\Physics\PhysicsContext.h" />
+    <ClInclude Include="Engine\Objects\Renderable.h" />
+    <ClInclude Include="Engine\General\Collision.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\RegisterComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -134,7 +145,7 @@
     <ClCompile Include="Engine\Events\Event.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkScreenCommandEngine.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\UIComponent.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\UIClickable.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\ClickableComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Component.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\StaticEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\DynamicEntity.cpp" />
@@ -147,5 +158,7 @@
     <ClCompile Include="Rendering\Vulkan\Renderers\VkRenderer3D.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Shapes\UIRect.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Shapes\UIShape.cpp" />
+    <ClCompile Include="Engine\Objects\Clickable.cpp" />
+    <ClCompile Include="Engine\Objects\Renderable.cpp" />
   </ItemGroup>
 </Project>

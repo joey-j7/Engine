@@ -7,12 +7,23 @@
 
 namespace Engine
 {
+	UIText::UIText(Entity& Entity, const std::string& Text, const std::string& sName) : UIComponent(Entity, sName)
+	{
+		m_Font.setSize(static_cast<SkScalar>(m_FontSize));
+		m_Font.setSubpixel(m_UseAntialiasing);
+		
+		SetText(Text);
+		MeasureSize();
+	}
+
 	void UIText::SetText(const std::string& Text)
 	{
 		if (m_Text == Text)
 			return;
 		
 		m_Text = Text;
+		MeasureSize();
+		
 		MarkDirty();
 	}
 
@@ -22,17 +33,17 @@ namespace Engine
 			return;
 
 		m_FontSize = Size;
+		m_Font.setSize(static_cast<SkScalar>(m_FontSize));
+		
+		MeasureSize();
+		
 		MarkDirty();
 	}
 
 	void UIText::Draw()
-	{
-		SkFont Font;
-		Font.setSubpixel(true);
-		Font.setSize(static_cast<SkScalar>(m_FontSize));
-		
-		SkRect Bounds;
-		SkScalar Width = Font.measureText(m_Text.c_str(), m_Text.size(), SkTextEncoding::kUTF8, &Bounds);
+	{	
+		SkScalar Width = static_cast<SkScalar>(m_Width);
+		const SkScalar Height = static_cast<SkScalar>(m_Height);
 
 		Vector2 Offset(0.f);
 		
@@ -44,18 +55,32 @@ namespace Engine
 			Offset.x -= Width;
 		}
 
-		Offset.y = Bounds.fBottom - Bounds.fTop;
+		Offset.y = Height;
 		
 		m_Canvas->drawTextBlob(
 			SkTextBlob::MakeFromText(
 				m_Text.c_str(),
 				m_Text.size(),
-				Font,
+				m_Font,
 				SkTextEncoding::kUTF8
 			),
 			Offset.x,
 			Offset.y,
 			m_Paint
 		);
+	}
+
+	void UIText::SetAntialiasing(bool AA)
+	{
+		UIComponent::SetAntialiasing(AA);
+		m_Font.setSubpixel(AA);
+	}
+
+	void UIText::MeasureSize()
+	{
+		SkRect Bounds;
+		
+		SetWidth(m_Font.measureText(m_Text.c_str(), m_Text.size(), SkTextEncoding::kUTF8, &Bounds));
+		SetHeight(Bounds.fBottom - Bounds.fTop);
 	}
 }

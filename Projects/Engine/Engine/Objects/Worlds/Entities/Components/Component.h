@@ -1,13 +1,9 @@
 #pragma once
 
 #include "Engine/Objects/Object.h"
+#include "Engine/Objects/Worlds/Entities/Components/RegisterComponent.h"
 
 #include <vector>
-
-#define Engine_REGISTER_COMP(x) \
-	template Engine_API x* Entity::GetComponent() const; \
-	template Engine_API x* Entity::AddComponent(); \
-	template Engine_API bool Entity::RemoveComponent<x>();
 
 namespace Engine
 {
@@ -18,12 +14,22 @@ namespace Engine
 		friend class Entity;
 		
 	public:
+		Component(Entity& Entity, const std::string& sName = "Component");
+		Component(const Component&) = delete;
+		Component& operator =(const Component&) = delete;
+		
+		virtual ~Component() = default;
+		
 		Entity& GetEntity() const { return m_Entity; }
 		bool HasForcedUniqueness() const { return m_ForceUniqueness; }
 		
-		bool IsCompatible(Component* Comp) const
+		bool IsCompatible(size_t ComponentID) const
 		{
-			return std::find(m_ProhibitedTypes.begin(), m_ProhibitedTypes.end(), Comp->GetID()) == m_ProhibitedTypes.end();
+			return std::find(
+				m_ProhibitedTypes.begin(),
+				m_ProhibitedTypes.end(),
+				ComponentID
+			) == m_ProhibitedTypes.end();
 		}
 
 		template <class T>
@@ -32,8 +38,6 @@ namespace Engine
 		size_t GetID() const { return m_ID; }
 		
 	protected:
-		Component(Entity& Entity, const std::string& sName = "Component");
-		
 		Entity& m_Entity;
 		bool m_ForceUniqueness = false;
 		
@@ -47,7 +51,7 @@ namespace Engine
 		std::vector<size_t> m_DependencyTypes;
 		std::vector<size_t> m_ProhibitedTypes;
 
-		std::unordered_map<size_t, Component*> m_PendingComponentsToAdd;
+		std::unordered_map<size_t, std::unique_ptr<Component>> m_PendingComponentsToAdd;
 		
 		size_t m_ID = 0;
 	};
@@ -87,21 +91,23 @@ namespace Engine
 					"Type is not a Component"
 				);
 
-				const size_t ID = GetClassID<DependencyTypes>();
+				size_t ID = GetClassID<DependencyTypes>();
 
 				if (m_PendingComponentsToAdd.find(ID) != m_PendingComponentsToAdd.end())
 					return nullptr;
 
 				m_DependencyTypes.push_back(ID);
 				
-				m_PendingComponentsToAdd.emplace(std::pair<size_t, Component*>(
-					ID,
-					nullptr
-				));
-
-				Component* Comp = new DependencyTypes(m_Entity);
+				m_PendingComponentsToAdd.emplace(
+					std::pair<size_t, std::unique_ptr<Component>>(
+						ID,
+						nullptr
+					)
+				);
+				
+				std::unique_ptr<DependencyTypes> Comp = std::make_unique<DependencyTypes>(m_Entity);
 				Comp->m_ID = ID;
-				m_PendingComponentsToAdd[ID] = Comp;
+				m_PendingComponentsToAdd[ID] = std::move(Comp);
 
 				return nullptr;
 			}() ...

@@ -22,6 +22,7 @@
 
 #include "Engine/General/Common.h"
 #include "Engine/General/Math.h"
+#include "Engine/General/Collision.h"
 
 #include "Engine/Logger/Log.h"
 #include "Engine/Timer.h"

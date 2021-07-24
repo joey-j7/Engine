@@ -5,8 +5,10 @@
 #include "Engine/Objects/Worlds/Entities/Entity.h"
 #include "Engine/Objects/Worlds/Entities/Components/Component.h"
 
-#include "Engine/General/Math.h"
 #include "Engine/Events/Event.h"
+#include "Engine/General/Math.h"
+
+#include "Transform.h"
 
 namespace Engine
 {
@@ -22,23 +24,6 @@ namespace Engine
 		E_NONE = 0,
 		E_2D = 1,
 		E_3D = 2
-	};
-
-	template <typename T = Vector3, typename R = Vector3>
-	struct Transform
-	{
-		static_assert(std::is_same<T, Vector2>() || std::is_same<T, Vector3>(), "Illegal transform type detected");
-		static_assert(std::is_same<R, float>() || std::is_same<R, Vector3>(), "Illegal rotation type detected");
-
-		Transform() {}
-		Transform(const T& Position, const R& Rotation, const T& Scale) : m_Position(Position),
-			m_Rotation(Rotation),
-			m_Scale(Scale)
-		{}
-
-		T m_Position = T(0.f);
-		R m_Rotation = R(0.f);
-		T m_Scale = T(1.f);
 	};
 	
 	template<class T = Vector3, class R = Vector3>

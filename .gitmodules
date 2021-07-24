@@ -16,3 +16,6 @@
 [submodule "Libraries/crossshader"]
 	path = Libraries/crossshader
 	url = https://github.com/alaingalvan/crossshader.git
+[submodule "Libraries/box2d"]
+	path = Libraries/box2d
+	url = https://github.com/erincatto/box2d.git

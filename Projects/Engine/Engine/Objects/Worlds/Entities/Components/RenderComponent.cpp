@@ -20,15 +20,8 @@ namespace Engine
 			OnComponentAdded(*Transform2D);
 		else
 			AddDependencyTypes<TransformComponent3D>();
-	}
 
-	void RenderComponent::MarkDirty()
-	{
-		if (m_RenderState == E_MODIFIED)
-			return;
-		
-		m_RenderState = E_MODIFIED;
-		m_Renderer->AddModifiedComponent(*this);
+		m_Renderer = Application::Get().GetRenderContext().GetAPI().GetRenderer2D();
 	}
 
 	void RenderComponent::OnComponentAdded(Component& Component)

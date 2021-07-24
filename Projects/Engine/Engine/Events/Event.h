@@ -11,7 +11,7 @@
 namespace Engine
 {
 	template <typename T, typename ... Args>
-	class Engine_API EventHandler : public Object
+	class Engine_API EventHandler// : public Object
 	{
 	public:
 		typedef std::function<T(Args...)> FunctionType;
@@ -21,21 +21,20 @@ namespace Engine
 			const FunctionType& Function,
 			const std::string& sName = "Event Handler"
 		)
-			: m_Function(Function),
-			Object(sName)
+			: m_Function(Function)//, Object(sName)
 		{
 			m_ID = ++m_IDCounter;
 		}
 
 		// Copy constructor
 		EventHandler(const EventHandler& Src)
-			: m_Function(Src.m_Function), m_ID(Src.m_ID), Object(Src.GetName())
+			: m_Function(Src.m_Function), m_ID(Src.m_ID)//, Object(Src.GetName())
 		{
 		}
 
 		// Move constructor
 		EventHandler(EventHandler&& Src)
-			: m_Function(std::move(Src.m_Function)), m_ID(Src.m_ID), Object(Src.GetName())
+			: m_Function(std::move(Src.m_Function)), m_ID(Src.m_ID)//, Object(Src.GetName())
 		{
 		}
 
@@ -89,6 +88,7 @@ namespace Engine
 		FunctionType m_Function;
 
 		IDType m_ID;
+		std::string m_sName;
 		static std::atomic_uint m_IDCounter;
 	};
 

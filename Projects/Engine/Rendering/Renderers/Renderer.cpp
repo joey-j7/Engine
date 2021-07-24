@@ -11,9 +11,9 @@ namespace Engine
 	{
 	}
 
-	void Renderer::AddModifiedComponent(RenderComponent& Component)
+	void Renderer::AddModifiedComponent(Renderable& Renderable)
 	{
-		const auto Find = std::find(m_Components.begin(), m_Components.end(), & Component);
+		const auto Find = std::find(m_Components.begin(), m_Components.end(), &Renderable);
 
 		if (Find != m_Components.end())
 		{
@@ -21,7 +21,7 @@ namespace Engine
 			return;
 		}
 
-		m_Components.push_back(&Component);
+		m_Components.push_back(&Renderable);
 	}
 
 	void Renderer::Swap()

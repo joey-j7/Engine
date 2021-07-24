@@ -18,12 +18,12 @@ namespace Engine
 		Renderer();
 		virtual ~Renderer();
 
-		void AddModifiedComponent(RenderComponent& Component);
+		void AddModifiedComponent(Renderable& Component);
 		
 		virtual void Swap();
 		virtual void Present() = 0;
 
 	protected:
-		std::vector<RenderComponent*> m_Components;
+		std::vector<Renderable*> m_Components;
 	};
 }

@@ -7,46 +7,51 @@
 
 #include "Engine/Objects/Worlds/Entities/Components/Transform/TransformComponent2D.h"
 #include "Engine/Objects/Worlds/Entities/Components/Transform/TransformComponent3D.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/UIClickable.h"
+#include "Engine/Objects/Worlds/Entities/Components/ClickableComponent.h"
 
 #include "Engine/Objects/Worlds/Entities/Components/UI/UIText.h"
 #include "Engine/Objects/Worlds/Entities/Components/UI/Shapes/UIRect.h"
 
+using namespace Engine;
+
 DebugWorld::DebugWorld()
 {
-	// Engine::CommandEngine* pEngine = Engine::Application::Get().GetRenderContext().GetAPI().GetCommandEngine("Screen");
+	// CommandEngine* pEngine = Application::Get().GetRenderContext().GetAPI().GetCommandEngine("Screen");
 	// 
-	// Engine::ShaderProgram::Descriptor shaderDesc;
+	// ShaderProgram::Descriptor shaderDesc;
 	// shaderDesc.Vertex = "default.vert";
 	// shaderDesc.Pixel = "default.frag";
 	// 
 	// m_pPass = pEngine->Create(shaderDesc);
 	//
-	// Engine::Application::Get().GetHardwareContext().GetCamera().Start();
+	// Application::Get().GetHardwareContext().GetCamera().Start();
 
-	Engine::StaticEntity* Entity = new Engine::StaticEntity("Test Entity");
-	Entity->AddComponent<Engine::TransformComponent2D>()->SetPosition(Vector2(100.f, 0.f));
-	Entity->AddComponent<Engine::UIText>("Zico bruh")->SetColor(SK_ColorGREEN);
+	StaticEntity* Entity = new StaticEntity("Test Entity");
+	Entity->AddComponent<TransformComponent2D>()->SetPosition(Vector2(100.f, 0.f));
+	Entity->AddComponent<UIText>("Zico bruh")->SetColor(SK_ColorGREEN);
+	Entity->AddComponent<ClickableComponent>();
 
-	Engine::StaticEntity* Entity2 = new Engine::StaticEntity("Test Rect");
-	Entity2->AddComponent<Engine::TransformComponent2D>()->SetPosition(Vector2(10.f, 10.f));
-	Engine::UIRect* Rect = Entity2->AddComponent<Engine::UIRect>();
+	StaticEntity* Entity2 = new StaticEntity("Test Rect");
+	Entity2->AddComponent<TransformComponent2D>()->SetPosition(Vector2(10.f, 10.f));
+	Entity2->AddComponent<ClickableComponent>();
+	UIRect* Rect = Entity2->AddComponent<UIRect>();
 	Rect->SetColor(SK_ColorRED);
 	Rect->SetRadius(10);
-	Rect->SetBorder(5, Engine::UIComponent::Gradient({ { 0, SK_ColorBLACK }, { 1, SK_ColorGREEN } }));
+	Rect->SetBorder(5, UIComponent::Gradient({ { 0, SK_ColorBLACK }, { 1, SK_ColorGREEN } }));
 	
-	Engine::StaticEntity* Entity3 = new Engine::StaticEntity("Test Entity 2");
-	Entity3->AddComponent<Engine::TransformComponent2D>()->SetPosition(Vector2(100.f, 50.f));
-	Engine::UIText* Text = Entity3->AddComponent<Engine::UIText>("Alles goed jonge");
+	StaticEntity* Entity3 = new StaticEntity("Test Entity 2");
+	Entity3->AddComponent<TransformComponent2D>()->SetPosition(Vector2(100.f, 50.f));
+	Entity3->AddComponent<ClickableComponent>();
+	UIText* Text = Entity3->AddComponent<UIText>("Alles goed jonge");
 	Text->SetFontSize(32);
-	Text->SetBorder(1, Engine::UIComponent::Gradient(
+	Text->SetBorder(1, UIComponent::Gradient(
 		{ { 0, SK_ColorYELLOW }, { 1, SK_ColorMAGENTA } },
-		Engine::UIComponent::Gradient::E_VERTICAL),
+		UIComponent::Gradient::E_VERTICAL),
 		false
 	);
 
-	Engine::StaticEntity* Entity4 = new Engine::StaticEntity("Button");
-	Entity3->AddComponent<Engine::UIClickable>();
+	StaticEntity* Entity4 = new StaticEntity("Button");
+	Entity4->AddComponent<ClickableComponent>();
 }
 
 void DebugWorld::Draw(float fDeltaTime)

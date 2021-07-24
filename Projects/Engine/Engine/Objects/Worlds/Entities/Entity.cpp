@@ -6,114 +6,45 @@ namespace Engine
 	Entity::~Entity()
 	{
 		SetParent(nullptr);
-
-		for (auto& Component : m_Components)
-		{
-			delete Component.second;
-		}
 	}
 
-	Component* Entity::AddComponent(Component* Comp)
+	const AABB Entity::GetBounds() const
 	{
-		bool Prohibited = false;
-
-		// Check for prohibited components for dependency components
-		for (auto& Pair : Comp->m_PendingComponentsToAdd)
+		AABB Bounds;
+		
+		Bounds.lowerBound = Vector2(FLT_MAX);
+		Bounds.upperBound = Vector2(FLT_MIN);
+		
+		for (auto& Component : m_RenderComponents)
 		{
-			if (!Pair.second || GetComponentByID(Pair.second->GetID()))
-				continue;
+			const AABB Bounds2 = Component->GetBounds();
 
-			if (!Pair.second->IsCompatible(Comp) || !Comp->IsCompatible(Pair.second))
-			{
-				CB_CORE_ERROR(
-					"Cannot add component {0} to entity {1} because of conflicting component {2}!",
-					Comp->GetName(), GetName(), Pair.second->GetName()
-				);
-
-				Prohibited = true;
-			}
-
-			for (auto& CompPair : m_Components)
-			{
-				if (!Pair.second->IsCompatible(CompPair.second) || !CompPair.second->IsCompatible(Pair.second))
-				{
-					CB_CORE_ERROR(
-						"Cannot add component {0} to entity {1} because of conflicting component {2}!",
-						Pair.second->GetName(), GetName(), CompPair.second->GetName()
-					);
-
-					Prohibited = true;
-				}
-			}
+			Bounds.lowerBound.x = glm::min(Bounds.lowerBound.x, Bounds2.lowerBound.x);
+			Bounds.lowerBound.y = glm::min(Bounds.lowerBound.y, Bounds2.lowerBound.y);
+			Bounds.upperBound.x = glm::max(Bounds.upperBound.x, Bounds2.upperBound.x);
+			Bounds.upperBound.y = glm::max(Bounds.upperBound.y, Bounds2.upperBound.y);
 		}
 
-		// Check for prohibited components for main component
-		for (auto& Pair : m_Components)
+		if (Bounds.lowerBound == Vector2(FLT_MAX) || Bounds.upperBound == Vector2(FLT_MIN))
 		{
-			if (!Comp->IsCompatible(Pair.second) || !Pair.second->IsCompatible(Comp))
-			{
-				CB_CORE_ERROR(
-					"Cannot add component {0} to entity {1} because of conflicting component {2}!",
-					Comp->GetName(), GetName(), Pair.second->GetName()
-				);
-
-				Prohibited = true;
-			}
+			Bounds.lowerBound = Vector2(0.f);
+			Bounds.upperBound = Vector2(0.f);
 		}
-
-		if (Prohibited)
-		{
-			// for (auto Pair : Comp->m_PendingComponentsToAdd)
-			// {
-			// 	if (Pair.second)
-			// 		delete Pair.second;
-			// }
-
-			Comp->m_PendingComponentsToAdd.clear();
-			return nullptr;
-		}
-
-		// Now add component
-		m_Components.insert(std::pair<size_t, Component*>(Comp->m_ID, Comp));
-
-		for (auto& Pair : Comp->m_PendingComponentsToAdd)
-		{
-			if (!Pair.second)
-				continue;
-
-			if (!GetComponentByID(Pair.second->GetID()))
-			{
-				CB_CORE_INFO(
-					"Added component {0} to entity {1} as a dependency for component {2}",
-					Pair.second->GetName(), GetName(), Comp->GetName()
-				);
-
-				Pair.second->m_ID = Pair.first;
-				m_Components.insert(Pair);
-			}
-			// else
-			//	delete Pair.second;
-		}
-
-		Comp->m_PendingComponentsToAdd.clear();
-		OnComponentAdded(*Comp);
-
-		return Comp;
+		
+		return Bounds;
 	}
 
 	bool Entity::RemoveComponent(Component* Comp)
 	{
 		auto Find = m_Components.find(Comp->GetID());
 		const bool Found = Find != m_Components.end();
-
+		
 		if (Found)
 		{
-			if (Find->second)
-				OnComponentRemoved(*Find->second);
-
+			OnComponentRemoved(*Find->second);
 			m_Components.erase(Find);
 		}
-
+		
 		return Found;
 	}
 

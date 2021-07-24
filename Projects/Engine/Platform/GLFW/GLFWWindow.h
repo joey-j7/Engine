@@ -37,6 +37,8 @@ namespace Engine {
 
 		virtual void Wait() override;
 
+		virtual bool IsMousePressed() const;
+		
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown() override;

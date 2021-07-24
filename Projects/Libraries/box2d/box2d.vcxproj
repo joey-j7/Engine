@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Windows -->
+  <PropertyGroup Label="Globals">
+    <Keyword>Win32Proj</Keyword>
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{9505C4CF-073F-43DE-A41B-4DDE4D177F51}</ProjectGuid>
+    <RootNamespace>box2d</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <!-- Android -->
+  <PropertyGroup Condition="'$(Platform)'=='ARM'" Label="Globals">
+    <Keyword>Android</Keyword>
+    <RootNamespace>box2d</RootNamespace>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <ApplicationType>Android</ApplicationType>
+    <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='ARM64'" Label="Globals">
+    <Keyword>Android</Keyword>
+    <RootNamespace>box2d</RootNamespace>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <ApplicationType>Android</ApplicationType>
+    <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <!-- Windows -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <!-- Android -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+    <UseOfStl>c++_static</UseOfStl>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+    <UseOfStl>c++_static</UseOfStl>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
+    <UseOfStl>c++_static</UseOfStl>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>Clang_5_0</PlatformToolset>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
+    <UseOfStl>c++_static</UseOfStl>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Android.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(SolutionDir)Properties\GlobalProperties.props" />
+    <Import Project="$(SolutionDir)Properties\Windows.props" />
+    <Import Project="$(SolutionDir)Properties\Release.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <IncludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <IncludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <IncludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" />
+  <!-- Windows Win32 -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_DEBUG);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_32);
+	  </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+	  </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_RELEASE);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_32);
+	  </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+	  </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Windows x64 -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_DEBUG);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_64);
+	  </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+	  </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_WINDOWS);
+	  </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_WINDOWS);
+		$(CB_PREPROCESSORS_RELEASE);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_WINDOWS);
+		$(CB_LIBRARY_PATHS_WINDOWS_64);
+	  </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+		$(CB_LIBRARIES_WINDOWS);
+	  </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Android ARM -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(CB_INCLUDE_PATHS_DEFAULT);$(CB_INCLUDE_PATHS_ANDROID)</AdditionalIncludeDirectories>
+      <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_DEBUG);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+	  </AdditionalLibraryDirectories>
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+	  </LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		$(CB_INCLUDE_PATHS_ANDROID);
+		$(StlIncludeDirectories);
+		
+	  </AdditionalIncludeDirectories>
+      <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_RELEASE);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+	  </AdditionalLibraryDirectories>
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+	  </LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <!-- Android ARM64 -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <ClCompile>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>
+	    $(CB_INCLUDE_PATHS_ANDROID);
+		$(CB_INCLUDE_PATHS_DEFAULT);
+		
+	  </AdditionalIncludeDirectories>
+      <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_DEBUG);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+	  </AdditionalLibraryDirectories>
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+	  )</LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <ClCompile>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(CB_INCLUDE_PATHS_DEFAULT);$(CB_INCLUDE_PATHS_ANDROID)</AdditionalIncludeDirectories>
+      <ISystem>
+		$(CB_ISYSTEM_PATHS_ANDROID);
+	  </ISystem>
+      <PreprocessorDefinitions>
+		$(CB_PREPROCESSORS_DEFAULT);
+		$(CB_PREPROCESSORS_ANDROID);
+		$(CB_PREPROCESSORS_RELEASE);
+		$(CB_PREPROCESSORS_LIBRARY);
+		%(PreprocessorDefinitions);
+	  </PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>
+		$(CB_LIBRARY_PATHS_DEFAULT);
+		$(CB_LIBRARY_PATHS_ANDROID);
+	  </AdditionalLibraryDirectories>
+      <LibraryDependencies>
+		$(CB_LIBRARIES_ANDROID);
+	  </LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_broad_phase.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_chain_shape.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_circle_shape.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_collide_circle.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_collide_edge.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_collide_polygon.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_collision.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_distance.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_dynamic_tree.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_edge_shape.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_polygon_shape.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\collision\b2_time_of_impact.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\common\b2_block_allocator.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\common\b2_draw.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\common\b2_math.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\common\b2_settings.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\common\b2_stack_allocator.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\common\b2_timer.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_body.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_chain_circle_contact.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_chain_polygon_contact.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_circle_contact.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_contact.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_contact_manager.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_contact_solver.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_distance_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_edge_circle_contact.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_edge_polygon_contact.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_fixture.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_friction_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_gear_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_island.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_motor_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_mouse_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_polygon_circle_contact.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_polygon_contact.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_prismatic_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_pulley_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_revolute_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_weld_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_wheel_joint.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_world.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_world_callbacks.cpp" />
+    <ClCompile Include="$(SolutionDir)Libraries\box2d\src\rope\b2_rope.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_api.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_block_allocator.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_body.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_broad_phase.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_chain_shape.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_circle_shape.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_collision.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_common.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_contact.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_contact_manager.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_distance.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_distance_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_draw.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_dynamic_tree.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_edge_shape.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_fixture.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_friction_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_gear_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_growable_stack.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_math.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_motor_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_mouse_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_polygon_shape.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_prismatic_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_pulley_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_revolute_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_rope.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_settings.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_shape.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_stack_allocator.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_timer.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_time_of_impact.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_time_step.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_types.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_weld_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_wheel_joint.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_world.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\b2_world_callbacks.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\include\box2d\box2d.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_chain_circle_contact.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_chain_polygon_contact.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_circle_contact.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_contact_solver.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_edge_circle_contact.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_edge_polygon_contact.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_island.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_polygon_circle_contact.h" />
+    <ClInclude Include="$(SolutionDir)Libraries\box2d\src\dynamics\b2_polygon_contact.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

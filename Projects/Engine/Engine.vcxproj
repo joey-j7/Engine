@@ -490,7 +490,12 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Engine\Application.h" />
     <ClInclude Include="Engine\Events\Event.h" />
+    <ClInclude Include="Engine\General\Collision.h" />
+    <ClInclude Include="Engine\Objects\Clickable.h" />
+    <ClInclude Include="Engine\Objects\Renderable.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\RegisterComponent.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\RenderComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.h" />
     <ClInclude Include="Engine\Files\Config\ConfigFile.h" />
     <ClInclude Include="Engine\Layers\World\WorldManagerLayer.h" />
@@ -525,8 +530,14 @@
     <ClInclude Include="Engine\Files\FileReference.h" />
     <ClInclude Include="Engine\Managers\IDManager.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UICanvasPanel.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\UIClickable.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\ClickableComponent.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\UIComponent.h" />
+    <ClInclude Include="Engine\Physics\2D\Box2DEngine.h" />
+    <ClInclude Include="Engine\Physics\3D\PhysXEngine.h" />
+    <ClInclude Include="Engine\Physics\PhysicsContext.h" />
+    <ClInclude Include="Engine\Physics\PhysicsEngine.h" />
+    <ClInclude Include="Engine\Physics\2D\PhysicsEngine2D.h" />
+    <ClInclude Include="Engine\Physics\3D\PhysicsEngine3D.h" />
     <ClInclude Include="Platform\Android\Hardware\Camera\AndCamera.h" />
     <ClInclude Include="Platform\Hardware\Camera\Camera.h" />
     <ClInclude Include="Platform\FileLoader.h" />
@@ -573,6 +584,8 @@
   <ItemGroup>
     <ClCompile Include="Engine\Application.cpp" />
     <ClCompile Include="Engine\Events\Event.cpp" />
+    <ClCompile Include="Engine\Objects\Clickable.cpp" />
+    <ClCompile Include="Engine\Objects\Renderable.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Component.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\RenderComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.cpp" />
@@ -598,7 +611,7 @@
     <ClCompile Include="Engine\Files\FileManager.cpp" />
     <ClCompile Include="Engine\Files\FileReference.cpp" />
     <ClCompile Include="Engine\Managers\IDManager.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\UIClickable.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\ClickableComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\UIComponent.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -642,6 +655,9 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\UIText.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Libraries\box2d\box2d.vcxproj">
+      <Project>{9505c4cf-073f-43de-a41b-4dde4d177f51}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Libraries\Glad\Glad.vcxproj">
       <Project>{bdd6857c-a90d-870d-52fa-6c103e10030f}</Project>
     </ProjectReference>

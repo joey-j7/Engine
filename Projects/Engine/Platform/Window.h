@@ -67,6 +67,8 @@ namespace Engine {
 		static Window* Create(const WindowProps& props = WindowProps());
 		virtual void Reset() = 0;
 
+		virtual bool IsMousePressed() const = 0;
+
 		virtual void Wait() = 0;
 
 		Event<void, uint32_t, uint32_t> OnResize = Event<void, uint32_t, uint32_t>("Window::OnResize");

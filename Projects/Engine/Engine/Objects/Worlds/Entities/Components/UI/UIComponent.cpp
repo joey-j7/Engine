@@ -18,6 +18,9 @@ namespace Engine
 		{
 			AddDependencyTypes<TransformComponent2D>();
 		}
+
+		m_Bounds.upperBound.x = m_Width;
+		m_Bounds.upperBound.y = m_Height;
 	}
 
 	UIComponent::~UIComponent()
@@ -306,6 +309,9 @@ namespace Engine
 			return;
 
 		m_Width = Width;
+		m_Bounds.lowerBound.x = 0.f;
+		m_Bounds.upperBound.x = static_cast<float>(Width);
+		
 		MarkDirty();
 	}
 
@@ -315,6 +321,30 @@ namespace Engine
 			return;
 
 		m_Height = Height;
+		m_Bounds.lowerBound.y = 0.f;
+		m_Bounds.upperBound.y = static_cast<float>(Height);
+		
 		MarkDirty();
+	}
+
+	void UIComponent::SetSize(uint32_t Width, uint32_t Height)
+	{
+		SetWidth(Width);
+		SetHeight(Height);
+	}
+
+	void UIComponent::SetAntialiasing(bool AA)
+	{
+		m_UseAntialiasing = AA;
+	}
+
+	const AABB UIComponent::GetBounds() const
+	{
+		AABB Bounds = m_Bounds;
+		
+		Bounds.lowerBound += Vector2(GetPosition());
+		Bounds.upperBound += Vector2(GetPosition());
+		
+		return Bounds;
 	}
 }

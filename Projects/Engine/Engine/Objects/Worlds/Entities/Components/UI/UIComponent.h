@@ -3,12 +3,12 @@
 #include <map>
 
 #include "Engine/Objects/Worlds/Entities/Components/RenderComponent.h"
+
 #include <include/core/SkCanvas.h>
 
 namespace Engine
 {
 	class Renderer2D;
-	class Transform2DComponent;
 	
 	class Engine_API UIComponent : public RenderComponent
 	{
@@ -81,8 +81,6 @@ namespace Engine
 		UIComponent(Entity& Entity, const std::string& sName = "UI Component");
 		virtual ~UIComponent();
 
-		virtual void Draw() = 0;
-
 		const Vector2& GetPosition() const;
 		float GetRotation() const;
 		const Vector2& GetScale() const;
@@ -104,10 +102,14 @@ namespace Engine
 		uint32_t GetHeight() const { return m_Height; }
 		void SetHeight(uint32_t Height);
 
+		void SetSize(uint32_t Width, uint32_t Height);
+
+		bool GetAntialiasing() const { return m_UseAntialiasing; }
+		virtual void SetAntialiasing(bool AA);
+
+		virtual const AABB GetBounds() const override;
+
 	protected:
-		void BeginDraw();
-		void EndDraw();
-		
 		SkCanvas* m_Canvas = nullptr;
 		SkPaint m_Paint;
 
@@ -121,10 +123,17 @@ namespace Engine
 
 		uint32_t m_Width = 50;
 		uint32_t m_Height = 50;
+
+		AABB m_Bounds;
 		
 		bool m_ShowFill = true;
 		bool m_UseAntialiasing = true;
 		
 		Vector4 Padding;
+
+	private:
+		virtual void BeginDraw() override;
+		virtual void Draw() override = 0;
+		virtual void EndDraw() override;
 	};
 }
