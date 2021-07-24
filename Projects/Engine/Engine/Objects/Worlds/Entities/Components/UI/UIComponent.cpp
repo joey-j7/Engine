@@ -260,8 +260,8 @@ namespace Engine
 
 		if (m_ScaleWithDPI)
 		{
-			ScreenScale.x *= m_Window.GetScale();
-			ScreenScale.y *= m_Window.GetScale();
+			ScreenPosition *= m_Window.GetScale();
+			ScreenScale *= m_Window.GetScale();
 		}
 
 		// Alignment
@@ -416,6 +416,7 @@ namespace Engine
 
 		if (m_ScaleWithDPI)
 		{
+			Position *= m_Window.GetScale();
 			Scale *= m_Window.GetScale();
 		}
 
