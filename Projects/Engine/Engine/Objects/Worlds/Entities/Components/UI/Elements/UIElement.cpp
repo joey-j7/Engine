@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "UIComponent.h"
+#include "UIElement.h"
 
 #include "Engine/Application.h"
 
@@ -7,12 +7,14 @@
 #include "Engine/Objects/Worlds/Entities/Components/Transform/TransformComponent3D.h"
 
 #include "Rendering/Renderers/Renderer2D.h"
+#include "Engine/Objects/Worlds/Entities/Components/UI/Layouts/UILayout.h"
 
 #include <include/effects/SkGradientShader.h>
 
 namespace Engine
 {
-	UIComponent::UIComponent(Entity& Entity, const std::string& sName) : RenderComponent(Entity, sName),
+	UIElement::UIElement(Entity& Entity, const std::string& sName) :
+		RenderComponent(Entity, sName),
 		m_Window(Application::Get().GetRenderContext().GetWindow())
 	{
 		if (!GetEntity().GetComponent<TransformComponent3D>())
@@ -20,55 +22,18 @@ namespace Engine
 			AddDependencyTypes<TransformComponent2D>();
 		}
 
-		m_Bounds.upperBound.x = m_Width;
-		m_Bounds.upperBound.y = m_Height;
+		AddProhibitedTypes<UILayout>();
+		
+		m_Bounds.upperBound.x = static_cast<float>(m_Width);
+		m_Bounds.upperBound.y = static_cast<float>(m_Height);
 	}
 
-	UIComponent::~UIComponent()
+	UIElement::~UIElement()
 	{
 
 	}
 	
-	const Vector2& UIComponent::GetPosition() const
-	{
-		switch (m_RenderDimension)
-		{
-		case E_3D:
-			return m_Entity.GetComponent<TransformComponent3D>()->GetPosition();
-		case E_2D:
-		case E_NONE:
-		default:
-			return m_Entity.GetComponent<TransformComponent2D>()->GetPosition();
-		}
-	}
-
-	float UIComponent::GetRotation() const
-	{
-		switch (m_RenderDimension)
-		{
-		case E_3D:
-			return m_Entity.GetComponent<TransformComponent3D>()->GetRotation().x;
-		case E_2D:
-		case E_NONE:
-		default:
-			return m_Entity.GetComponent<TransformComponent2D>()->GetRotation();
-		}
-	}
-
-	const Vector2& UIComponent::GetScale() const
-	{
-		switch (m_RenderDimension)
-		{
-		case E_3D:
-			return m_Entity.GetComponent<TransformComponent3D>()->GetScale();
-		case E_2D:
-		case E_NONE:
-		default:
-			return m_Entity.GetComponent<TransformComponent2D>()->GetScale();
-		}
-	}
-
-	void UIComponent::SetColor(const SkColor& Color)
+	void UIElement::SetColor(const SkColor& Color)
 	{
 		if (m_Color == Color)
 			return;
@@ -79,7 +44,7 @@ namespace Engine
 		MarkDirty();
 	}
 
-	void UIComponent::SetGradient(const Gradient& Gradient)
+	void UIElement::SetGradient(const Gradient& Gradient)
 	{
 		if (m_Gradient == Gradient)
 			return;
@@ -92,7 +57,7 @@ namespace Engine
 		MarkDirty();
 	}
 
-	void UIComponent::SetBorder(uint32_t Width, const SkColor& Color, bool ShowFill)
+	void UIElement::SetBorder(uint32_t Width, const SkColor& Color, bool ShowFill)
 	{
 		if (m_BorderWidth == Width && m_BorderColor == Color && m_ShowFill == ShowFill)
 			return;
@@ -118,7 +83,7 @@ namespace Engine
 		MarkDirty();
 	}
 
-	void UIComponent::SetBorder(uint32_t Width, const Gradient& Gradient, bool ShowFill)
+	void UIElement::SetBorder(uint32_t Width, const Gradient& Gradient, bool ShowFill)
 	{
 		if (m_BorderWidth == Width && m_BorderGradient == Gradient && m_ShowFill == ShowFill)
 			return;
@@ -147,18 +112,18 @@ namespace Engine
 		MarkDirty();
 	}
 
-	void UIComponent::ApplyAlignment(Vector2& ScreenPosition, const Vector2& ScreenScale) const
+	void UIElement::ApplyAlignment(Vector2& ScreenPosition, const Vector2& ScreenScale) const
 	{
 		switch (m_Alignment)
 		{
-		case(E_TOP):
-		case(E_CENTER):
-		case(E_BOTTOM):
+		case(E_ALIGN_TOP):
+		case(E_ALIGN_CENTER):
+		case(E_ALIGN_BOTTOM):
 			ScreenPosition.x -= m_Width * ScreenScale.x * 0.5f;
 			break;
-		case(E_TOP_RIGHT):
-		case(E_CENTER_RIGHT):
-		case(E_BOTTOM_RIGHT):
+		case(E_ALIGN_TOP_RIGHT):
+		case(E_ALIGN_CENTER_RIGHT):
+		case(E_ALIGN_BOTTOM_RIGHT):
 			ScreenPosition.x -= m_Width * ScreenScale.x;
 			break;
 		default:
@@ -167,14 +132,14 @@ namespace Engine
 
 		switch (m_Alignment)
 		{
-		case(E_CENTER_LEFT):
-		case(E_CENTER):
-		case(E_CENTER_RIGHT):
+		case(E_ALIGN_CENTER_LEFT):
+		case(E_ALIGN_CENTER):
+		case(E_ALIGN_CENTER_RIGHT):
 			ScreenPosition.y -= m_Height * ScreenScale.x * 0.5f;
 			break;
-		case(E_BOTTOM_LEFT):
-		case(E_BOTTOM):
-		case(E_BOTTOM_RIGHT):
+		case(E_ALIGN_BOTTOM_LEFT):
+		case(E_ALIGN_BOTTOM):
+		case(E_ALIGN_BOTTOM_RIGHT):
 			ScreenPosition.y -= m_Height * ScreenScale.x;
 			break;
 		default:
@@ -182,7 +147,107 @@ namespace Engine
 		}
 	}
 
-	void UIComponent::BeginDraw()
+	UILayout* UIElement::CheckParentLayout(Entity& Origin) const
+	{
+		// Check if there's a layout in one of the parents
+		auto Components = Origin.GetComponentsOfType<UILayout>();
+
+		if (Components.empty())
+		{
+			// Nested loop
+			if (Origin.GetParent())
+				return CheckParentLayout(*Origin.GetParent());
+
+			return nullptr;
+		}
+
+		return Components[0];
+	}
+
+	void UIElement::ApplyAnchor(Vector2& ScreenPosition)
+	{
+		Entity* Parent = GetEntity().GetParent();
+		Vector2 Dims(0.f);
+		
+		if (Parent)
+		{
+			if (UILayout* Layout = CheckParentLayout(*Parent))
+			{
+				AABB Bounds = Layout->GetBounds();
+
+				ScreenPosition += Bounds.lowerBound;
+
+				Dims.x = Bounds.upperBound.x - Bounds.lowerBound.x;
+				Dims.y = Bounds.upperBound.y - Bounds.lowerBound.y;
+			}
+		}
+		
+		if (Dims == Vector2(0.f))
+		{
+			Window& Window = Application::Get().GetRenderContext().GetWindow();
+			Dims = Vector2(Window.GetWidth(), Window.GetHeight());
+		}
+
+		switch (m_Anchor)
+		{
+		case(E_ANCH_TOP):
+		case(E_ANCH_CENTER):
+		case(E_ANCH_BOTTOM):
+		case(E_ANCH_CENTER_FILL_VERTICAL):
+			ScreenPosition.x += Dims.x * 0.5f;
+			break;
+		case(E_ANCH_TOP_RIGHT):
+		case(E_ANCH_CENTER_RIGHT):
+		case(E_ANCH_BOTTOM_RIGHT):
+		case(E_ANCH_RIGHT_FILL):
+			ScreenPosition.x += Dims.x - ScreenPosition.x - m_RightOffset;
+			break;
+		default:
+			break;
+		}
+
+		switch (m_Anchor)
+		{
+		case(E_ANCH_CENTER_LEFT):
+		case(E_ANCH_CENTER):
+		case(E_ANCH_CENTER_RIGHT):
+		case(E_ANCH_CENTER_FILL_HORIZONTAL):
+			ScreenPosition.y += Dims.y * 0.5f;
+			break;
+		case(E_ANCH_BOTTOM_LEFT):
+		case(E_ANCH_BOTTOM):
+		case(E_ANCH_BOTTOM_RIGHT):
+		case(E_ANCH_BOTTOM_FILL):
+			ScreenPosition.y += Dims.y - ScreenPosition.y - m_BottomOffset;
+			break;
+		default:
+			break;
+		}
+
+		switch (m_Anchor)
+		{
+		case(E_ANCH_TOP_FILL):
+		case(E_ANCH_CENTER_FILL_HORIZONTAL):
+		case(E_ANCH_BOTTOM_FILL):
+			SetWidth(static_cast<uint32_t>(Dims.x - ScreenPosition.x - m_RightOffset));
+			break;
+		case(E_ANCH_LEFT_FILL):
+		case(E_ANCH_CENTER_FILL_VERTICAL):
+		case(E_ANCH_RIGHT_FILL):
+			SetHeight(static_cast<uint32_t>(Dims.y - ScreenPosition.y - m_BottomOffset));
+			break;
+		case(E_ANCH_FULL_FILL):
+			SetSize(
+				static_cast<uint32_t>(Dims.x - ScreenPosition.x - m_RightOffset),
+				static_cast<uint32_t>(Dims.y - ScreenPosition.y - m_BottomOffset)
+			);
+			break;
+		default:
+			break;
+		}
+	}
+
+	void UIElement::BeginDraw()
 	{
 		m_Canvas = Application::Get().GetRenderContext().GetAPI().GetRenderer2D()->GetCanvas();
 		m_Canvas->save();
@@ -264,7 +329,8 @@ namespace Engine
 			ScreenScale *= m_Window.GetScale();
 		}
 
-		// Alignment
+		// Anchor and alignment
+		ApplyAnchor(ScreenPosition);
 		ApplyAlignment(ScreenPosition, ScreenScale);
 
 		// Apply
@@ -283,7 +349,7 @@ namespace Engine
 		);
 	}
 
-	void UIComponent::EndDraw()
+	void UIElement::EndDraw()
 	{
 		if (m_PaintStyle == SkPaint::Style::kStrokeAndFill_Style &&
 			(
@@ -351,7 +417,7 @@ namespace Engine
 		m_Canvas->restore();
 	}
 	
-	void UIComponent::SetWidth(uint32_t Width)
+	void UIElement::SetWidth(uint32_t Width)
 	{
 		if (m_Width == Width)
 			return;
@@ -364,7 +430,7 @@ namespace Engine
 		MarkDirty();
 	}
 
-	void UIComponent::SetHeight(uint32_t Height)
+	void UIElement::SetHeight(uint32_t Height)
 	{
 		if (m_Height == Height)
 			return;
@@ -377,13 +443,13 @@ namespace Engine
 		MarkDirty();
 	}
 
-	void UIComponent::SetSize(uint32_t Width, uint32_t Height)
+	void UIElement::SetSize(uint32_t Width, uint32_t Height)
 	{
 		SetWidth(Width);
 		SetHeight(Height);
 	}
 
-	void UIComponent::ScaleWithDPI(bool Scale)
+	void UIElement::ScaleWithDPI(bool Scale)
 	{
 		if (m_ScaleWithDPI == Scale)
 			return;
@@ -392,12 +458,12 @@ namespace Engine
 		MarkDirty();
 	}
 
-	void UIComponent::SetAntialiasing(bool AA)
+	void UIElement::SetAntialiasing(bool AA)
 	{
 		m_UseAntialiasing = AA;
 	}
 
-	void UIComponent::SetAlignment(Alignment Alignment)
+	void UIElement::SetAlignment(Alignment Alignment)
 	{
 		if (m_Alignment == Alignment)
 			return;
@@ -407,33 +473,53 @@ namespace Engine
 		MarkDirty();
 	}
 
-	const AABB UIComponent::GetBounds() const
+	void UIElement::SetAnchor(Anchor Anchor)
+	{
+		if (m_Anchor == Anchor)
+			return;
+
+		m_Anchor = Anchor;
+
+		MarkDirty();
+	}
+
+	const AABB UIElement::GetBounds()
 	{
 		AABB Bounds = m_Bounds;
 
-		Vector2 Scale = GetScale();
-		Vector2 Position = GetPosition();
+		Vector2 ScreenScale = GetScale();
+		Vector2 ScreenPosition = GetPosition();
 
 		if (m_ScaleWithDPI)
 		{
-			Position *= m_Window.GetScale();
-			Scale *= m_Window.GetScale();
+			ScreenPosition *= m_Window.GetScale();
+			ScreenScale *= m_Window.GetScale();
 		}
 
-		// Alignment
-		ApplyAlignment(Position, Scale);
+		// Anchor and alignment
+		ApplyAnchor(ScreenPosition);
+		ApplyAlignment(ScreenPosition, ScreenScale);
 		
-		Bounds.lowerBound.x *= Scale.x;
-		Bounds.lowerBound.y *= Scale.y;
-		Bounds.upperBound.x *= Scale.x;
-		Bounds.upperBound.y *= Scale.y;
+		Bounds.lowerBound.x *= ScreenScale.x;
+		Bounds.lowerBound.y *= ScreenScale.y;
+		Bounds.upperBound.x *= ScreenScale.x;
+		Bounds.upperBound.y *= ScreenScale.y;
 		
-		Vector2 Lower = Bounds.lowerBound;
-		Vector2 Upper = Bounds.upperBound;
-		
-		Bounds.lowerBound += Position;
-		Bounds.upperBound += Position;
+		Bounds.lowerBound += ScreenPosition;
+		Bounds.upperBound += ScreenPosition;
+
+		Bounds.lowerBound += m_LayoutOffset;
+		Bounds.upperBound += m_LayoutOffset;
 		
 		return Bounds;
+	}
+	
+	void UIElement::SetLayoutOffset(const Vector2& Offset)
+	{
+		if (m_LayoutOffset == Offset)
+			return;
+
+		m_LayoutOffset = Offset;
+		MarkDirty();
 	}
 }

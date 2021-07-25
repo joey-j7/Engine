@@ -16,26 +16,28 @@ namespace Engine
         Vector2() : x(0.f), y(0.f) {}
 
         template <typename T>
-        Vector2(T Val) : x(static_cast<float>(Val)), y(static_cast<float>(Val)) {}
+        Vector2(const T& Val) : x(static_cast<float>(Val)), y(static_cast<float>(Val)) {}
 
         template <typename T>
-        Vector2(T xVal, T yVal) : x(static_cast<float>(xVal)), y(static_cast<float>(yVal)) {}
+        Vector2(const T& xVal, const T& yVal) : x(static_cast<float>(xVal)), y(static_cast<float>(yVal)) {}
 
         Vector2(const glm::vec2& Vector) : x(Vector.x), y(Vector.y) {}
         Vector2(const b2Vec2& Vector) : x(Vector.x), y(Vector.y) {}
 
-        operator glm::vec2() { return glm::vec2(x, y); }
-        operator b2Vec2() { return b2Vec2(x, y); }
-
+        operator glm::vec2() const { return glm::vec2(x, y); }
+        operator b2Vec2() const { return b2Vec2(x, y); }
+        
         template<typename T>
-        void operator=(const T& Other)
+        Vector2& operator=(const T& Other)
         {
             *this = Vector2(Other.x, Other.y);
+            return *this;
         }
 
-        void operator=(float Other)
+        Vector2& operator=(float Other)
         {
             *this = Vector2(Other);
+            return *this;
         }
 
         template<typename T>
@@ -227,29 +229,31 @@ namespace Engine
         Vector3() : Vector2(0.f), z(0.f) {}
 
         template <typename T>
-        Vector3(T Val) : Vector2(static_cast<float>(Val)), z(static_cast<float>(Val)) {}
+        Vector3(const T& Val) : Vector2(static_cast<float>(Val)), z(static_cast<float>(Val)) {}
 
         template <typename T>
-        Vector3(T xVal, T yVal) : Vector2(xVal, yVal), z(0.f) {}
+        Vector3(const T& xVal, const T& yVal) : Vector2(xVal, yVal), z(0.f) {}
 
         template <typename T>
-        Vector3(T xVal, T yVal, T zVal) : Vector2(xVal, yVal), z(static_cast<float>(zVal)) {}
+        Vector3(const T& xVal, const T& yVal, const T& zVal) : Vector2(xVal, yVal), z(static_cast<float>(zVal)) {}
 
         Vector3(const glm::vec3& Vector) : Vector2(Vector.x, Vector.y), z(Vector.z) {}
         Vector3(const b2Vec3& Vector) : Vector2(Vector.x, Vector.y), z(Vector.z) {}
 
-        operator glm::vec3() { return glm::vec3(x, y, z); }
-        operator b2Vec3() { return b2Vec3(x, y, z); }
+        operator glm::vec3() const { return glm::vec3(x, y, z); }
+        operator b2Vec3() const { return b2Vec3(x, y, z); }
 
         template<typename T>
-        void operator=(const T& Other)
+        Vector3& operator=(const T& Other)
         {
             *this = Vector3(Other.x, Other.y, Other.z);
+            return *this;
         }
 
-        void operator=(float Other)
+        Vector3& operator=(float Other)
         {
             *this = Vector3(Other);
+            return *this;
         }
 
         template<typename T>

@@ -1,13 +1,11 @@
 #pragma once
 
-#include "UIComponent.h"
-#include "Engine/Objects/Worlds/Entities/Entity.h"
-
+#include "UIElement.h"
 #include "include/utils/SkTextUtils.h"
 
 namespace Engine
 {
-	class Engine_API UIText : public UIComponent
+	class Engine_API UIText : public UIElement
 	{
 	public:
 		UIText(Entity& Entity, const std::string& Text = "", const std::string& sName = "Text");
@@ -28,6 +26,9 @@ namespace Engine
 		uint32_t m_FontSize = 64;
 
 		SkFont m_Font;
+
+		uint32_t m_TextWidth = 0;
+		uint32_t m_TextHeight = 0;
 
 		SkTextUtils::Align m_Alignment = SkTextUtils::Align::kLeft_Align;
 	};

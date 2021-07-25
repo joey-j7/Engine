@@ -2,17 +2,22 @@
 
 #include <unordered_map>
 #include <cstdint>
+#include <vector>
 
 #include "Components/Component.h"
-#include "Components/RenderComponent.h"
-#include "Engine/Events/Event.h"
 
+#include "Engine/Events/Event.h"
 #include "Engine/General/Collision.h"
+
+#include "Engine/Logger/Log.h"
 
 namespace Engine
 {
 	class World;
-
+	
+	class TransformComponent2D;
+	class TransformComponent3D;
+	
 	class Engine_API Entity
 	{
 	public:
@@ -39,6 +44,22 @@ namespace Engine
 		template <class T>
 		T* GetComponent();
 		
+		template <class T>
+		std::vector<T*> GetComponentsOfType() const
+		{
+			std::vector<T*> Components;
+			
+			for (auto& Pair : m_Components)
+			{
+				if (!dynamic_cast<T*>(Pair.second.get()))
+					continue;
+
+				Components.push_back(reinterpret_cast<T*>(Pair.second.get()));
+			}
+
+			return Components;
+		}
+
 		template <class T, class... Args>
 		T* AddComponent(Args... Arguments);
 
@@ -47,16 +68,19 @@ namespace Engine
 		template <class T>
 		bool RemoveComponent();
 
-		const Entity* GetParent() const { return Parent; }
+		Entity* GetParent() const { return Parent; }
 		void SetParent(Entity* Object);
 
 		const std::list<Entity*>& GetChildren() const { return Children; }
 
-		Event<void, Component&> OnComponentAdded = Event<void, Component&>("Entity::OnComponentAdded");
-		Event<void, Component&> OnComponentRemoved = Event<void, Component&>("Entity::OnComponentRemoved");
+		Event<void, Entity&, Component&> OnComponentAdded = Event<void, Entity&, Component&>("Entity::OnComponentAdded");
+		Event<void, Entity&, Component&> OnComponentRemoved = Event<void, Entity&, Component&>("Entity::OnComponentRemoved");
+
+		Event<void, Entity&, Entity&> OnChildAdded = Event<void, Entity&, Entity&>("Entity::OnChildAdded");
+		Event<void, Entity&, Entity&> OnChildRemoved = Event<void, Entity&, Entity&>("Entity::OnChildRemoved");
 		
-		Event<void, Entity*, Entity*> OnParentChanged = Event<void, Entity*, Entity*>("Entity::OnParentChanged");
-		
+		Event<void, Entity&, Entity*, Entity*> OnParentChanged = Event<void, Entity&, Entity*, Entity*>("Entity::OnParentChanged");
+
 	protected:
 		Entity() {}
 		
@@ -80,8 +104,7 @@ namespace Engine
 			const auto find = m_Components.find(ID);
 			return (find != m_Components.end() ? find->second.get() : nullptr);
 		}
-
-		std::vector<RenderComponent*> m_RenderComponents = {};
+		
 		std::unordered_map<size_t, std::unique_ptr<Component>> m_Components = {};
 	};
 	
@@ -125,11 +148,6 @@ namespace Engine
 		{
 			m_Components.erase(m_Components.find(ID));
 			return nullptr;
-		}
-
-		if constexpr (std::is_base_of<RenderComponent, T>::value)
-		{
-			m_RenderComponents.push_back(Comp);
 		}
 		
 		return Comp;
@@ -211,7 +229,7 @@ namespace Engine
 		}
 		
 		Comp->m_PendingComponentsToAdd.clear();
-		OnComponentAdded(*Comp);
+		OnComponentAdded(*this, *Comp);
 
 		return Comp;
 	}
@@ -230,10 +248,7 @@ namespace Engine
 		if (Found)
 		{
 			if (Find->second)
-				OnComponentRemoved(*Find->second);
-			
-			if constexpr (std::is_base_of<RenderComponent, T>::value)
-				m_RenderComponents.erase(&Find->second);
+				OnComponentRemoved(*this, *Find->second);
 			
 			m_Components.erase(Find);
 		}

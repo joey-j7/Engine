@@ -15,7 +15,7 @@ namespace Engine
 	public:
 		Renderable();
 
-		virtual const AABB GetBounds() const = 0;
+		virtual const AABB GetBounds() = 0;
 
 	protected:
 		void MarkDirty();

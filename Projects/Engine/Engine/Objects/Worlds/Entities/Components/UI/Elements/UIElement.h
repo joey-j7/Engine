@@ -10,22 +10,44 @@ namespace Engine
 {
 	class Window;
 	class Renderer2D;
-	
+
+	enum Anchor
+	{
+		E_ANCH_TOP_LEFT = 0,
+		E_ANCH_TOP = 1,
+		E_ANCH_TOP_RIGHT = 2,
+		E_ANCH_TOP_FILL = 3,
+		E_ANCH_CENTER_LEFT = 4,
+		E_ANCH_CENTER = 5,
+		E_ANCH_CENTER_RIGHT = 6,
+		E_ANCH_CENTER_FILL_HORIZONTAL = 7,
+		E_ANCH_CENTER_FILL_VERTICAL = 8,
+		E_ANCH_BOTTOM_LEFT = 9,
+		E_ANCH_BOTTOM = 10,
+		E_ANCH_BOTTOM_RIGHT = 11,
+		E_ANCH_BOTTOM_FILL = 12,
+		E_ANCH_LEFT_FILL = 13,
+		E_ANCH_RIGHT_FILL = 14,
+		E_ANCH_FULL_FILL = 15
+	};
+
 	enum Alignment
 	{
-		E_TOP_LEFT = 0,
-		E_TOP = 1,
-		E_TOP_RIGHT = 2,
-		E_CENTER_LEFT = 3,
-		E_CENTER = 4,
-		E_CENTER_RIGHT = 5,
-		E_BOTTOM_LEFT = 6,
-		E_BOTTOM = 7,
-		E_BOTTOM_RIGHT = 8
+		E_ALIGN_TOP_LEFT = 0,
+		E_ALIGN_TOP = 1,
+		E_ALIGN_TOP_RIGHT = 2,
+		E_ALIGN_CENTER_LEFT = 3,
+		E_ALIGN_CENTER = 4,
+		E_ALIGN_CENTER_RIGHT = 5,
+		E_ALIGN_BOTTOM_LEFT = 6,
+		E_ALIGN_BOTTOM = 7,
+		E_ALIGN_BOTTOM_RIGHT = 8
 	};
 	
-	class Engine_API UIComponent : public RenderComponent
+	class Engine_API UIElement : public Render2DComponent
 	{
+		friend class UILayout;
+		
 	public:
 		struct Gradient
 		{
@@ -92,12 +114,8 @@ namespace Engine
 			std::vector<SkScalar> m_Positions;
 		};
 		
-		UIComponent(Entity& Entity, const std::string& sName = "UI Component");
-		virtual ~UIComponent();
-
-		const Vector2& GetPosition() const;
-		float GetRotation() const;
-		const Vector2& GetScale() const;
+		UIElement(Entity& Entity, const std::string& sName = "UI Component");
+		virtual ~UIElement();
 
 		const SkColor& GetColor() const { return m_Color; }
 		void SetColor(const SkColor& Color);
@@ -127,9 +145,14 @@ namespace Engine
 		Alignment GetAlignment() const { return m_Alignment; }
 		void SetAlignment(Alignment Alignment);
 
-		virtual const AABB GetBounds() const override;
+		Anchor GetAnchor() const { return m_Anchor; }
+		void SetAnchor(Anchor Anchor);
+
+		virtual const AABB GetBounds() override;
 
 	protected:
+		void SetLayoutOffset(const Vector2& Offset);
+		
 		SkCanvas* m_Canvas = nullptr;
 		SkPaint m_Paint;
 
@@ -143,11 +166,17 @@ namespace Engine
 
 		uint32_t m_Width = 50;
 		uint32_t m_Height = 50;
+		
+		uint32_t m_BottomOffset = 0;
+		uint32_t m_RightOffset = 0;
+		
+		Vector2 m_LayoutOffset;
 
 		AABB m_Bounds;
 		Window& m_Window;
 
-		Alignment m_Alignment = E_TOP_LEFT;
+		Alignment m_Alignment = E_ALIGN_TOP_LEFT;
+		Anchor m_Anchor = E_ANCH_TOP_LEFT;
 		
 		bool m_ShowFill = true;
 		bool m_UseAntialiasing = true;
@@ -156,7 +185,10 @@ namespace Engine
 		Vector4 Padding;
 
 	private:
+		void ApplyAnchor(Vector2& ScreenPosition);
 		void ApplyAlignment(Vector2& ScreenPosition, const Vector2& ScreenScale) const;
+
+		UILayout* CheckParentLayout(Entity& Origin) const;
 		
 		virtual void BeginDraw() override;
 		virtual void Draw() override = 0;

@@ -2,9 +2,6 @@
 
 #include "Engine/Objects/Object.h"
 
-#include "Engine/Objects/Worlds/Entities/Entity.h"
-#include "Engine/Objects/Worlds/Entities/Components/Component.h"
-
 #include "Engine/Events/Event.h"
 #include "Engine/General/Math.h"
 
@@ -257,11 +254,11 @@ namespace Engine
 
 		virtual ~TransformComponent() {};
 		
-		void OnParentChanged(Entity* OldEntity, Entity* NewEntity)
+		void OnParentChanged(Entity& Origin, Entity* OldEntity, Entity* NewEntity)
 		{
 			CB_CORE_TRACE(
-				"Parent for {0} changed from {1} to {2}!",
-				GetEntity().GetName(),
+				"Parent for {0} changed from {1} to {2}",
+				Origin.GetName(),
 				OldEntity ? OldEntity->GetName() : "nullptr",
 				NewEntity ? NewEntity->GetName() : "nullptr"
 			);

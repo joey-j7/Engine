@@ -12,7 +12,7 @@ namespace Engine
 {
 	class Engine_API Renderer2D : public Renderer
 	{
-		friend class UIComponent;
+		friend class UIElement;
 		
 	public:
 		Renderer2D();

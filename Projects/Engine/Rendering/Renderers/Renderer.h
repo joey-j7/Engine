@@ -2,17 +2,14 @@
 
 #include "Engine/Objects/Object.h"
 
-#include <include/gpu/GrDirectContext.h>
 #include <include/core/SkSurface.h>
-#include <include/core/SkCanvas.h>
-
-#include "Engine/Objects/Worlds/Entities/Components/RenderComponent.h"
+#include "Engine/Objects/Renderable.h"
 
 namespace Engine
 {
 	class Engine_API Renderer : public Object
 	{
-		friend class UIComponent;
+		friend class UIElement;
 
 	public:
 		Renderer();

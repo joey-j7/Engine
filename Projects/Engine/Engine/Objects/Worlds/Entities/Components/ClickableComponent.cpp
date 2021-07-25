@@ -1,12 +1,10 @@
 #include "pch.h"
 #include "ClickableComponent.h"
 
-#include "Engine/Objects/Worlds/Entities/Entity.h"
-
 #include "Transform/TransformComponent2D.h"
 #include "Transform/TransformComponent3D.h"
 
-#include "UI/UIText.h"
+#include "UI/Elements/UIText.h"
 
 namespace Engine
 {

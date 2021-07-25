@@ -2,12 +2,11 @@
 #include "UIText.h"
 
 #include <include/core/SkFont.h>
-#include <include/core/SkPaint.h>
 #include <include/core/SkTextBlob.h>
 
 namespace Engine
 {
-	UIText::UIText(Entity& Entity, const std::string& Text, const std::string& sName) : UIComponent(Entity, sName)
+	UIText::UIText(Entity& Entity, const std::string& Text, const std::string& sName) : UIElement(Entity, sName)
 	{
 		m_Font.setSize(static_cast<SkScalar>(m_FontSize));
 		m_Font.setSubpixel(m_UseAntialiasing);
@@ -41,9 +40,9 @@ namespace Engine
 	}
 
 	void UIText::Draw()
-	{	
-		SkScalar Width = static_cast<SkScalar>(m_Width);
-		const SkScalar Height = static_cast<SkScalar>(m_Height);
+	{
+		SkScalar Width = static_cast<SkScalar>(m_TextWidth);
+		const SkScalar Height = static_cast<SkScalar>(m_TextHeight);
 
 		Vector2 Offset(0.f);
 		
@@ -72,7 +71,7 @@ namespace Engine
 
 	void UIText::SetAntialiasing(bool AA)
 	{
-		UIComponent::SetAntialiasing(AA);
+		UIElement::SetAntialiasing(AA);
 		m_Font.setSubpixel(AA);
 	}
 
@@ -82,5 +81,8 @@ namespace Engine
 		
 		SetWidth(m_Font.measureText(m_Text.c_str(), m_Text.size(), SkTextEncoding::kUTF8, &Bounds));
 		SetHeight(Bounds.fBottom - Bounds.fTop);
+
+		m_TextWidth = m_Width;
+		m_TextHeight = m_Height;
 	}
 }

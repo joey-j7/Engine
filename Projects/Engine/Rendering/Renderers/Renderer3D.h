@@ -7,7 +7,7 @@ namespace Engine
 {
 	class Engine_API Renderer3D : public Renderer
 	{
-		friend class UIComponent;
+		friend class UIElement;
 
 	public:
 		Renderer3D() {};
