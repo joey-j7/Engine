@@ -97,6 +97,7 @@
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIImage.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\UILayout.h" />
     <ClInclude Include="Engine\General\Animations\Animation.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\UI\UIButtonEntity.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -166,5 +167,6 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIImage.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\UILayout.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UICanvasPanel.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\UI\UIButtonEntity.cpp" />
   </ItemGroup>
 </Project>

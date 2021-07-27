@@ -14,7 +14,7 @@
 namespace Engine
 {
 	UIElement::UIElement(Entity& Entity, const std::string& sName) :
-		RenderComponent(Entity, sName),
+		Render2DComponent(Entity, sName),
 		m_Window(Application::Get().GetRenderContext().GetWindow())
 	{
 		if (!GetEntity().GetComponent<TransformComponent3D>())
@@ -24,8 +24,8 @@ namespace Engine
 
 		AddProhibitedTypes<UILayout>();
 		
-		m_Bounds.upperBound.x = static_cast<float>(m_Width);
-		m_Bounds.upperBound.y = static_cast<float>(m_Height);
+		m_Bounds.fRight = static_cast<float>(m_Width);
+		m_Bounds.fBottom = static_cast<float>(m_Height);
 	}
 
 	UIElement::~UIElement()
@@ -112,41 +112,6 @@ namespace Engine
 		MarkDirty();
 	}
 
-	void UIElement::ApplyAlignment(Vector2& ScreenPosition, const Vector2& ScreenScale) const
-	{
-		switch (m_Alignment)
-		{
-		case(E_ALIGN_TOP):
-		case(E_ALIGN_CENTER):
-		case(E_ALIGN_BOTTOM):
-			ScreenPosition.x -= m_Width * ScreenScale.x * 0.5f;
-			break;
-		case(E_ALIGN_TOP_RIGHT):
-		case(E_ALIGN_CENTER_RIGHT):
-		case(E_ALIGN_BOTTOM_RIGHT):
-			ScreenPosition.x -= m_Width * ScreenScale.x;
-			break;
-		default:
-			break;
-		}
-
-		switch (m_Alignment)
-		{
-		case(E_ALIGN_CENTER_LEFT):
-		case(E_ALIGN_CENTER):
-		case(E_ALIGN_CENTER_RIGHT):
-			ScreenPosition.y -= m_Height * ScreenScale.x * 0.5f;
-			break;
-		case(E_ALIGN_BOTTOM_LEFT):
-		case(E_ALIGN_BOTTOM):
-		case(E_ALIGN_BOTTOM_RIGHT):
-			ScreenPosition.y -= m_Height * ScreenScale.x;
-			break;
-		default:
-			break;
-		}
-	}
-
 	UILayout* UIElement::CheckParentLayout(Entity& Origin) const
 	{
 		// Check if there's a layout in one of the parents
@@ -164,8 +129,20 @@ namespace Engine
 		return Components[0];
 	}
 
-	void UIElement::ApplyAnchor(Vector2& ScreenPosition)
+	Vector2 UIElement::ApplyAlignment(const Vector2& ScreenScale) const
 	{
+		Vector2 Offset;
+		
+		Offset.x = -(m_Width * m_Alignment.x - (m_Alignment.x == 0.5f ? 0.f : m_Alignment.x > 0.5f ? -m_Padding.z : m_Padding.x)) * ScreenScale.x;
+		Offset.y = -(m_Height * m_Alignment.y - (m_Alignment.y == 0.5f ? 0.f : m_Alignment.y > 0.5f ? -m_Padding.w : m_Padding.y)) * ScreenScale.y;
+
+		return Offset;
+	}
+
+	Vector2 UIElement::ApplyAnchor(const Vector2& ScreenPosition, const Vector2& ScreenScale)
+	{
+		Vector2 Offset;
+
 		Entity* Parent = GetEntity().GetParent();
 		Vector2 Dims(0.f);
 		
@@ -175,10 +152,10 @@ namespace Engine
 			{
 				AABB Bounds = Layout->GetBounds();
 
-				ScreenPosition += Bounds.lowerBound;
+				Offset += Vector2(Bounds.fLeft, Bounds.fTop);
 
-				Dims.x = Bounds.upperBound.x - Bounds.lowerBound.x;
-				Dims.y = Bounds.upperBound.y - Bounds.lowerBound.y;
+				Dims.x = Bounds.fRight - Bounds.fLeft;
+				Dims.y = Bounds.fBottom - Bounds.fTop;
 			}
 		}
 		
@@ -187,20 +164,20 @@ namespace Engine
 			Window& Window = Application::Get().GetRenderContext().GetWindow();
 			Dims = Vector2(Window.GetWidth(), Window.GetHeight());
 		}
-
+		
 		switch (m_Anchor)
 		{
 		case(E_ANCH_TOP):
 		case(E_ANCH_CENTER):
 		case(E_ANCH_BOTTOM):
 		case(E_ANCH_CENTER_FILL_VERTICAL):
-			ScreenPosition.x += Dims.x * 0.5f;
+			Offset.x += Dims.x * 0.5f;
 			break;
 		case(E_ANCH_TOP_RIGHT):
 		case(E_ANCH_CENTER_RIGHT):
 		case(E_ANCH_BOTTOM_RIGHT):
 		case(E_ANCH_RIGHT_FILL):
-			ScreenPosition.x += Dims.x - ScreenPosition.x - m_RightOffset;
+			Offset.x += Dims.x - ScreenPosition.x - m_RightOffset * ScreenScale.x;
 			break;
 		default:
 			break;
@@ -212,13 +189,13 @@ namespace Engine
 		case(E_ANCH_CENTER):
 		case(E_ANCH_CENTER_RIGHT):
 		case(E_ANCH_CENTER_FILL_HORIZONTAL):
-			ScreenPosition.y += Dims.y * 0.5f;
+			Offset.y += Dims.y * 0.5f;
 			break;
 		case(E_ANCH_BOTTOM_LEFT):
 		case(E_ANCH_BOTTOM):
 		case(E_ANCH_BOTTOM_RIGHT):
 		case(E_ANCH_BOTTOM_FILL):
-			ScreenPosition.y += Dims.y - ScreenPosition.y - m_BottomOffset;
+			Offset.y += Dims.y - ScreenPosition.y - m_BottomOffset * ScreenScale.y;
 			break;
 		default:
 			break;
@@ -229,22 +206,24 @@ namespace Engine
 		case(E_ANCH_TOP_FILL):
 		case(E_ANCH_CENTER_FILL_HORIZONTAL):
 		case(E_ANCH_BOTTOM_FILL):
-			SetWidth(static_cast<uint32_t>(Dims.x - ScreenPosition.x - m_RightOffset));
+			SetWidth(static_cast<uint32_t>(Dims.x - ScreenPosition.x - m_RightOffset * ScreenScale.x));
 			break;
 		case(E_ANCH_LEFT_FILL):
 		case(E_ANCH_CENTER_FILL_VERTICAL):
 		case(E_ANCH_RIGHT_FILL):
-			SetHeight(static_cast<uint32_t>(Dims.y - ScreenPosition.y - m_BottomOffset));
+			SetHeight(static_cast<uint32_t>(Dims.y - ScreenPosition.y - m_BottomOffset * ScreenScale.y));
 			break;
 		case(E_ANCH_FULL_FILL):
 			SetSize(
-				static_cast<uint32_t>(Dims.x - ScreenPosition.x - m_RightOffset),
-				static_cast<uint32_t>(Dims.y - ScreenPosition.y - m_BottomOffset)
+				static_cast<uint32_t>(Dims.x - ScreenPosition.x - m_RightOffset * ScreenScale.x),
+				static_cast<uint32_t>(Dims.y - ScreenPosition.y - m_BottomOffset * ScreenScale.y)
 			);
 			break;
 		default:
 			break;
 		}
+
+		return Offset;
 	}
 
 	void UIElement::BeginDraw()
@@ -323,30 +302,22 @@ namespace Engine
 		const float ScreenRotation = GetRotation();
 		Vector2 ScreenScale = GetScale();
 
+		const Vector2 Offset = ApplyAlignment(Vector2(1.f / ScreenScale.x, 1.f / ScreenScale.y));
+		
 		if (m_ScaleWithDPI)
 		{
-			ScreenPosition *= m_Window.GetScale();
 			ScreenScale *= m_Window.GetScale();
 		}
 
-		// Anchor and alignment
-		ApplyAnchor(ScreenPosition);
-		ApplyAlignment(ScreenPosition, ScreenScale);
-
-		// Apply
-		m_Canvas->translate(
-			ScreenPosition.x,
-			ScreenPosition.y
-		);
-
-		m_Canvas->rotate(
-			ScreenRotation
-		);
-
-		m_Canvas->scale(
-			ScreenScale.x,
-			ScreenScale.y
-		);
+		const Vector2 Anchor = ApplyAnchor(ScreenPosition, ScreenScale);
+		
+		m_Matrix = SkMatrix::Translate(Anchor.x, Anchor.y);
+		
+		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Scale(ScreenScale.x, ScreenScale.y));
+		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::RotateDeg(ScreenRotation));
+		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Translate(ScreenPosition.x + Offset.x, ScreenPosition.y + Offset.y));
+		
+		m_Canvas->setMatrix(m_Matrix);
 	}
 
 	void UIElement::EndDraw()
@@ -424,8 +395,8 @@ namespace Engine
 
 		m_Width = Width;
 		
-		m_Bounds.lowerBound.x = 0.f;
-		m_Bounds.upperBound.x = static_cast<float>(Width);
+		m_Bounds.fLeft = 0.f;
+		m_Bounds.fRight = static_cast<float>(Width);
 		
 		MarkDirty();
 	}
@@ -437,8 +408,8 @@ namespace Engine
 
 		m_Height = Height;
 		
-		m_Bounds.lowerBound.y = 0.f;
-		m_Bounds.upperBound.y = static_cast<float>(Height);
+		m_Bounds.fTop = 0.f;
+		m_Bounds.fBottom = static_cast<float>(Height);
 		
 		MarkDirty();
 	}
@@ -463,13 +434,18 @@ namespace Engine
 		m_UseAntialiasing = AA;
 	}
 
-	void UIElement::SetAlignment(Alignment Alignment)
+	void UIElement::SetAlignment(const Vector2& Alignment)
 	{
-		if (m_Alignment == Alignment)
+		Vector2 CheckedAlignment;
+		
+		CheckedAlignment.x = glm::clamp(Alignment.x, 0.f, 1.f);
+		CheckedAlignment.y = glm::clamp(Alignment.y, 0.f, 1.f);
+
+		if (m_Alignment == CheckedAlignment)
 			return;
 
-		m_Alignment = Alignment;
-		
+		m_Alignment = CheckedAlignment;
+
 		MarkDirty();
 	}
 
@@ -483,43 +459,49 @@ namespace Engine
 		MarkDirty();
 	}
 
-	const AABB UIElement::GetBounds()
+	void UIElement::SetPadding(const Vector4& Pad)
 	{
-		AABB Bounds = m_Bounds;
-
-		Vector2 ScreenScale = GetScale();
-		Vector2 ScreenPosition = GetPosition();
-
-		if (m_ScaleWithDPI)
-		{
-			ScreenPosition *= m_Window.GetScale();
-			ScreenScale *= m_Window.GetScale();
-		}
-
-		// Anchor and alignment
-		ApplyAnchor(ScreenPosition);
-		ApplyAlignment(ScreenPosition, ScreenScale);
-		
-		Bounds.lowerBound.x *= ScreenScale.x;
-		Bounds.lowerBound.y *= ScreenScale.y;
-		Bounds.upperBound.x *= ScreenScale.x;
-		Bounds.upperBound.y *= ScreenScale.y;
-		
-		Bounds.lowerBound += ScreenPosition;
-		Bounds.upperBound += ScreenPosition;
-
-		Bounds.lowerBound += m_LayoutOffset;
-		Bounds.upperBound += m_LayoutOffset;
-		
-		return Bounds;
-	}
-	
-	void UIElement::SetLayoutOffset(const Vector2& Offset)
-	{
-		if (m_LayoutOffset == Offset)
+		if (m_Padding == Pad)
 			return;
 
-		m_LayoutOffset = Offset;
+		m_Padding = Pad;
+
 		MarkDirty();
+	}
+
+	const AABB UIElement::GetUnscaledBounds()
+	{
+		SkMatrix Matrix = m_Matrix;
+		Matrix = SkMatrix::Concat(SkMatrix::Scale(1.f / m_Matrix.getScaleX(), 1.f / m_Matrix.getScaleY()), Matrix);
+
+		AABB Bounds;
+		Matrix.mapRect(&Bounds, m_Bounds);
+
+		Bounds.fBottom += m_Padding.y;
+		Bounds.fTop -= m_Padding.w;
+		Bounds.fLeft -= m_Padding.x;
+		Bounds.fRight += m_Padding.z;
+
+		return Bounds;
+	}
+
+	const AABB UIElement::GetBounds()
+	{
+		SkMatrix Matrix = m_Matrix;
+		
+		AABB Bounds;
+		Matrix.mapRect(&Bounds, m_Bounds);
+
+		float Scale = 1.f;
+
+		if (m_ScaleWithDPI)
+			Scale = m_Window.GetScale();
+		
+		Bounds.fBottom += m_Padding.y * Scale;
+		Bounds.fTop -= m_Padding.w * Scale;
+		Bounds.fLeft -= m_Padding.x * Scale;
+		Bounds.fRight += m_Padding.z * Scale;
+		
+		return Bounds;
 	}
 }

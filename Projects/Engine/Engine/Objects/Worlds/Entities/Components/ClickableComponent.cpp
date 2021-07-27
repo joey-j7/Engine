@@ -20,34 +20,4 @@ namespace Engine
 	{
 		return m_Entity.GetBounds();
 	}
-
-	void ClickableComponent::OnEnter(double XPosition, double YPosition)
-	{
-		Clickable::OnEnter(XPosition, YPosition);
-
-		if (m_Entity.GetComponent<UIText>())
-		m_Entity.GetComponent<UIText>()->SetColor(SK_ColorRED);
-	}
-
-	void ClickableComponent::OnExit(double XPosition, double YPosition)
-	{
-		Clickable::OnExit(XPosition, YPosition);
-
-		if (m_Entity.GetComponent<UIText>())
-		m_Entity.GetComponent<UIText>()->SetColor(SK_ColorBLUE);
-	}
-
-	void ClickableComponent::OnPressed()
-	{
-		Clickable::OnPressed();
-		
-		m_Entity.GetComponent<TransformComponent2D>()->SetScale(Vector2(0.5f));
-	}
-
-	void ClickableComponent::OnReleased()
-	{
-		Clickable::OnReleased();
-
-		m_Entity.GetComponent<TransformComponent2D>()->SetScale(Vector2(1.f));
-	}
 }

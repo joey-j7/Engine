@@ -10,6 +10,7 @@ public:
 
 protected:
 	virtual void Draw(float fDeltaTime) override;
+	void OnCameraCallback();
 
 private:
 	Engine::DrawPass* m_pPass = nullptr;

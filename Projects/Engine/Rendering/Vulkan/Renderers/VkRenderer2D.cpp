@@ -94,7 +94,7 @@ namespace Engine
 		GrBackendRenderTarget backendRT = m_Surface->getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
 		backendRT.setVkImageLayout(m_pAPI->SwapchainCtx.Textures[m_pAPI->SwapchainCtx.ImageIndex].GetLayout());
 
-		m_Canvas->clear(SK_ColorWHITE);
+		m_Canvas->clear(SK_ColorTRANSPARENT);
 	}
 	
 	bool VkRenderer2D::IsSupported(SkColorType color) const
@@ -149,6 +149,9 @@ namespace Engine
 		image_info.fImageUsageFlags = usages;
 		image_info.fSampleCount = 1;
 		image_info.fLevelCount = 1;
+
+		m_ColorType = desired[0].color_type_;
+		m_ColorSpace = desired[0].color_space_;
 		
 		for (const VkTexture& image : images) {
 			image_info.fImage = image.GetImage();
@@ -159,10 +162,10 @@ namespace Engine
 
 			sk_sp<SkSurface> surface = SkSurface::MakeFromBackendRenderTarget(
 				m_Context.get(),                // context
-				backend_render_target,     // backend render target
-				kTopLeft_GrSurfaceOrigin,  // origin
-				desired[0].color_type_,                 // color type
-				desired[0].color_space_,     // color space
+				backend_render_target,         // backend render target
+				kTopLeft_GrSurfaceOrigin,	  // origin
+				m_ColorType,                 // color type
+				m_ColorSpace,				// color space
 				&props                     // surface properties
 			);
 

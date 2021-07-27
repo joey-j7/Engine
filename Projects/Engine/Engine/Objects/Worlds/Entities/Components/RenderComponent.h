@@ -12,7 +12,7 @@
 
 namespace Engine
 {
-	template <typename T = Vector3, typename R = TransformComponent3D, typename S = Vector3>
+	template <typename T, typename R, typename S>
 	class Engine_API RenderComponent : public Component, public Renderable
 	{
 		static_assert(
@@ -39,7 +39,7 @@ namespace Engine
 				m_RenderDimension = E_3D;
 			}
 
-			GetEntity().GetComponent<R>()->OnTransformation.Bind(
+			GetEntity().template GetComponent<R>()->OnTransformation.Bind(
 				this, &RenderComponent<T, R, S>::OnTransformation
 			);
 
@@ -59,6 +59,11 @@ namespace Engine
 		const T& GetScale() const
 		{
 			return m_Entity.GetComponent<R>()->GetScale();
+		}
+
+		R* GetTransform() const
+		{
+			return m_Entity.GetComponent<R>();
 		}
 
 	private:

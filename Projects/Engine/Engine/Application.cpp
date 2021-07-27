@@ -64,6 +64,8 @@ namespace Engine
 			m_DeltaTime->Update();
 			const float fDeltaTime = m_DeltaTime->Get();
 
+			OnUpdate(fDeltaTime);
+			
 			// Update layers
 			Update(fDeltaTime);
 

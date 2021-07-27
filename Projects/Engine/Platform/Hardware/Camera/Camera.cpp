@@ -3,6 +3,8 @@
 
 namespace Engine
 {
+	int32_t Camera::m_Orientation = 0.f;
+
 	Camera::~Camera()
 	{
 		Stop();

@@ -55,8 +55,8 @@ namespace Engine {
 		static void OnCharCallback(GLFWwindow* window, unsigned int keycode);
 		
 		static void OnMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-		static void OnScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
-		static void OnCursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
+		static void OnScrollCallback(GLFWwindow* window, double OffsetX, double OffsetY);
+		static void OnCursorPositionCallback(GLFWwindow* window, double PositionX, double PositionY);
 
 		GLFWwindow* m_Window = nullptr;
 	};

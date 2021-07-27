@@ -41,21 +41,9 @@ namespace Engine
 
 	void UIText::Draw()
 	{
-		SkScalar Width = static_cast<SkScalar>(m_TextWidth);
-		const SkScalar Height = static_cast<SkScalar>(m_TextHeight);
+		if (m_Text.empty())
+			return;
 
-		Vector2 Offset(0.f);
-		
-		if (m_Alignment != SkTextUtils::kLeft_Align) {
-			if (m_Alignment == SkTextUtils::kCenter_Align) {
-				Width *= 0.5f;
-			}
-			
-			Offset.x -= Width;
-		}
-
-		Offset.y = Height;
-		
 		m_Canvas->drawTextBlob(
 			SkTextBlob::MakeFromText(
 				m_Text.c_str(),
@@ -63,8 +51,8 @@ namespace Engine
 				m_Font,
 				SkTextEncoding::kUTF8
 			),
-			Offset.x,
-			Offset.y,
+			(m_Width - m_TextWidth) * m_Alignment.x,
+			(m_Height - m_TextHeight) * m_Alignment.y + m_TextHeight,
 			m_Paint
 		);
 	}
@@ -77,7 +65,7 @@ namespace Engine
 
 	void UIText::MeasureSize()
 	{
-		SkRect Bounds;
+		AABB Bounds;
 		
 		SetWidth(m_Font.measureText(m_Text.c_str(), m_Text.size(), SkTextEncoding::kUTF8, &Bounds));
 		SetHeight(Bounds.fBottom - Bounds.fTop);

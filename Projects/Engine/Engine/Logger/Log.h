@@ -51,6 +51,7 @@ namespace Engine
 			#endif
 		;
 
+		static std::mutex m_Mutex;
 		static std::vector<ScreenMessage> m_ScreenLogger;
 	};
 
@@ -60,6 +61,8 @@ namespace Engine
 #ifndef CB_DIST
 		if (type < Level)
 			return;
+
+		m_Mutex.lock();
 		
 		Color col = Color(1.0f);
 		static const std::string typeNames[] = { "TRACE", "INFO", "WARN", "ERROR", "FATAL" };
@@ -151,6 +154,8 @@ namespace Engine
 			msg
 		);
 #endif
+		
+		m_Mutex.unlock();
 #endif
 	}
 }

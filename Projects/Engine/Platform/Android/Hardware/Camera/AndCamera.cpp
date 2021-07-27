@@ -1,36 +1,83 @@
 #include "pch.h"
 #include "AndCamera.h"
 
-#include "GLFW/glfw3native.h"
-
 #ifdef CB_PLATFORM_ANDROID
 
 #include <android_native_app_glue.h>
 #include <memory.h>
 
+#include "GLFW/glfw3native.h"
 #include "Engine/Application.h"
 
+#include <include/core/SkYUVAPixmaps.h>
+#include <include/core/SkYUVAInfo.h>
+
 #include <jni.h>
-#include <android/log.h>
-#define LOG_TAG "libNative"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 extern "C"
 {
     JNIEXPORT void JNICALL Java_com_appuil_Launcher_NativeLibrary_notifyCameraPermission(
         JNIEnv* env, jclass type, jboolean permission) {
         std::thread permissionHandler(
-            &Engine::AndCamera::OnCameraPermission,
+            &Engine::AndCamera::OnPermission,
             (Engine::AndCamera*)&Engine::Application::Get().GetHardwareContext().GetCamera(),
             permission
         );
         permissionHandler.detach();
     }
+	
+    /*JNIEXPORT void JNICALL Java_com_appuil_Launcher_NativeLibrary_drawCameraFrame(
+        JNIEnv* env, jclass type, jbyteArray data, jint width, jint height, jint rotation) {
+    	
+        jbyte* bufferPtr = env->GetByteArrayElements(data, 0);
+		jsize arrayLength = env->GetArrayLength(data);
+
+        Engine::AndCamera* Camera = (Engine::AndCamera*)&Engine::Application::Get().GetHardwareContext().GetCamera();
+        if (Camera) Camera->OnFrame(bufferPtr, arrayLength, width, height, rotation);
+    	
+        env->ReleaseByteArrayElements(data, bufferPtr, 0);
+    }*/
 };
 
 namespace Engine
 {
+	AndCamera::AndCamera()
+	{
+        m_DeviceStateCallbacks = {
+            .context = this,
+            .onDisconnected = AndCamera::OnDisconnected,
+            .onError = AndCamera::OnError
+        };
+
+        m_CaptureSessionStateCallbacks = {
+            .context = this,
+            .onActive = AndCamera::OnActive,
+            .onReady = AndCamera::OnReady,
+            .onClosed = AndCamera::OnClosed
+        };
+
+        m_CaptureSessionCaptureCallbacks = {
+            .context = this,
+            .onCaptureBufferLost = AndCamera::OnCaptureBufferLost,
+            .onCaptureCompleted = AndCamera::OnCaptureCompleted,
+            .onCaptureFailed = AndCamera::OnCaptureFailed,
+            .onCaptureProgressed = AndCamera::OnCaptureProgressed,
+            .onCaptureSequenceAborted = AndCamera::OnCaptureSequenceAborted,
+            .onCaptureSequenceCompleted = AndCamera::OnCaptureSequenceCompleted,
+            .onCaptureStarted = AndCamera::OnCaptureStarted
+        };
+        
+        m_PreviewImageCallbacks = {
+            .context = &m_PreviewImage,
+            .onImageAvailable = AndCamera::OnPreviewRetrieved,
+        };
+
+        m_PhotoImageCallbacks = {
+            .context = this,
+            .onImageAvailable = AndCamera::OnPhotoRetrieved,
+        };
+	}
+
 	AndCamera::~AndCamera()
 	{
         Close();
@@ -46,12 +93,12 @@ namespace Engine
                 return false;
         }
 		
+		// Permission thread will call once it has received the permission status
         if (!RequestPermission())
             return false;
 
         m_Type = Type;
-
-		// Permission thread will call once it has received the permission status
+        
         return true;
     }
 
@@ -63,37 +110,62 @@ namespace Engine
         return true;
     }
 
-	void AndCamera::InternalStart()
+	void AndCamera::DelayedStart(float DeltaTime)
 	{
+        Application::Get().OnUpdate.Unbind(this, &AndCamera::DelayedStart);
+		
         if (!Camera::Start(m_Type))
             return;
 
-        // Prepare surface
-        // ANativeWindow* Window = ANativeWindow_fromSurface(env, surface);
-        
-        android_app* App = glfwGetAndroidApp(
-            ((GLFWwindow*)Application::Get().GetRenderContext().GetWindow().GetWindow())
-        );
-		
-        ANativeWindow* Window = App->window;
-        camera_status_t Status = ACAMERA_OK;
-		
-        // Prepare request for texture target
-        Status = ACameraDevice_createCaptureRequest(m_Device, TEMPLATE_PREVIEW, &m_CaptureRequest);
+        StartPreview();
+        OnStartCallback();
+	}
 
-        if (Status != ACAMERA_OK)
+    void AndCamera::StartPreview()
+    {
+        Window& Window = Application::Get().GetRenderContext().GetWindow();
+
+        // Create Image Reader
+        media_status_t Status = AImageReader_new(
+            m_Orientation == 90.f || m_Orientation == 270.f ? Window.GetHeight() : Window.GetWidth(),
+            m_Orientation == 90.f || m_Orientation == 270.f ? Window.GetWidth() : Window.GetHeight(),
+            AIMAGE_FORMAT_JPEG,
+            4,
+            &m_Reader
+        );
+
+        if (Status != AMEDIA_OK)
         {
-            CB_CORE_ERROR("Failed to create preview capture request (id: {0}, code: {1})", m_ID, Status);
+            CB_CORE_ERROR("Could not create ImageReader for camera preview");
+            return;
         }
-		
+        
+        Status = AImageReader_getWindow(m_Reader, &m_PreviewWindow);
+
+        if (Status != AMEDIA_OK)
+        {
+            CB_CORE_INFO("Failed to acquire and attach ImageReader window for camera preview");
+            return;
+        }
+
+        AImageReader_setImageListener(m_Reader, &m_PreviewImageCallbacks);
+        
+        // Prepare request for texture target
+        const camera_status_t CamStatus = ACameraDevice_createCaptureRequest(m_Device, TEMPLATE_PREVIEW, &m_CaptureRequest);
+
+        if (CamStatus != ACAMERA_OK)
+        {
+            CB_CORE_ERROR("Failed to create preview capture request (id: {0}, code: {1})", m_ID, CamStatus);
+        }
+
         // Prepare outputs for session
-        ACaptureSessionOutput_create(Window, &m_TextureOutput);
+        ACaptureSessionOutput_create(m_PreviewWindow, &m_TextureOutput);
         ACaptureSessionOutputContainer_create(&m_CaptureSessionOutputContainer);
         ACaptureSessionOutputContainer_add(m_CaptureSessionOutputContainer, m_TextureOutput);
 
         // Prepare target surface
-        ANativeWindow_acquire(Window);
-        ACameraOutputTarget_create(Window, &m_OutputTarget);
+        ANativeWindow_acquire(m_PreviewWindow);
+        ACameraOutputTarget_create(m_PreviewWindow, &m_OutputTarget);
         ACaptureRequest_addTarget(m_CaptureRequest, m_OutputTarget);
 
         // Create the session
@@ -107,7 +179,23 @@ namespace Engine
             &m_CaptureRequest,
             nullptr
         );
-	}
+    }
+
+    void AndCamera::StopCapture()
+    {   
+        ACameraCaptureSession_stopRepeating(m_CaptureSession);
+        ACameraCaptureSession_close(m_CaptureSession);
+
+        ACaptureSessionOutputContainer_free(m_CaptureSessionOutputContainer);
+        ACaptureSessionOutput_free(m_SessionOutput);
+        ACaptureSessionOutput_free(m_TextureOutput);
+        ACameraOutputTarget_free(m_OutputTarget);
+
+		ACaptureRequest_free(m_CaptureRequest);
+        AImageReader_delete(m_Reader);
+		
+        ANativeWindow_release(m_PreviewWindow);
+    }
 
 	bool AndCamera::Open()
 	{
@@ -127,7 +215,7 @@ namespace Engine
             &m_DeviceStateCallbacks,
             &m_Device
         );
-		
+
         if (Status != ACAMERA_OK)
         {
             CB_CORE_ERROR("Failed to open camera device (id: {0}, code: {1})", ID, Status);
@@ -137,17 +225,6 @@ namespace Engine
         else
         {
             CB_CORE_INFO("Camera device initialized (id: {0}, code: {1})", ID, Status);
-        }
-
-        Status = ACameraManager_getCameraCharacteristics(
-            m_Manager,
-            ID.c_str(),
-            &m_Metadata
-        );
-
-        if (Status != ACAMERA_OK)
-        {
-            CB_CORE_ERROR("Failed to get camera meta data of ID (id: {0}, code: {1})", ID, Status);
         }
 
         return true;
@@ -162,15 +239,8 @@ namespace Engine
 
         if (m_Manager)
         {
-            // Stop recording to SurfaceTexture and do some cleanup
-            ACameraCaptureSession_stopRepeating(m_CaptureSession);
-            ACameraCaptureSession_close(m_CaptureSession);
+            StopCapture();
         	
-            ACaptureSessionOutputContainer_free(m_CaptureSessionOutputContainer);
-            ACaptureSessionOutput_free(m_SessionOutput);
-            ACaptureSessionOutput_free(m_TextureOutput);
-            ACameraOutputTarget_free(m_OutputTarget);
-
             ACameraMetadata_free(m_Metadata);
 
             Status = ACameraDevice_close(m_Device);
@@ -182,10 +252,6 @@ namespace Engine
         	
             ACameraManager_delete(m_Manager);
             m_Manager = nullptr;
-
-            // Capture request for SurfaceTexture
-            // ANativeWindow_release(m_TextureWindow);
-            ACaptureRequest_free(m_CaptureRequest);
         }
 		
         return Status == ACAMERA_OK;
@@ -196,17 +262,25 @@ namespace Engine
         ACameraIdList* CameraIDs = nullptr;
         ACameraManager_getCameraIdList(m_Manager, &CameraIDs);
 
-		CB_CORE_INFO("Found %d cameras", CameraIDs->numCameras);
+		CB_CORE_INFO("Found {0} cameras", CameraIDs->numCameras);
 
         for (int i = 0; i < CameraIDs->numCameras; ++i)
         {
             const char* id = CameraIDs->cameraIds[i];
+            
+            const auto Status = ACameraManager_getCameraCharacteristics(
+                m_Manager,
+                id,
+                &m_Metadata
+            );
 
-            ACameraMetadata* Metadata;
-            ACameraManager_getCameraCharacteristics(m_Manager, id, &Metadata);
+            if (Status != ACAMERA_OK)
+            {
+                CB_CORE_ERROR("Failed to get camera meta data of ID (id: {0}, code: {1})", id, Status);
+            }
 
             ACameraMetadata_const_entry LensInfo = { 0 };
-            ACameraMetadata_getConstEntry(Metadata, ACAMERA_LENS_FACING, &LensInfo);
+            ACameraMetadata_getConstEntry(m_Metadata, ACAMERA_LENS_FACING, &LensInfo);
 
             auto facing = static_cast<acamera_metadata_enum_android_lens_facing_t>
         	(
@@ -216,11 +290,19 @@ namespace Engine
             // Found a back-facing camera?
             if (
                 (m_Type == E_CAMERA_BACKFACE && facing == ACAMERA_LENS_FACING_BACK) ||
-                (m_Type == E_CAMERA_FRONTFACE && facing == ACAMERA_LENS_FACING_FRONT)
+                (m_Type == E_CAMERA_FRONTFACE && facing == ACAMERA_LENS_FACING_FRONT) ||
+                (m_Type == E_CAMERA_EXTERNAL && facing == ACAMERA_LENS_FACING_EXTERNAL)
             )
             {
                 m_ID = id;
+            	
+                ACameraMetadata_const_entry entry = { 0 };
+                ACameraMetadata_getConstEntry(m_Metadata, ACAMERA_SENSOR_ORIENTATION, &entry);
+
+                m_Orientation = entry.data.i32[0];
+
                 ACameraManager_deleteCameraIdList(CameraIDs);
+
                 return m_ID;
             }
         }
@@ -231,6 +313,22 @@ namespace Engine
         {
             m_ID = CameraIDs->cameraIds[0];
             CB_CORE_WARN("Falling back to first camera match (id: {0})", CameraIDs->cameraIds[0]);
+
+            const auto Status = ACameraManager_getCameraCharacteristics(
+                m_Manager,
+                m_ID.c_str(),
+                &m_Metadata
+            );
+
+            if (Status != ACAMERA_OK)
+            {
+                CB_CORE_ERROR("Failed to get camera meta data of ID (id: {0}, code: {1})", m_ID, Status);
+            }
+
+            ACameraMetadata_const_entry entry = { 0 };
+            ACameraMetadata_getConstEntry(m_Metadata, ACAMERA_SENSOR_ORIENTATION, &entry);
+
+            m_Orientation = entry.data.i32[0];
         }
 		
         ACameraManager_deleteCameraIdList(CameraIDs);
@@ -249,18 +347,53 @@ namespace Engine
 
 	void AndCamera::OnReady(void* Context, ACameraCaptureSession* Session)
 	{
-        CB_CORE_INFO("Camera is ready");
+        CB_CORE_INFO("Camera capture session is ready");
 	}
 	
     void AndCamera::OnActive(void* Context, ACameraCaptureSession* Session)
     {
-        CB_CORE_INFO("Camera is active");
+        CB_CORE_INFO("Camera capture session is active");
     }
 
     void AndCamera::OnClosed(void* Context, ACameraCaptureSession* Session)
     {
-        CB_CORE_INFO("Camera is closed");
+        CB_CORE_INFO("Camera capture session is closed");
     }
+    
+    void AndCamera::OnCaptureBufferLost(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraWindowType* window, int64_t frameNumber)
+	{
+        CB_CORE_INFO("Camera capture buffer is lost");
+	}
+	
+    void AndCamera::OnCaptureCompleted(void* context, ACameraCaptureSession* session, ACaptureRequest* request, const ACameraMetadata* result)
+	{
+        CB_CORE_INFO("Camera capture has completed");
+	}
+	
+    void AndCamera::OnCaptureFailed(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraCaptureFailure* failure)
+	{
+        CB_CORE_ERROR("Camera capture has failed");
+	}
+	
+    void AndCamera::OnCaptureProgressed(void* context, ACameraCaptureSession* session, ACaptureRequest* request, const ACameraMetadata* result)
+	{
+        CB_CORE_INFO("Camera capture has progressed");
+	}
+	
+    void AndCamera::OnCaptureSequenceAborted(void* context, ACameraCaptureSession* session, int sequenceId)
+	{
+        CB_CORE_INFO("Camera capture sequence is aborted");
+	}
+	
+    void AndCamera::OnCaptureSequenceCompleted(void* context, ACameraCaptureSession* session, int sequenceId, int64_t frameNumber)
+	{
+        CB_CORE_INFO("Camera capture sequence has completed");
+	}
+	
+    void AndCamera::OnCaptureStarted(void* context, ACameraCaptureSession* session, const ACaptureRequest* request, int64_t timestamp)
+	{
+        CB_CORE_INFO("Camera capture sequence has started");
+	}
 
 	bool AndCamera::RequestPermission()
 	{
@@ -270,35 +403,197 @@ namespace Engine
 		
         android_app* app = glfwGetAndroidApp(Window);
         if (!app) return false;
-
+        
         JNIEnv* env;
         ANativeActivity* activity = app->activity;
         activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
 
-        activity->vm->AttachCurrentThread(&env, nullptr);
+        if (!env)
+        {
+            activity->vm->AttachCurrentThread(&env, nullptr);
+        }
+
+        if (!env)
+            return false;
 
         jobject activityObj = env->NewGlobalRef(activity->clazz);
         jclass clz = env->GetObjectClass(activityObj);
-        env->CallVoidMethod(activityObj,
-        env->GetMethodID(clz, "RequestCamera", "()V"));
-        env->DeleteGlobalRef(activityObj);
+        auto method = env->GetMethodID(clz, "RequestCamera", "()V");
 
+        if (!method)
+            return false;
+		
+        env->CallVoidMethod(activityObj, method);
+        env->DeleteGlobalRef(activityObj);
+        
         activity->vm->DetachCurrentThread();
+        
         return true;
 	}
 
-	void AndCamera::OnCameraPermission(jboolean Granted)
+	void AndCamera::OnPermission(jboolean Granted)
 	{
-        HasPermission = (Granted != JNI_FALSE);
+        m_HasPermission = (Granted != JNI_FALSE);
 
-        if (HasPermission)
+        if (m_HasPermission)
         {
-            InternalStart();
+            Application::Get().OnUpdate.Bind(this, &AndCamera::DelayedStart);
+            return;
+        }
+        
+        CB_CORE_WARN("Permissions to access the camera denied!");
+	}
+
+	void AndCamera::TakePhoto()
+	{
+        StopCapture();
+
+        Window& Window = Application::Get().GetRenderContext().GetWindow();
+		
+        // Create Image Reader
+        media_status_t Status = AImageReader_new(
+            m_Orientation == 90.f || m_Orientation == 270.f ? Window.GetHeight() : Window.GetWidth(),
+            m_Orientation == 90.f || m_Orientation == 270.f ? Window.GetWidth() : Window.GetHeight(),
+            AIMAGE_FORMAT_JPEG,
+            4,
+            &m_Reader
+        );
+
+        if (Status != AMEDIA_OK)
+        {
+            CB_CORE_ERROR("Could not create ImageReader for camera preview");
             return;
         }
 
-        CB_CORE_WARN("Permissions to access the camera denied!");
+        Status = AImageReader_getWindow(m_Reader, &m_PreviewWindow);
+
+        if (Status != AMEDIA_OK)
+        {
+            CB_CORE_INFO("Failed to acquire and attach ImageReader window for camera preview");
+            return;
+        }
+
+        AImageReader_setImageListener(m_Reader, &m_PhotoImageCallbacks);
+
+        // Prepare surface
+        android_app* App = glfwGetAndroidApp(
+            ((GLFWwindow*)Application::Get().GetRenderContext().GetWindow().GetWindow())
+        );
+
+        // Prepare request for texture target
+        const camera_status_t CamStatus = ACameraDevice_createCaptureRequest(m_Device, TEMPLATE_STILL_CAPTURE, &m_CaptureRequest);
+
+        if (CamStatus != ACAMERA_OK)
+        {
+            CB_CORE_ERROR("Failed to create preview capture request (id: {0}, code: {1})", m_ID, CamStatus);
+        }
+
+        // Prepare outputs for session
+        ACaptureSessionOutput_create(m_PreviewWindow, &m_TextureOutput);
+        ACaptureSessionOutputContainer_create(&m_CaptureSessionOutputContainer);
+        ACaptureSessionOutputContainer_add(m_CaptureSessionOutputContainer, m_TextureOutput);
+
+        // Prepare target surface
+        ANativeWindow_acquire(m_PreviewWindow);
+        ACameraOutputTarget_create(m_PreviewWindow, &m_OutputTarget);
+        ACaptureRequest_addTarget(m_CaptureRequest, m_OutputTarget);
+
+        // Create the session
+        ACameraDevice_createCaptureSession(m_Device, m_CaptureSessionOutputContainer, &m_CaptureSessionStateCallbacks, &m_CaptureSession);
+
+        // Start capturing
+        ACameraCaptureSession_capture(
+            m_CaptureSession,
+            &m_CaptureSessionCaptureCallbacks,
+            1,
+            &m_CaptureRequest,
+            nullptr
+        );
+
+        CB_CORE_INFO("Taking photo capture");
 	}
+
+	void AndCamera::OnPreviewRetrieved(void* Context, AImageReader* Reader)
+	{
+        AImage* Image = nullptr;
+        const media_status_t Status = AImageReader_acquireNextImage(Reader, &Image);
+        
+        if (Status != AMEDIA_OK)
+        {
+            CB_CORE_ERROR("Could not retrieve image");
+            return;
+        }
+
+        CB_CORE_TRACE("Retrieving new preview image");
+		
+        sk_sp<SkImage>* CameraImage = static_cast<sk_sp<SkImage>*>(Context);
+		
+        // Try to process data without blocking the callback
+        std::thread processor([=]()
+        {
+            uint8_t* Data = nullptr;
+            int Length = 0;
+            AImage_getPlaneData(Image, 0, &Data, &Length);
+
+            int32_t Width, Height;
+            AImage_getWidth(Image, &Width);
+            AImage_getHeight(Image, &Height);
+
+        	*CameraImage = SkImage::MakeFromEncoded(SkData::MakeWithoutCopy(Data, Length));
+        	
+            /*auto SKData = SkData::MakeWithoutCopy(Data, Length);
+        	
+            sk_sp<SkPicture> Picture = SkPicture::MakeFromData(
+                SKData.get(),
+                nullptr
+            );
+
+            SkMatrix Transformation;
+            Transformation.RotateDeg(m_Orientation);
+
+            SkISize Size = SkISize::Make(Width, Height);
+            
+            *CameraImage = SkImage::MakeFromPicture(
+                Picture,
+                Size,
+                &Transformation,
+                nullptr,
+                SkImage::BitDepth::kU8,
+                SkColorSpace::MakeSRGB()
+            );*/
+        	
+            AImage_delete(Image);
+        });
+		
+        processor.detach();
+	}
+	
+    void AndCamera::OnPhotoRetrieved(void* Context, AImageReader* Reader)
+    {
+        AImage* Image = nullptr;
+        const media_status_t Status = AImageReader_acquireNextImage(Reader, &Image);
+
+        if (Status != AMEDIA_OK)
+        {
+            CB_CORE_ERROR("Could not retrieve photo");
+            return;
+        }
+        
+        uint8_t* Data = nullptr;
+        int Length = 0;
+        AImage_getPlaneData(Image, 0, &Data, &Length);
+
+        FileLoader::Write("/storage/emulated/0/DCIM/Appuil/", "test.jpg", (char*)Data, Length, FileLoader::E_ROOT);
+        
+        AImage_delete(Image);
+
+        CB_CORE_INFO("Photo has successfully been taken");
+        
+        static_cast<AndCamera*>(Context)->OnPhotoTakenCallback();
+		
+        static_cast<AndCamera*>(Context)->StopCapture();
+        static_cast<AndCamera*>(Context)->StartPreview();
+    }
 }
 
 #endif

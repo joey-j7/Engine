@@ -11,11 +11,22 @@ namespace Engine
 		virtual ~Clickable();
 
 		virtual const AABB GetBounds() const = 0;
+
+		bool IsHovered() const { return m_IsHovered; }
+		bool IsPressed() const { return m_IsPressed; }
+
+		Event<void, const DVector2&> OnEnterEvent = Event<void, const DVector2&>("Clickable::OnEnter");
+		Event<void, const DVector2&> OnHoverEvent = Event<void, const DVector2&>("Clickable::OnHover");
+		Event<void, const DVector2&> OnExitEvent = Event<void, const DVector2&>("Clickable::OnExit");
+
+		Event<void> OnPressedEvent = Event<void>("Clickable::OnPressed");
+		Event<void> OnReleasedEvent = Event<void>("Clickable::OnReleased");
+		Event<void> OnClickedEvent = Event<void>("Clickable::OnClicked");
 		
 	protected:
-		virtual void OnEnter(double XPosition, double YPosition);
-		virtual void OnHover(double XPosition, double YPosition);
-		virtual void OnExit(double XPosition, double YPosition);
+		virtual void OnEnter(const DVector2& Position);
+		virtual void OnHover(const DVector2& Position);
+		virtual void OnExit(const DVector2& Position);
 
 		virtual void OnPressed();
 		virtual void OnReleased();
@@ -26,7 +37,7 @@ namespace Engine
 		bool m_IsPressed = false;
 
 	private:
-		void OnCursorPosition(double XPosition, double YPosition);
+		void OnCursorPosition(const DVector2& Position);
 		void OnMousePressed(uint32_t MouseButton);
 		void OnMouseReleased(uint32_t MouseButton);
 

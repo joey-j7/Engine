@@ -9,6 +9,14 @@ namespace Engine
 	{
 		SetImage(Text);
 	}
+	
+	UIImage::UIImage(Entity& Entity, sk_sp<SkImage>* Image, const std::string& sName) : UIElement(Entity, sName)
+	{
+		m_ImageReference = Image;
+		
+		MarkDirty();
+		m_Loaded = true;
+	}
 
 	void UIImage::SetImage(const std::string& Path)
 	{
@@ -31,7 +39,9 @@ namespace Engine
 		{
 			m_Image.reset();
 		}
-		
+
+		m_Image = SkImage::MakeFromEncoded(SkData::MakeFromMalloc(Data, Length));
+
 		m_Image = SkImage::MakeFromEncoded(SkData::MakeFromMalloc(Data, Length));
 
 		if (m_Image.get())
@@ -49,18 +59,39 @@ namespace Engine
 		m_UseLinearFiltering = Filter;
 		MarkDirty();
 	}
-	
+
+	void UIImage::BeginDraw()
+	{
+		// Modify as reference might change every frame
+		if (m_ImageReference && m_ImageReference->get() && m_ImageDimensions == Vector2(0.f))
+		{
+			m_ImageDimensions.x = m_ImageReference->get()->width();
+			m_ImageDimensions.y = m_ImageReference->get()->height();
+		}
+
+		if (m_ImageDimensions != Vector2(0.f) &&
+			m_ImageDimensions != Vector2(m_Width, m_Height))
+		{
+			GetTransform()->SetScale(m_Width / m_ImageDimensions.x, m_Height / m_ImageDimensions.y);
+		}
+		
+		UIElement::BeginDraw();
+	}
+
 	void UIImage::Draw()
 	{
 		if (!m_Loaded)
 			return;
+		
+		sk_sp<SkImage> Image = m_Image;
 
-		m_Canvas->scale(
-			m_Width / m_ImageDimensions.x,
-			m_Height / m_ImageDimensions.y
-		);
+		if (m_ImageReference)
+			Image = *m_ImageReference;
 
-		m_Canvas->drawImage(m_Image, 0, 0, SkSamplingOptions(
+		if (!Image.get())
+			return;
+		
+		m_Canvas->drawImage(Image, 0, 0, SkSamplingOptions(
 			m_UseLinearFiltering ? SkFilterMode::kLinear : SkFilterMode::kNearest
 		));
 	}

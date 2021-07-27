@@ -26,6 +26,6 @@ namespace Engine
 
 	void Renderer::Swap()
 	{
-		m_Components.clear();
+
 	}
 }

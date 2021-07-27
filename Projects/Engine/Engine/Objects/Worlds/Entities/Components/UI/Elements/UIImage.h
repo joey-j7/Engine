@@ -10,13 +10,15 @@ namespace Engine
 	{
 	public:
 		UIImage(Entity& Entity, const std::string& ImagePath = "", const std::string& sName = "Image");
+		UIImage(Entity& Entity, sk_sp<SkImage>* Image, const std::string& sName = "Image");
 
 		const std::string& GetPath() const { return m_Path; }
 		void SetImage(const std::string& Path);
 
 		bool GetLinearFiltering() const { return m_UseLinearFiltering; }
 		void SetLinearFiltering(bool Filter);
-		
+
+		virtual void BeginDraw() override;
 		virtual void Draw() override;
 		
 	private:
@@ -28,6 +30,7 @@ namespace Engine
 		bool m_UseLinearFiltering = true;
 
 		sk_sp<SkImage> m_Image;
+		sk_sp<SkImage>* m_ImageReference = nullptr;
 		Vector2 m_ImageDimensions;
 	};
 

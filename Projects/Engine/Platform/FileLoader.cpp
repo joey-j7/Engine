@@ -53,6 +53,27 @@ namespace Engine {
 		CB_CORE_ERROR("Could not open file at path \"{0}\"!", path);
 		return nullptr;
 	}
+	
+	bool FileLoader::Write(const std::string& filePath, const std::string& fileName, char* buffer, uint32_t length, Type type)
+	{
+		std::string FullPath = m_WorkingDirectory[type] + filePath;
+		std::string FullFilePath = FullPath + fileName;
+
+		CB_CORE_INFO("Writing file {0} to path {1}", fileName, FullFilePath);
+		
+		auto file = std::ofstream(FullFilePath, std::ios::out | std::ios::trunc | std::ios::binary);
+		
+		/*if (!file.is_open())
+		{
+			CB_CORE_ERROR("Could not open file at path \"{0}\"!", FullFilePath);
+			return false;
+		}*/
+		
+		file.write(buffer, length);
+		file.close();
+		
+		return true;
+	}
 
 	// Define root as empty string
 	std::unordered_map<FileLoader::Type, std::string> FileLoader::m_WorkingDirectory = {

@@ -10,6 +10,7 @@ namespace Engine
 {
 	class Window;
 	class Renderer2D;
+	class UILayout;
 
 	enum Anchor
 	{
@@ -29,19 +30,6 @@ namespace Engine
 		E_ANCH_LEFT_FILL = 13,
 		E_ANCH_RIGHT_FILL = 14,
 		E_ANCH_FULL_FILL = 15
-	};
-
-	enum Alignment
-	{
-		E_ALIGN_TOP_LEFT = 0,
-		E_ALIGN_TOP = 1,
-		E_ALIGN_TOP_RIGHT = 2,
-		E_ALIGN_CENTER_LEFT = 3,
-		E_ALIGN_CENTER = 4,
-		E_ALIGN_CENTER_RIGHT = 5,
-		E_ALIGN_BOTTOM_LEFT = 6,
-		E_ALIGN_BOTTOM = 7,
-		E_ALIGN_BOTTOM_RIGHT = 8
 	};
 	
 	class Engine_API UIElement : public Render2DComponent
@@ -142,19 +130,23 @@ namespace Engine
 		bool GetAntialiasing() const { return m_UseAntialiasing; }
 		virtual void SetAntialiasing(bool AA);
 
-		Alignment GetAlignment() const { return m_Alignment; }
-		void SetAlignment(Alignment Alignment);
+		const Vector2& GetAlignment() const { return m_Alignment; }
+		void SetAlignment(const Vector2& Alignment);
 
 		Anchor GetAnchor() const { return m_Anchor; }
 		void SetAnchor(Anchor Anchor);
 
+		const Vector4& GetPadding() const { return m_Padding; }
+		void SetPadding(const Vector4& Pad);
+
+		virtual const AABB GetUnscaledBounds();
 		virtual const AABB GetBounds() override;
 
 	protected:
-		void SetLayoutOffset(const Vector2& Offset);
-		
 		SkCanvas* m_Canvas = nullptr;
 		SkPaint m_Paint;
+
+		SkMatrix m_Matrix;
 
 		SkColor m_Color = SK_ColorBLACK;
 		Gradient m_Gradient;
@@ -170,28 +162,26 @@ namespace Engine
 		uint32_t m_BottomOffset = 0;
 		uint32_t m_RightOffset = 0;
 		
-		Vector2 m_LayoutOffset;
-
 		AABB m_Bounds;
 		Window& m_Window;
-
-		Alignment m_Alignment = E_ALIGN_TOP_LEFT;
+		
+		Vector2 m_Alignment = Vector2(0.f);
 		Anchor m_Anchor = E_ANCH_TOP_LEFT;
 		
 		bool m_ShowFill = true;
 		bool m_UseAntialiasing = true;
 		bool m_ScaleWithDPI = true;
 		
-		Vector4 Padding;
+		Vector4 m_Padding;
 
-	private:
-		void ApplyAnchor(Vector2& ScreenPosition);
-		void ApplyAlignment(Vector2& ScreenPosition, const Vector2& ScreenScale) const;
-
-		UILayout* CheckParentLayout(Entity& Origin) const;
-		
 		virtual void BeginDraw() override;
 		virtual void Draw() override = 0;
 		virtual void EndDraw() override;
+
+	private:
+		Vector2 ApplyAnchor(const Vector2& ScreenPosition, const Vector2& ScreenScale);
+		Vector2 ApplyAlignment(const Vector2& ScreenScale) const;
+
+		UILayout* CheckParentLayout(Entity& Origin) const;
 	};
 }

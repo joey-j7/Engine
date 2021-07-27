@@ -14,8 +14,10 @@ namespace Engine
 	{
 		AABB Bounds;
 		
-		Bounds.lowerBound = Vector2(FLT_MAX);
-		Bounds.upperBound = Vector2(FLT_MIN);
+		Bounds.fLeft = FLT_MAX;
+		Bounds.fTop = FLT_MAX;
+		Bounds.fRight = FLT_MIN;
+		Bounds.fBottom = FLT_MIN;
 
 		auto Render3DComponents = GetComponentsOfType<Render3DComponent>();
 		
@@ -23,10 +25,10 @@ namespace Engine
 		{
 			const AABB Bounds2 = Component->GetBounds();
 
-			Bounds.lowerBound.x = glm::min(Bounds.lowerBound.x, Bounds2.lowerBound.x);
-			Bounds.lowerBound.y = glm::min(Bounds.lowerBound.y, Bounds2.lowerBound.y);
-			Bounds.upperBound.x = glm::max(Bounds.upperBound.x, Bounds2.upperBound.x);
-			Bounds.upperBound.y = glm::max(Bounds.upperBound.y, Bounds2.upperBound.y);
+			Bounds.fLeft = glm::min(Bounds.fLeft, Bounds2.fLeft);
+			Bounds.fTop = glm::min(Bounds.fTop, Bounds2.fTop);
+			Bounds.fRight = glm::max(Bounds.fRight, Bounds2.fRight);
+			Bounds.fBottom = glm::max(Bounds.fBottom, Bounds2.fBottom);
 		}
 
 		auto Render2DComponents = GetComponentsOfType<Render2DComponent>();
@@ -35,16 +37,15 @@ namespace Engine
 		{
 			const AABB Bounds2 = Component->GetBounds();
 
-			Bounds.lowerBound.x = glm::min(Bounds.lowerBound.x, Bounds2.lowerBound.x);
-			Bounds.lowerBound.y = glm::min(Bounds.lowerBound.y, Bounds2.lowerBound.y);
-			Bounds.upperBound.x = glm::max(Bounds.upperBound.x, Bounds2.upperBound.x);
-			Bounds.upperBound.y = glm::max(Bounds.upperBound.y, Bounds2.upperBound.y);
+			Bounds.fLeft = glm::min(Bounds.fLeft, Bounds2.fLeft);
+			Bounds.fTop = glm::min(Bounds.fTop, Bounds2.fTop);
+			Bounds.fRight = glm::max(Bounds.fRight, Bounds2.fRight);
+			Bounds.fBottom = glm::max(Bounds.fBottom, Bounds2.fBottom);
 		}
 
-		if (Bounds.lowerBound == Vector2(FLT_MAX) || Bounds.upperBound == Vector2(FLT_MIN))
+		if (Bounds.fLeft == FLT_MAX || Bounds.fTop == FLT_MAX || Bounds.fRight == FLT_MIN || Bounds.fBottom == FLT_MIN)
 		{
-			Bounds.lowerBound = Vector2(0.f);
-			Bounds.upperBound = Vector2(0.f);
+			Bounds.fLeft = Bounds.fTop = Bounds.fRight = Bounds.fBottom = 0.f;
 		}
 		
 		return Bounds;

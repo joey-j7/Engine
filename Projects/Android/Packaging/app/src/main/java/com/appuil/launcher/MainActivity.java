@@ -46,6 +46,10 @@ public class MainActivity extends NativeActivity
         NativeLibrary.notifyCameraPermission(true);
     }
     
+    // public void onPreviewFrame(byte[] data, int width, int height) {
+    //    NativeLibrary.drawCameraFrame(data, width, height, getOrientation());
+    // }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,

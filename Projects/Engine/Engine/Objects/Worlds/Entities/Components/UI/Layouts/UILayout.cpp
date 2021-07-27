@@ -31,17 +31,20 @@ namespace Engine
 		{
 			Window& Window = Application::Get().GetRenderContext().GetWindow();
 			
-			Bounds.lowerBound = Vector2(0.f);
-			Bounds.upperBound = Vector2(Window.GetWidth(), Window.GetHeight());
+			Bounds.fLeft = Bounds.fTop = 0.f;
+			Bounds.fRight = Window.GetWidth();
+			Bounds.fBottom = Window.GetHeight();
 		}
 		
-		Bounds.lowerBound.x *= m_Transform->GetScale().x;
-		Bounds.lowerBound.y *= m_Transform->GetScale().y;
-		Bounds.upperBound.x *= m_Transform->GetScale().x;
-		Bounds.lowerBound.y *= m_Transform->GetScale().y;
-		
-		Bounds.lowerBound += m_Transform->GetPosition();
-		Bounds.upperBound += m_Transform->GetPosition();
+		Bounds.fLeft *= m_Transform->GetScale().x;
+		Bounds.fTop *= m_Transform->GetScale().y;
+		Bounds.fRight *= m_Transform->GetScale().x;
+		Bounds.fBottom *= m_Transform->GetScale().y;
+
+		Bounds.fLeft += m_Transform->GetPosition().x;
+		Bounds.fTop += m_Transform->GetPosition().y;
+		Bounds.fRight += m_Transform->GetPosition().x;
+		Bounds.fBottom += m_Transform->GetPosition().y;
 
 		return Bounds;
 	}
@@ -83,7 +86,7 @@ namespace Engine
 		
 		for (auto& Pair : Find->second)
 		{
-			Pair.Component->SetLayoutOffset(Vector2(0.f));
+			// Pair.Component->SetLayoutOffset(Vector2(0.f));
 		}
 
 		Child.OnComponentAdded.Unbind(this, &UILayout::OnComponentAdded);
@@ -114,7 +117,7 @@ namespace Engine
 		if (!UI)
 			return;
 
-		UI->SetLayoutOffset(Vector2(0.f));
+		// UI->SetLayoutOffset(Vector2(0.f));
 		
 		std::vector<ComponentData>& Components = m_EntitiesComponents.at(&Origin);
 		Components.erase(std::find(Components.begin(), Components.end(), UI));

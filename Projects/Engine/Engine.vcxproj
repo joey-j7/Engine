@@ -517,6 +517,7 @@
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIImage.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\DynamicEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\StaticEntity.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\UI\UIButtonEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\World.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Entity.h" />
     <ClInclude Include="Engine\Input\Input.h" />
@@ -610,6 +611,7 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\DynamicEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\StaticEntity.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\UI\UIButtonEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\World.cpp" />
     <ClCompile Include="Engine\Layers\Layer.cpp" />
     <ClCompile Include="Engine\Logger\Log.cpp" />

@@ -12,7 +12,14 @@ namespace Engine
 	{
 	public:
 		WinCamera() {}
-		virtual ~WinCamera() {};
+		virtual ~WinCamera() {}
+
+		virtual bool Start(CameraType Type) override {
+			OnStartCallback();
+			return true;
+		}
+
+		void TakePhoto() override {}
 	};
 }
 

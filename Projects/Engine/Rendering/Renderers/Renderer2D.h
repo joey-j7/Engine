@@ -26,11 +26,18 @@ namespace Engine
 		
 		virtual void CreateSurface() = 0;
 
+		SkColorType GetColorType() const { return m_ColorType; }
+		SkColorSpace* GetColorSpace() const { return m_ColorSpace.get(); }
+		
+		GrDirectContext* GetContext() const { return m_Context.get(); }
 		SkCanvas* GetCanvas() const { return m_Canvas; }
 
 	protected:
 		sk_sp<GrDirectContext> m_Context = nullptr;
 		sk_sp<SkSurface> m_Surface = nullptr;
+
+		SkColorType m_ColorType;
+		sk_sp<SkColorSpace> m_ColorSpace;
 		
 		SkCanvas* m_Canvas = nullptr;
 		

@@ -13,4 +13,5 @@ public class NativeLibrary
     
     public static native void init();
     public static native void notifyCameraPermission(boolean granted);
+    // public static native void drawCameraFrame(byte[] data, int width, int height, int rotation);
 }

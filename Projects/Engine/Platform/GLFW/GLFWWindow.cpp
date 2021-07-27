@@ -304,15 +304,15 @@ namespace Engine {
 		}
 	}
 
-	void GLFWWindow::OnScrollCallback(GLFWwindow* Window, double xOffset, double yOffset)
+	void GLFWWindow::OnScrollCallback(GLFWwindow* Window, double OffsetX, double OffsetY)
 	{
 		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
-		AppWindow.OnScroll(xOffset, yOffset);
+		AppWindow.OnScroll(DVector2(OffsetX, OffsetY));
 	}
 	
-	void GLFWWindow::OnCursorPositionCallback(GLFWwindow* Window, double xPos, double yPos)
+	void GLFWWindow::OnCursorPositionCallback(GLFWwindow* Window, double PositionX, double PositionY)
 	{
 		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
-		AppWindow.OnCursorPosition(xPos, yPos);
+		AppWindow.OnCursorPosition(DVector2(PositionX, PositionY));
 	}
 }

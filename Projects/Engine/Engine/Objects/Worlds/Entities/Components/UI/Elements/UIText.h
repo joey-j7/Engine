@@ -23,14 +23,12 @@ namespace Engine
 		void MeasureSize();
 		
 		std::string m_Text = "";
-		uint32_t m_FontSize = 64;
+		uint32_t m_FontSize = 18;
 
 		SkFont m_Font;
 
 		uint32_t m_TextWidth = 0;
 		uint32_t m_TextHeight = 0;
-
-		SkTextUtils::Align m_Alignment = SkTextUtils::Align::kLeft_Align;
 	};
 
 	Engine_REGISTER_COMP(UIText);

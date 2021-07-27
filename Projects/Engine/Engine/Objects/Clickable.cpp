@@ -17,26 +17,27 @@ namespace Engine
 	{
 	}
 
-	void Clickable::OnEnter(double XPosition, double YPosition)
+	void Clickable::OnEnter(const DVector2& Position)
 	{
 		m_IsHovered = true;
-		CB_CORE_INFO("Enter");
+		OnEnterEvent(Position);
 	}
 
-	void Clickable::OnHover(double XPosition, double YPosition)
+	void Clickable::OnHover(const DVector2& Position)
 	{
-		
+		OnHoverEvent(Position);
 	}
 
-	void Clickable::OnExit(double XPosition, double YPosition)
+	void Clickable::OnExit(const DVector2& Position)
 	{
 		m_IsHovered = false;
-		CB_CORE_INFO("Exit");
+		OnExitEvent(Position);
 	}
 
 	void Clickable::OnPressed()
 	{
 		m_IsPressed = true;
+		OnPressedEvent();
 	}
 
 	void Clickable::OnReleased()
@@ -47,31 +48,35 @@ namespace Engine
 		}
 
 		m_IsPressed = false;
+		OnReleasedEvent();
 	}
 
 	void Clickable::OnClicked()
 	{
-
+		OnClickedEvent();
 	}
 
-	void Clickable::OnCursorPosition(double XPosition, double YPosition)
+	void Clickable::OnCursorPosition(const DVector2& Position)
 	{
 		const AABB Bounds = GetBounds();
 		
-		const bool Hover = CollisionCheck::Contains(Bounds, Vector2(XPosition, YPosition));
+		const bool Hover = Bounds.contains(Position.x, Position.y);
 		
 		if (Hover && !m_IsHovered)
-			OnEnter(XPosition, YPosition);
+			OnEnter(Position);
 		else if (Hover)
-			OnHover(XPosition, YPosition);
+			OnHover(Position);
 		else if (!Hover && m_IsHovered)
-			OnExit(XPosition, YPosition);
+			OnExit(Position);
 	}
 
 	void Clickable::OnMousePressed(uint32_t MouseButton)
 	{
 		if (MouseButton != 0)
 			return;
+
+		const DVector2 Mouse = m_Window.GetMousePosition();
+		OnCursorPosition(Mouse);
 		
 		if (m_IsHovered && !m_IsPressed)
 		{

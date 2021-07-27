@@ -32,7 +32,8 @@ namespace Engine
 		WorldManagerLayer& GetWorldManager() const { return *m_WorldManagerLayer; }
 
 		void Exit() { m_bRunning = false; }
-		
+
+		Event<void, float> OnUpdate = Event<void, float>("Application::OnUpdate");
 		Event<void, bool> OnPauseChanged = Event<void, bool>("Application::OnPauseChanged");
 
 	private:

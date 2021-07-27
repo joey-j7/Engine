@@ -89,8 +89,8 @@ namespace Engine {
 		Event<void, int32_t, int32_t> OnKeyPressed = Event<void, int32_t, int32_t>("Window::OnKeyPressed");
 		Event<void, int32_t> OnKeyReleased = Event<void, int32_t>("Window::OnKeyReleased");
 		
-		Event<void, double, double> OnScroll = Event<void, double, double>("Window::OnScroll");
-		Event<void, double, double> OnCursorPosition = Event<void, double, double>("Window::OnCursorPosition");
+		Event<void, const DVector2&> OnScroll = Event<void, const DVector2&>("Window::OnScroll");
+		Event<void, const DVector2&> OnCursorPosition = Event<void, const DVector2&>("Window::OnCursorPosition");
 
 	protected:
 		virtual void Shutdown() = 0;
