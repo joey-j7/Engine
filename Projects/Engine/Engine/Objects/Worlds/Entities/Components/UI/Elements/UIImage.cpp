@@ -10,18 +10,12 @@ namespace Engine
 		SetImage(Text);
 	}
 	
-	UIImage::UIImage(Entity& Entity, sk_sp<SkImage>* Image, const std::string& sName) : UIElement(Entity, sName)
-	{
-		m_ImageReference = Image;
-		
-		MarkDirty();
-		m_Loaded = true;
-	}
-
 	void UIImage::SetImage(const std::string& Path)
 	{
 		if (m_Path == Path)
 			return;
+
+		m_Mutex.lock();
 
 		MarkDirty();
 		
@@ -42,13 +36,42 @@ namespace Engine
 
 		m_Image = SkImage::MakeFromEncoded(SkData::MakeFromMalloc(Data, Length));
 
-		m_Image = SkImage::MakeFromEncoded(SkData::MakeFromMalloc(Data, Length));
-
 		if (m_Image.get())
 		{
 			MeasureSize();
+
+			SetElementShader(
+				m_Image->makeShader(SkSamplingOptions(m_UseLinearFiltering ? SkFilterMode::kLinear : SkFilterMode::kNearest))
+			);
+			
 			m_Loaded = true;
 		}
+
+		m_Mutex.unlock();
+	}
+	
+	void UIImage::SetImageData(char* Data, size_t Length)
+	{
+		m_Mutex.lock();
+
+		m_Path = "";
+
+		m_Image = SkImage::MakeFromEncoded(SkData::MakeWithoutCopy(Data, Length));
+		
+		if (m_Image.get())
+		{
+			MeasureSize();
+			
+			SetElementShader(
+				m_Image->makeShader(SkSamplingOptions(m_UseLinearFiltering ? SkFilterMode::kLinear : SkFilterMode::kNearest))
+			);
+			
+			m_Loaded = true;
+		}
+		
+		MarkDirty();
+
+		m_Mutex.unlock();
 	}
 
 	void UIImage::SetLinearFiltering(bool Filter)
@@ -57,18 +80,19 @@ namespace Engine
 			return;
 
 		m_UseLinearFiltering = Filter;
+
+		if (m_Image.get())
+		{
+			SetElementShader(
+				m_Image->makeShader(SkSamplingOptions(m_UseLinearFiltering ? SkFilterMode::kLinear : SkFilterMode::kNearest))
+			);
+		}
+		
 		MarkDirty();
 	}
 
 	void UIImage::BeginDraw()
 	{
-		// Modify as reference might change every frame
-		if (m_ImageReference && m_ImageReference->get() && m_ImageDimensions == Vector2(0.f))
-		{
-			m_ImageDimensions.x = m_ImageReference->get()->width();
-			m_ImageDimensions.y = m_ImageReference->get()->height();
-		}
-
 		if (m_ImageDimensions != Vector2(0.f) &&
 			m_ImageDimensions != Vector2(m_Width, m_Height))
 		{
@@ -82,18 +106,28 @@ namespace Engine
 	{
 		if (!m_Loaded)
 			return;
-		
-		sk_sp<SkImage> Image = m_Image;
 
-		if (m_ImageReference)
-			Image = *m_ImageReference;
+		m_Mutex.lock();
 
-		if (!Image.get())
+		if (!m_Image.get())
+		{
+			m_Mutex.unlock();
 			return;
-		
-		m_Canvas->drawImage(Image, 0, 0, SkSamplingOptions(
-			m_UseLinearFiltering ? SkFilterMode::kLinear : SkFilterMode::kNearest
-		));
+		}
+
+		if (!m_RuntimeShaderInfo.m_Shader.get())
+		{
+			m_Canvas->drawImage(m_Image, 0, 0, SkSamplingOptions(
+				m_UseLinearFiltering ? SkFilterMode::kLinear : SkFilterMode::kNearest
+			), &m_Paint);
+		}
+		// Image is included within paint
+		else
+		{
+			m_Canvas->drawPaint(m_Paint);
+		}
+
+		m_Mutex.unlock();
 	}
 
 	void UIImage::MeasureSize()
@@ -103,7 +137,7 @@ namespace Engine
 			m_Image->height()
 		);
 		
-		SetWidth(static_cast<uint32_t>(m_ImageDimensions.x));
-		SetHeight(static_cast<uint32_t>(m_ImageDimensions.y));
+		// SetWidth(static_cast<uint32_t>(m_ImageDimensions.x));
+		// SetHeight(static_cast<uint32_t>(m_ImageDimensions.y));
 	}
 }

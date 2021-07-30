@@ -143,6 +143,13 @@ namespace Engine
 			return Remove([Object, Function](Args... args)->T { return (Object->*Function)(args...); });
 		}
 
+		void Clear()
+		{
+			std::lock_guard<std::mutex> Lock(m_HandlersLocker);
+
+			m_Handlers.clear();
+		}
+
 		void Call(Args... Params) const
 		{
 			HandlerCollectionType HandlersCopy = GetHandlersCopy();

@@ -68,6 +68,7 @@
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_DEBUG);
 		$(CB_PREPROCESSORS_LIBRARY);
+		__ARM_ARCH=7;
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>
@@ -98,6 +99,7 @@
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_RELEASE);
 		$(CB_PREPROCESSORS_LIBRARY);
+		__ARM_ARCH=7;
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
     </ClCompile>

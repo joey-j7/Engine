@@ -24,7 +24,8 @@ namespace Engine
 		// Reads the entire file to memory
 		static char* Read(const std::string& filePath, uint32_t& length, Type type = E_CONTENT, bool addNull = false);
 		static bool Write(const std::string& filePath, const std::string& fileName, char* buffer, uint32_t length, Type type = E_CONTENT);
-
+		static bool CreateRecursivePath(const std::string& Path, Type type = E_CONTENT, mode_t Mode = 0700);
+		
 		static bool Exists(const std::string& filePath, Type type = E_CONTENT);
 
 		static std::string GetPath(const std::string& filePath, Type type);

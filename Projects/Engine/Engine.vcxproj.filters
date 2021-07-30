@@ -98,6 +98,7 @@
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\UILayout.h" />
     <ClInclude Include="Engine\General\Animations\Animation.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\UI\UIButtonEntity.h" />
+    <ClInclude Include="Engine\General\Time.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />

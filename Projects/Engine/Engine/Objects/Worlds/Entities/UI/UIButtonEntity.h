@@ -14,6 +14,7 @@ namespace Engine
 	public:
 		UIButtonEntity(
 			const std::string& Text,
+			std::function<void()> Function,
 			const std::string& sName = "Button Entity"
 		);
 
@@ -27,6 +28,8 @@ namespace Engine
 		virtual void OnReleased();
 
 		virtual void OnClicked();
+
+		std::function<void()> m_Function;
 		
 		ClickableComponent* m_ClickableComponent = nullptr;
 		UIRect* m_RectangleComponent = nullptr;

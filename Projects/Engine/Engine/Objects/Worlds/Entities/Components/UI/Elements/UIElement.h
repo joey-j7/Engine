@@ -6,6 +6,8 @@
 
 #include <include/core/SkCanvas.h>
 
+#include <include/effects/SkRuntimeEffect.h>
+
 namespace Engine
 {
 	class Window;
@@ -136,6 +138,24 @@ namespace Engine
 		Anchor GetAnchor() const { return m_Anchor; }
 		void SetAnchor(Anchor Anchor);
 
+		SkShader* GetShader();
+		void SetShader(const std::string& Source);
+
+		template <typename T>
+		void SetShaderUniform(const std::string& UniformName, const T Value[], const int32_t Count)
+		{
+			if (!m_RuntimeShaderInfo.m_Builder)
+			{
+				CB_CORE_WARN("Cannot set uniform because shader is not present");
+				return;
+			}
+
+			m_RuntimeShaderInfo.m_Builder->uniform(UniformName.c_str()).set(&Value, Count);
+			m_RuntimeShaderInfo.m_Dirty = true;
+
+			MarkDirty();
+		}
+
 		const Vector4& GetPadding() const { return m_Padding; }
 		void SetPadding(const Vector4& Pad);
 
@@ -143,9 +163,23 @@ namespace Engine
 		virtual const AABB GetBounds() override;
 
 	protected:
+		void SetElementShader(sk_sp<SkShader> Shader);
+		
 		SkCanvas* m_Canvas = nullptr;
 		SkPaint m_Paint;
 
+		struct RuntimeShaderInfo
+		{
+			~RuntimeShaderInfo() { delete m_Builder; }
+			
+			sk_sp<SkShader> m_Shader;
+			SkRuntimeShaderBuilder* m_Builder = nullptr;
+			bool m_Dirty = false;
+		};
+
+		sk_sp<SkShader> m_ElementShader;
+		RuntimeShaderInfo m_RuntimeShaderInfo;
+		
 		SkMatrix m_Matrix;
 
 		SkColor m_Color = SK_ColorBLACK;

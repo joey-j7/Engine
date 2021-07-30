@@ -28,7 +28,7 @@ namespace Engine
 		virtual ~Object();
 
 		void SetName(const std::string& sName) { m_sName = sName; }
-		const std::string& GetName() const { return m_sName; }
+		virtual const std::string& GetName() const { return m_sName; }
 
 		// Disable new keyword
 		// inline void* operator new (std::size_t) throw(std::bad_alloc) {

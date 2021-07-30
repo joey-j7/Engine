@@ -75,7 +75,7 @@ void DebugWorld::Draw(float fDeltaTime)
 void DebugWorld::OnCameraCallback()
 {
 	Window& Window = Application::Get().GetRenderContext().GetWindow();
-	Camera& Camera = Application::Get().GetHardwareContext().GetCamera();
+	Camera& Cam = Application::Get().GetHardwareContext().GetCamera();
 
 	StaticEntity* Preview = new StaticEntity("Camera Preview");
 
@@ -83,17 +83,30 @@ void DebugWorld::OnCameraCallback()
 
 	//Transform2D->SetPosition(Vector2(-Window.GetWidth() / Window.GetScale()));
 	Transform2D->SetRotation(
-		static_cast<float>(Camera.GetOrientation())
+		static_cast<float>(Cam.GetOrientation())
 	);
 
-	UIImage* PreviewImage = Preview->AddComponent<UIImage>(Camera.GetPreviewImage());
+	UIImage* PreviewImage = Preview->AddComponent<UIImage>();
 	PreviewImage->ScaleWithDPI(false);
 	PreviewImage->SetAlignment(Vector2(0.5f));
 	PreviewImage->SetAnchor(E_ANCH_CENTER);
-	PreviewImage->SetWidth(Camera.GetOrientation() == 90 || Camera.GetOrientation() == 270 ? Window.GetHeight() : Window.GetWidth());
-	PreviewImage->SetHeight(Camera.GetOrientation() == 90 || Camera.GetOrientation() == 270 ? Window.GetWidth() : Window.GetHeight());
+	PreviewImage->SetWidth(Cam.GetOrientation() == 90 || Cam.GetOrientation() == 270 ? Window.GetHeight() : Window.GetWidth());
+	PreviewImage->SetHeight(Cam.GetOrientation() == 90 || Cam.GetOrientation() == 270 ? Window.GetWidth() : Window.GetHeight());
 
-	UIButtonEntity* Button = new UIButtonEntity("This is a test button");
+	PreviewImage->SetShader(
+		"uniform shader Element;"
+		"half4 main(float2 Coord) {"
+		"  return sample(Element, Coord).bgra;"  // Sample 'input', then swap red and blue
+		"}"
+	);
 
-	// Camera.TakePhoto();
+	Cam.SetPreviewImage(*PreviewImage);
+	
+	// PreviewImage->SetShaderUniform("", 0, 1);
+
+	UIButtonEntity* Button = new UIButtonEntity("This is a test button", []()
+	{
+		Camera& Cam = Application::Get().GetHardwareContext().GetCamera();
+		Cam.TakePhoto();
+	});
 }

@@ -182,6 +182,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -225,6 +226,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -268,6 +270,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -311,6 +314,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -353,8 +357,10 @@
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_DEBUG);
 		$(CB_PREPROCESSORS_LIBRARY);
+		__ARM_ARCH=7;
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -392,8 +398,10 @@
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_RELEASE);
 		$(CB_PREPROCESSORS_LIBRARY);
+		__ARM_ARCH=7;
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -434,6 +442,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -473,6 +482,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -492,6 +502,7 @@
     <ClInclude Include="Engine\Events\Event.h" />
     <ClInclude Include="Engine\General\Animations\Animation.h" />
     <ClInclude Include="Engine\General\Collision.h" />
+    <ClInclude Include="Engine\General\Time.h" />
     <ClInclude Include="Engine\Objects\Clickable.h" />
     <ClInclude Include="Engine\Objects\Renderable.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\RegisterComponent.h" />

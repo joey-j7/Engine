@@ -7,8 +7,9 @@ namespace Engine
 {
 	UIButtonEntity::UIButtonEntity(
 		const std::string& Text,
+		std::function<void()> Function,
 		const std::string& sName
-	) : StaticEntity(sName)
+	) : StaticEntity(sName), m_Function(Function)
 	{
 		m_ClickableComponent = AddComponent<ClickableComponent>();
 		m_RectangleComponent = AddComponent<UIRect>();
@@ -29,7 +30,7 @@ namespace Engine
 
 		m_RectangleComponent->SetAlignment(Vector2(0.5f, 0.5f));
 		m_RectangleComponent->SetAnchor(E_ANCH_CENTER);
-		
+
 		SetText(Text);	
 	}
 
@@ -81,6 +82,8 @@ namespace Engine
 	
 	void UIButtonEntity::OnClicked()
 	{
+		m_Function();
+		
 		SetText(
 			m_TextComponent->GetText() == "Clicked!" ? "Unclicked!" : "Clicked!"
 		);

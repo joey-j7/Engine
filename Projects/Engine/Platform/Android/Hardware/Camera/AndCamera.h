@@ -34,10 +34,12 @@ namespace Engine
 		void TakePhoto() override;
 		
 	protected:
-		void DelayedStart(float DeltaTime);
+		void DelayedStart();
 
 		void StartPreview();
 		void StopCapture();
+		
+		void OnPhotoProcessed();
 		
 		virtual bool Open() override;
 		virtual bool Close() override;
@@ -61,7 +63,7 @@ namespace Engine
 
 		static void OnPreviewRetrieved(void* context, AImageReader* reader);
 		static void OnPhotoRetrieved(void* context, AImageReader*);
-
+		
 		// TODO: Move to platform context
 		static bool RequestPermission();
 
@@ -88,6 +90,7 @@ namespace Engine
 		std::string m_ID = "";
 		
 		bool m_HasPermission = false;
+		bool m_DelayedStart = false;
 	};
 }
 

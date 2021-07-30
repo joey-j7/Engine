@@ -11,7 +11,7 @@ namespace Engine
 		friend class World;
 		
 		StaticEntity(const std::string& sName = "Entity");
-		virtual const std::string& GetName() const { return m_sName; };
+		const std::string& GetName() const override { return Object::GetName(); };
 		
 	protected:
 		virtual void Awake() override {};

@@ -195,7 +195,7 @@
 	
 	<!-- Libraries -->
 	<CB_LIBRARIES_WINDOWS>skia.lib;vulkan-1.lib;opengl32.lib</CB_LIBRARIES_WINDOWS>
-	<CB_LIBRARIES_ANDROID>skia;GLFW;Glad;GLESv3;m;EGL;camera2ndk;mediandk</CB_LIBRARIES_ANDROID>
+	<CB_LIBRARIES_ANDROID>skia;GLFW;Glad;GLESv3;m;EGL;camera2ndk;mediandk;atomic</CB_LIBRARIES_ANDROID>
 
   </PropertyGroup>
   

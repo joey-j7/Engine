@@ -297,8 +297,17 @@ namespace Engine
 			);
 		}
 		
+		// Compiles shader if necessary
+		SkShader* Shader = GetShader();
+		
+		// Set all shaders (fragment, vertex...)
+		if (Shader)
+		{
+			m_Paint.setShader(m_RuntimeShaderInfo.m_Shader);
+		}
+		
 		// Transform
-		Vector2 ScreenPosition = GetPosition();
+		const Vector2 ScreenPosition = GetPosition();
 		const float ScreenRotation = GetRotation();
 		Vector2 ScreenScale = GetScale();
 
@@ -458,7 +467,55 @@ namespace Engine
 
 		MarkDirty();
 	}
+	
+	SkShader* UIElement::GetShader()
+	{
+		if (m_RuntimeShaderInfo.m_Builder)
+		{
+			if (m_RuntimeShaderInfo.m_Dirty)
+			{
+				auto Shader = m_RuntimeShaderInfo.m_Builder->makeShader(
+					nullptr,
+					false
+				);
 
+				if (!Shader)
+				{
+					CB_CORE_ERROR("fShaderBuilder->makeShader failed");
+				}
+				else
+				{
+					if (m_RuntimeShaderInfo.m_Shader.get())
+						m_RuntimeShaderInfo.m_Shader.reset();
+
+					m_RuntimeShaderInfo.m_Shader = Shader;
+					m_RuntimeShaderInfo.m_Dirty = false;
+				}
+			}
+
+			return m_RuntimeShaderInfo.m_Shader.get();
+		}
+
+		return nullptr;
+	}
+
+	void UIElement::SetShader(const std::string& Source)
+	{
+		auto [Effect, Error] = SkRuntimeEffect::MakeForShader(SkString(Source.c_str()));
+
+		if (!Effect)
+		{
+			CB_CORE_ERROR("Error compiling shader: {0}", Error.c_str());
+			return;
+		}
+		
+		if (m_RuntimeShaderInfo.m_Builder)
+			delete m_RuntimeShaderInfo.m_Builder;
+
+		m_RuntimeShaderInfo.m_Builder = new SkRuntimeShaderBuilder(Effect);
+		m_RuntimeShaderInfo.m_Dirty = true;
+	}
+	
 	void UIElement::SetPadding(const Vector4& Pad)
 	{
 		if (m_Padding == Pad)
@@ -503,5 +560,25 @@ namespace Engine
 		Bounds.fRight += m_Padding.z * Scale;
 		
 		return Bounds;
+	}
+	
+	void UIElement::SetElementShader(sk_sp<SkShader> Shader)
+	{
+		if (m_ElementShader.get() == Shader.get())
+			return;
+		
+		if (m_ElementShader.get())
+			m_ElementShader.reset();
+
+		m_ElementShader = Shader;
+
+		if (m_RuntimeShaderInfo.m_Builder)
+		{
+			m_RuntimeShaderInfo.m_Builder->child("Element") = m_ElementShader;
+		}
+		
+		m_RuntimeShaderInfo.m_Dirty = true;
+		
+		MarkDirty();
 	}
 }

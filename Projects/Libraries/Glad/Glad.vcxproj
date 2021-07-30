@@ -168,7 +168,7 @@
   <!-- Windows Win32 -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
@@ -183,6 +183,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -200,7 +201,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -217,6 +218,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -236,7 +238,7 @@
   <!-- Windows x64 -->
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
@@ -251,6 +253,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -268,7 +271,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -285,6 +288,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -311,7 +315,7 @@
 		$(StlIncludeDirectories);
 		
 	  </AdditionalIncludeDirectories>
-	  <ISystem>
+      <ISystem>
 		$(CB_ISYSTEM_PATHS_ANDROID);
 	  </ISystem>
       <PreprocessorDefinitions>
@@ -319,8 +323,11 @@
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_DEBUG);
 		$(CB_PREPROCESSORS_LIBRARY);
+		__ARM_ARCH=7;
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -341,7 +348,7 @@
 		$(StlIncludeDirectories);
 		
 	  </AdditionalIncludeDirectories>
-	  <ISystem>
+      <ISystem>
 		$(CB_ISYSTEM_PATHS_ANDROID);
 	  </ISystem>
       <PreprocessorDefinitions>
@@ -349,8 +356,11 @@
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_RELEASE);
 		$(CB_PREPROCESSORS_LIBRARY);
+		__ARM_ARCH=7;
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -371,7 +381,7 @@
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		
 	  </AdditionalIncludeDirectories>
-	  <ISystem>
+      <ISystem>
 		$(CB_ISYSTEM_PATHS_ANDROID);
 	  </ISystem>
       <PreprocessorDefinitions>
@@ -381,6 +391,8 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -401,7 +413,7 @@
 		$(StlIncludeDirectories);
 		
 	  </AdditionalIncludeDirectories>
-	  <ISystem>
+      <ISystem>
 		$(CB_ISYSTEM_PATHS_ANDROID);
 	  </ISystem>
       <PreprocessorDefinitions>
@@ -411,6 +423,8 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>

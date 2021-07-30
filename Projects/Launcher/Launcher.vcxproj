@@ -158,6 +158,7 @@
 		$(CB_PREPROCESSORS_DEBUG);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -192,6 +193,7 @@
 		$(CB_PREPROCESSORS_RELEASE);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -226,6 +228,7 @@
 		$(CB_PREPROCESSORS_DEBUG);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -260,6 +263,7 @@
 		$(CB_PREPROCESSORS_RELEASE);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -293,8 +297,10 @@
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_DEBUG);
+		__ARM_ARCH=7;
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(CB_LIBRARY_PATHS_DEFAULT);$(CB_LIBRARY_PATHS_ANDROID);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -302,6 +308,7 @@
 		$(CB_LIBRARIES_ANDROID);
 		%(LibraryDependencies);
 	  </LibraryDependencies>
+      <AdditionalOptions>-latomic %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -318,9 +325,11 @@
       <PreprocessorDefinitions>
 		$(CB_PREPROCESSORS_DEFAULT);
 		$(CB_PREPROCESSORS_ANDROID);
-		$(CB_PREPROCESSORS_REKEASE);
+		$(CB_PREPROCESSORS_RELEASE);
+		__ARM_ARCH=7;
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(CB_LIBRARY_PATHS_DEFAULT);$(CB_LIBRARY_PATHS_ANDROID);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -328,6 +337,7 @@
 		$(CB_LIBRARIES_ANDROID);
 		%(LibraryDependencies);
 	  </LibraryDependencies>
+      <AdditionalOptions>-latomic %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <!-- Android ARM64 -->
@@ -348,6 +358,7 @@
 		$(CB_PREPROCESSORS_DEBUG);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(CB_LIBRARY_PATHS_DEFAULT);$(CB_LIBRARY_PATHS_ANDROID)</AdditionalLibraryDirectories>
@@ -374,6 +385,7 @@
 		$(CB_PREPROCESSORS_RELEASE);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(CB_LIBRARY_PATHS_DEFAULT);$(CB_LIBRARY_PATHS_ANDROID)</AdditionalLibraryDirectories>

@@ -13,7 +13,7 @@ namespace Engine
 		DynamicEntity(const std::string& sName = "Entity");
 		virtual ~DynamicEntity();
 
-		virtual const std::string& GetName() const { return m_sName; };
+		virtual const std::string& GetName() const override { return DynamicObject::GetName(); };
 		
 	protected:
 		virtual void Awake() override {};

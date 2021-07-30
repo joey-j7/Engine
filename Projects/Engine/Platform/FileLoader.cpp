@@ -1,7 +1,12 @@
 #include "pch.h"
 
 #include "FileLoader.h"
+
 #include <sys/stat.h>
+
+#include <limits.h>
+#include <sys/stat.h> 
+#include <errno.h>
 
 namespace Engine {
 	std::string FileLoader::m_DefaultSeperator = "/";
@@ -61,17 +66,65 @@ namespace Engine {
 
 		CB_CORE_INFO("Writing file {0} to path {1}", fileName, FullFilePath);
 		
-		auto file = std::ofstream(FullFilePath, std::ios::out | std::ios::trunc | std::ios::binary);
-		
-		/*if (!file.is_open())
+		if (!CreateRecursivePath(filePath, type))
 		{
-			CB_CORE_ERROR("Could not open file at path \"{0}\"!", FullFilePath);
+			CB_CORE_ERROR("Could not create recursive path \"{0}\"!", FullPath);
 			return false;
-		}*/
+		}
 		
+		// mkdir(FullPath.c_str(), 0700);
+		
+		auto file = std::ofstream(FullFilePath, std::ios::out | std::ios::trunc | std::ios::binary);
 		file.write(buffer, length);
 		file.close();
+
+		if (!file)
+		{
+			CB_CORE_ERROR("Could not create file at path \"{0}\"!", FullFilePath);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool FileLoader::CreateRecursivePath(const std::string& Path, Type type, mode_t Mode)
+	{
+		std::string FullPath = m_WorkingDirectory[type] + Path;
 		
+		const size_t len = FullPath.size();
+		char _path[PATH_MAX];
+		char* p;
+
+		errno = 0;
+
+		/* Copy string so its mutable */
+		if (len > sizeof(_path) - 1) {
+			errno = ENAMETOOLONG;
+			return false;
+		}
+		strcpy(_path, FullPath.c_str());
+
+		/* Iterate the string */
+		for (p = _path + 1; *p; p++) {
+			if (*p == '/') {
+				/* Temporarily truncate */
+				*p = '\0';
+
+				if (mkdir(_path, Mode) != 0)
+				{
+					if (errno != EEXIST)
+						return false;
+				}
+
+				*p = '/';
+			}
+		}
+
+		if (mkdir(_path, Mode) != 0) {
+			if (errno != EEXIST)
+				return false;
+		}
+
 		return true;
 	}
 

@@ -53,6 +53,10 @@ namespace Engine
 				m_RenderContext->GetWindow().Wait();
 				continue;
 			}
+
+			// One-time callback originating from other threads
+			ThreadedCallback();
+			ThreadedCallback.Clear();
 			
 			if (!m_RenderContext->GetAPI().Swap())
 			{

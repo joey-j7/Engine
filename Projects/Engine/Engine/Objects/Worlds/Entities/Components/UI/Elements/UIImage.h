@@ -10,10 +10,11 @@ namespace Engine
 	{
 	public:
 		UIImage(Entity& Entity, const std::string& ImagePath = "", const std::string& sName = "Image");
-		UIImage(Entity& Entity, sk_sp<SkImage>* Image, const std::string& sName = "Image");
-
+		
 		const std::string& GetPath() const { return m_Path; }
+
 		void SetImage(const std::string& Path);
+		void SetImageData(char* Data, size_t Length);
 
 		bool GetLinearFiltering() const { return m_UseLinearFiltering; }
 		void SetLinearFiltering(bool Filter);
@@ -30,8 +31,9 @@ namespace Engine
 		bool m_UseLinearFiltering = true;
 
 		sk_sp<SkImage> m_Image;
-		sk_sp<SkImage>* m_ImageReference = nullptr;
 		Vector2 m_ImageDimensions;
+
+		std::mutex m_Mutex;
 	};
 
 	Engine_REGISTER_COMP(UIImage);

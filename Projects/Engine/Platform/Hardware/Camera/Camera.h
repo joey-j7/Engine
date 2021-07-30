@@ -12,6 +12,8 @@ namespace Engine
 		E_CAMERA_FRONTFACE = 1,
 		E_CAMERA_EXTERNAL = 2
 	};
+
+	class UIImage;
 	
 	// Interface representing a desktop system based Window
 	class Engine_API Camera
@@ -24,16 +26,22 @@ namespace Engine
 		virtual bool Stop();
 
 		virtual void TakePhoto() = 0;
+		const std::string& GetLastPhotoPath() const { return m_LastPhotoPath; }
 
 		static int32_t GetOrientation() { return m_Orientation; }
 
-		sk_sp<SkImage>* GetPreviewImage()
+		UIImage* GetPreviewImage()
 		{
-			return &m_PreviewImage;
+			return m_PreviewImage;
+		}
+
+		void SetPreviewImage(UIImage& Image)
+		{
+			m_PreviewImage = &Image;
 		}
 		
 		Event<void> OnStartCallback = Event<void>("Camera::OnStartCallback");
-		Event<void> OnPhotoTakenCallback = Event<void>("Camera::OnPhotoTakenCallback");
+		Event<void, const std::string&> OnPhotoTakenCallback = Event<void, const std::string&>("Camera::OnPhotoTakenCallback");
 		
 	protected:
 		virtual bool Open();
@@ -43,10 +51,11 @@ namespace Engine
 		bool m_bOpened = false;
 
 		static int32_t m_Orientation;
+		std::string m_LastPhotoPath = "";
 
 		CameraType m_Type = E_CAMERA_FRONTFACE;
 
-		sk_sp<SkImage> m_PreviewImage;
+		UIImage* m_PreviewImage = nullptr;
 	};
 
 }

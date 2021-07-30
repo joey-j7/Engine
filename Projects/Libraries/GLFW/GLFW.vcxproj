@@ -191,6 +191,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -225,6 +226,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -259,6 +261,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -293,6 +296,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -319,7 +323,7 @@
 		$(StlIncludeDirectories);
 		
 	  </AdditionalIncludeDirectories>
-	  <ISystem>
+      <ISystem>
 		$(CB_ISYSTEM_PATHS_ANDROID);
 	  </ISystem>
       <PreprocessorDefinitions>
@@ -327,8 +331,10 @@
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_DEBUG);
 		$(CB_PREPROCESSORS_LIBRARY);
+		__ARM_ARCH=7
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -349,7 +355,7 @@
 		$(StlIncludeDirectories);
 		
 	  </AdditionalIncludeDirectories>
-	  <ISystem>
+      <ISystem>
 		$(CB_ISYSTEM_PATHS_ANDROID);
 	  </ISystem>
       <PreprocessorDefinitions>
@@ -357,8 +363,10 @@
 		$(CB_PREPROCESSORS_ANDROID);
 		$(CB_PREPROCESSORS_RELEASE);
 		$(CB_PREPROCESSORS_LIBRARY);
+		__ARM_ARCH=7;
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -379,7 +387,7 @@
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		
 	  </AdditionalIncludeDirectories>
-	  <ISystem>
+      <ISystem>
 		$(CB_ISYSTEM_PATHS_ANDROID);
 	  </ISystem>
       <PreprocessorDefinitions>
@@ -389,6 +397,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -409,7 +418,7 @@
 		$(StlIncludeDirectories);
 		
 	  </AdditionalIncludeDirectories>
-	  <ISystem>
+      <ISystem>
 		$(CB_ISYSTEM_PATHS_ANDROID);
 	  </ISystem>
       <PreprocessorDefinitions>
@@ -419,6 +428,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
+      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>

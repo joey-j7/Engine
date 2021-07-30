@@ -33,6 +33,8 @@ namespace Engine
 
 		void Exit() { m_bRunning = false; }
 
+		Event<void> ThreadedCallback = Event<void>("Application::ThreadedCallback");
+		
 		Event<void, float> OnUpdate = Event<void, float>("Application::OnUpdate");
 		Event<void, bool> OnPauseChanged = Event<void, bool>("Application::OnPauseChanged");
 

@@ -3,11 +3,11 @@
 #include "Engine/Core.h"
 #include "Engine/Timer.h"
 
-#include <chrono>
 #include <string>
 
 #include "spdlog/spdlog.h"
 #include "Engine/General/Math.h"
+#include "Engine/General/Time.h"
 
 #ifdef CB_PLATFORM_ANDROID
 #include <android/log.h>
@@ -62,8 +62,6 @@ namespace Engine
 		if (type < Level)
 			return;
 
-		m_Mutex.lock();
-		
 		Color col = Color(1.0f);
 		static const std::string typeNames[] = { "TRACE", "INFO", "WARN", "ERROR", "FATAL" };
 
@@ -98,20 +96,11 @@ namespace Engine
 		std::tm tm;
 		localtime_r(&t, &tm);
 #endif
-
-		/* Format time */
-		std::string hour = std::to_string(tm.tm_hour);
-		std::string min = std::to_string(tm.tm_min);
-		std::string sec = std::to_string(tm.tm_sec);
-
-		if (hour.length() < 2) hour = "0" + hour;
-		if (min.length() < 2) min = "0" + min;
-		if (sec.length() < 2) sec = "0" + sec;
-
+		
 		/* Format message */
 		std::string message = "";
 		std::string name = ((isCore) ? "CORE" : "USER");
-		std::string time = hour + ":" + min + ":" + sec;
+		std::string time = Time::GetFormattedString("%H:%M:%S");
 
 		fmt::memory_buffer formatted;
 
@@ -129,7 +118,9 @@ namespace Engine
 			formatted.data()[s] = '\0';
 		}
 		catch (...) {}
-		
+
+		m_Mutex.lock();
+
 		/* Compose and add to screen */
 		message = "[" + time + "][" + name + "][" + typeNames[type] + "] ";
 		message += formatted.data();

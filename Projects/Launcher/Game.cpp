@@ -19,7 +19,7 @@ public:
 class Game : public Engine::Application
 {
 public:
-	Game()
+	Game() : Application("The Nest")
 	{
 		PushLayer(new ExampleLayer());
 		GetWorldManager().Add(new DebugWorld());

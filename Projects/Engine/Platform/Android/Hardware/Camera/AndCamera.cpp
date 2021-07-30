@@ -9,6 +9,8 @@
 #include "GLFW/glfw3native.h"
 #include "Engine/Application.h"
 
+#include "Engine/Objects/Worlds/Entities/Components/UI/Elements/UIImage.h"
+
 #include <include/core/SkYUVAPixmaps.h>
 #include <include/core/SkYUVAInfo.h>
 
@@ -107,16 +109,18 @@ namespace Engine
         if (!Camera::Stop())
             return false;
 
+        m_DelayedStart = false;
+
         return true;
     }
 
-	void AndCamera::DelayedStart(float DeltaTime)
-	{
-        Application::Get().OnUpdate.Unbind(this, &AndCamera::DelayedStart);
-		
-        if (!Camera::Start(m_Type))
+	void AndCamera::DelayedStart()
+	{	
+        if (!Camera::Start(m_Type) || m_DelayedStart)
             return;
 
+        m_DelayedStart = true;
+		
         StartPreview();
         OnStartCallback();
 	}
@@ -195,8 +199,19 @@ namespace Engine
         AImageReader_delete(m_Reader);
 		
         ANativeWindow_release(m_PreviewWindow);
+
+        if (m_PreviewImage)
+            m_PreviewImage->SetImageData(nullptr, 0);
     }
 
+	void AndCamera::OnPhotoProcessed()
+	{
+        StopCapture();
+        StartPreview();
+		
+        OnPhotoTakenCallback(m_LastPhotoPath);
+	}
+    
 	bool AndCamera::Open()
 	{
 		if (!Camera::Open())
@@ -337,7 +352,7 @@ namespace Engine
 
 	void AndCamera::OnDisconnected(void* Context, ACameraDevice* Device)
 	{
-        CB_CORE_INFO("Camera is disconnected, {0}", ACameraDevice_getId(Device));
+        CB_CORE_TRACE("Camera is disconnected, {0}", ACameraDevice_getId(Device));
 	}
 
 	void AndCamera::OnError(void* Context, ACameraDevice* Device, int Error)
@@ -347,27 +362,27 @@ namespace Engine
 
 	void AndCamera::OnReady(void* Context, ACameraCaptureSession* Session)
 	{
-        CB_CORE_INFO("Camera capture session is ready");
+        CB_CORE_TRACE("Camera capture session is ready");
 	}
 	
     void AndCamera::OnActive(void* Context, ACameraCaptureSession* Session)
     {
-        CB_CORE_INFO("Camera capture session is active");
+        CB_CORE_TRACE("Camera capture session is active");
     }
 
     void AndCamera::OnClosed(void* Context, ACameraCaptureSession* Session)
     {
-        CB_CORE_INFO("Camera capture session is closed");
+        CB_CORE_TRACE("Camera capture session is closed");
     }
     
     void AndCamera::OnCaptureBufferLost(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraWindowType* window, int64_t frameNumber)
 	{
-        CB_CORE_INFO("Camera capture buffer is lost");
+        CB_CORE_TRACE("Camera capture buffer is lost");
 	}
 	
     void AndCamera::OnCaptureCompleted(void* context, ACameraCaptureSession* session, ACaptureRequest* request, const ACameraMetadata* result)
 	{
-        CB_CORE_INFO("Camera capture has completed");
+        // CB_CORE_TRACE("Camera capture has completed");
 	}
 	
     void AndCamera::OnCaptureFailed(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraCaptureFailure* failure)
@@ -377,22 +392,22 @@ namespace Engine
 	
     void AndCamera::OnCaptureProgressed(void* context, ACameraCaptureSession* session, ACaptureRequest* request, const ACameraMetadata* result)
 	{
-        CB_CORE_INFO("Camera capture has progressed");
+        // CB_CORE_TRACE("Camera capture has progressed");
 	}
 	
     void AndCamera::OnCaptureSequenceAborted(void* context, ACameraCaptureSession* session, int sequenceId)
 	{
-        CB_CORE_INFO("Camera capture sequence is aborted");
+        CB_CORE_TRACE("Camera capture sequence is aborted");
 	}
 	
     void AndCamera::OnCaptureSequenceCompleted(void* context, ACameraCaptureSession* session, int sequenceId, int64_t frameNumber)
 	{
-        CB_CORE_INFO("Camera capture sequence has completed");
+        // CB_CORE_TRACE("Camera capture sequence has completed");
 	}
 	
     void AndCamera::OnCaptureStarted(void* context, ACameraCaptureSession* session, const ACaptureRequest* request, int64_t timestamp)
 	{
-        CB_CORE_INFO("Camera capture sequence has started");
+        // CB_CORE_TRACE("Camera capture sequence has started");
 	}
 
 	bool AndCamera::RequestPermission()
@@ -437,15 +452,21 @@ namespace Engine
 
         if (m_HasPermission)
         {
-            Application::Get().OnUpdate.Bind(this, &AndCamera::DelayedStart);
+            Application::Get().ThreadedCallback.Bind(this, &AndCamera::DelayedStart);
             return;
         }
         
         CB_CORE_WARN("Permissions to access the camera denied!");
 	}
 
-	void AndCamera::TakePhoto()
+    void AndCamera::TakePhoto()
 	{
+        if (!m_bStarted || !m_HasPermission)
+        {
+            CB_CORE_WARN("Cannot take photo if camera has not been started yet");
+            return;
+        }
+        
         StopCapture();
 
         Window& Window = Application::Get().GetRenderContext().GetWindow();
@@ -515,6 +536,11 @@ namespace Engine
 
 	void AndCamera::OnPreviewRetrieved(void* Context, AImageReader* Reader)
 	{
+        UIImage** CameraImage = static_cast<UIImage**>(Context);
+
+		if (!CameraImage || !*CameraImage)
+            return;
+
         AImage* Image = nullptr;
         const media_status_t Status = AImageReader_acquireNextImage(Reader, &Image);
         
@@ -523,11 +549,7 @@ namespace Engine
             CB_CORE_ERROR("Could not retrieve image");
             return;
         }
-
-        CB_CORE_TRACE("Retrieving new preview image");
-		
-        sk_sp<SkImage>* CameraImage = static_cast<sk_sp<SkImage>*>(Context);
-		
+        
         // Try to process data without blocking the callback
         std::thread processor([=]()
         {
@@ -539,28 +561,8 @@ namespace Engine
             AImage_getWidth(Image, &Width);
             AImage_getHeight(Image, &Height);
 
-        	*CameraImage = SkImage::MakeFromEncoded(SkData::MakeWithoutCopy(Data, Length));
-        	
-            /*auto SKData = SkData::MakeWithoutCopy(Data, Length);
-        	
-            sk_sp<SkPicture> Picture = SkPicture::MakeFromData(
-                SKData.get(),
-                nullptr
-            );
-
-            SkMatrix Transformation;
-            Transformation.RotateDeg(m_Orientation);
-
-            SkISize Size = SkISize::Make(Width, Height);
-            
-            *CameraImage = SkImage::MakeFromPicture(
-                Picture,
-                Size,
-                &Transformation,
-                nullptr,
-                SkImage::BitDepth::kU8,
-                SkColorSpace::MakeSRGB()
-            );*/
+            UIImage& CamImage = **CameraImage;
+            CamImage.SetImageData((char*)Data, Length);
         	
             AImage_delete(Image);
         });
@@ -578,21 +580,34 @@ namespace Engine
             CB_CORE_ERROR("Could not retrieve photo");
             return;
         }
-        
-        uint8_t* Data = nullptr;
-        int Length = 0;
-        AImage_getPlaneData(Image, 0, &Data, &Length);
 
-        FileLoader::Write("/storage/emulated/0/DCIM/Appuil/", "test.jpg", (char*)Data, Length, FileLoader::E_ROOT);
-        
-        AImage_delete(Image);
+        std::thread processor([=]()
+        {
+            uint8_t* Data = nullptr;
+            int Length = 0;
+            AImage_getPlaneData(Image, 0, &Data, &Length);
 
-        CB_CORE_INFO("Photo has successfully been taken");
-        
-        static_cast<AndCamera*>(Context)->OnPhotoTakenCallback();
-		
-        static_cast<AndCamera*>(Context)->StopCapture();
-        static_cast<AndCamera*>(Context)->StartPreview();
+            std::string Path = "/storage/emulated/0/DCIM/Appuil/" + Application::Get().GetName() + "/";
+            std::string Filename = Time::GetFormattedString("%d_%m_%Y_%H_%M_%S") + ".jpg";
+        	
+            AndCamera* Camera = static_cast<AndCamera*>(Context);
+        	
+            if (!FileLoader::Write(Path, Filename, (char*)Data, Length, FileLoader::E_ROOT))
+            {
+                CB_CORE_ERROR("Photo could not be written to disk");
+            }
+            else
+            {
+                CB_CORE_INFO("Photo has successfully been taken");
+                Camera->m_LastPhotoPath = Path;
+            }
+
+        	AImage_delete(Image);
+
+            Application::Get().ThreadedCallback.Bind(Camera, &AndCamera::OnPhotoProcessed);
+        });
+
+        processor.detach();
     }
 }
 
