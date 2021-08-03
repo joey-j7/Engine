@@ -23,9 +23,9 @@ namespace Engine
 			s_Instance = nullptr;
 	}
 
-	FileReference* FileDatabase::Load(const std::string& filePath, FileLoader::Type pathType)
+	FileReference* FileDatabase::Load(const String& filePath, FileLoader::Type pathType)
 	{
-		const std::string extension = FileLoader::GetExtension(filePath);
+		const String extension = FileLoader::GetExtension(filePath);
 		
 		if (!FileLoader::Exists(filePath, pathType))
 		{
@@ -49,7 +49,7 @@ namespace Engine
 
 	bool FileDatabase::Unload(FileReference* resource)
 	{
-		const std::string& extension = resource->GetExtension();
+		const String& extension = resource->GetExtension();
 
 		for (auto& manager : m_Managers)
 		{

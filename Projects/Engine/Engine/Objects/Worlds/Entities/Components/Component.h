@@ -14,7 +14,7 @@ namespace Engine
 		friend class Entity;
 		
 	public:
-		Component(Entity& Entity, const std::string& sName = "Component");
+		Component(Entity& Entity, const String& sName = "Component");
 		Component(const Component&) = delete;
 		Component& operator =(const Component&) = delete;
 		
@@ -32,6 +32,31 @@ namespace Engine
 			) == m_ProhibitedTypes.end();
 		}
 
+		bool HasDependency(size_t ComponentID) const
+		{
+			return std::find(
+				m_DependencyTypes.begin(),
+				m_DependencyTypes.end(),
+				ComponentID
+			) != m_DependencyTypes.end();
+		}
+
+		template <typename D>
+		D* GetDependency() const
+		{
+			D* Comp = GetEntity().template GetComponent<D>();
+
+			// Not added yet
+			if (!Comp)
+				Comp = static_cast<D*>(
+					m_PendingComponentsToAdd.at(
+						Component::GetClassID<D>()
+					).get()
+				);
+
+			return Comp;
+		}
+
 		template <class T>
 		static size_t GetClassID();
 
@@ -39,14 +64,17 @@ namespace Engine
 		
 	protected:
 		Entity& m_Entity;
+
 		bool m_ForceUniqueness = false;
+
+		virtual void OnInitialized() {}
 		
 		template <typename... ProhibitedTypes>
 		constexpr void AddProhibitedTypes();
 		
 		template <typename... DependencyTypes>
 		constexpr void AddDependencyTypes();
-		
+
 	private:
 		std::vector<size_t> m_DependencyTypes;
 		std::vector<size_t> m_ProhibitedTypes;
@@ -97,6 +125,9 @@ namespace Engine
 					return nullptr;
 
 				m_DependencyTypes.push_back(ID);
+
+				if (GetEntity().template GetComponent<DependencyTypes>())
+					return nullptr;
 				
 				m_PendingComponentsToAdd.emplace(
 					std::pair<size_t, std::unique_ptr<Component>>(

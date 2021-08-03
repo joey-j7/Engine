@@ -23,14 +23,14 @@ namespace Engine
 		~FileDatabase();
 
 		template <typename T>
-		FileManager<T>* Add(const std::vector<std::string>& supportedExtensions);
+		FileManager<T>* Add(const std::vector<String>& supportedExtensions);
 
 		template <typename T>
 		FileManager<T>* Get();
 
 		static FileDatabase& Get() { return *s_Instance; }
 
-		FileReference* Load(const std::string& filePath, FileLoader::Type pathType);
+		FileReference* Load(const String& filePath, FileLoader::Type pathType);
 		bool Unload(FileReference* resource);
 
 	protected:
@@ -39,7 +39,7 @@ namespace Engine
 	};
 
 	template <typename T>
-	FileManager<T>* FileDatabase::Add(const std::vector<std::string>& supportedExtensions)
+	FileManager<T>* FileDatabase::Add(const std::vector<String>& supportedExtensions)
 	{
 		static_assert(std::is_base_of<FileReference, T>::value, "Type must be a descendant of FileReference");
 

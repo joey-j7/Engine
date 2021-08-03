@@ -13,7 +13,7 @@ namespace Engine
 	class Engine_API FileReference : public Object
 	{
 	public:
-		FileReference(const std::string& filePath);
+		FileReference(const String& filePath);
 
 		void Add()
 		{
@@ -29,12 +29,12 @@ namespace Engine
 
 		const bool HasReferences() const { return m_ReferenceCount > 0; }
 
-		const std::string& GetFilePath() const { return m_FilePath; }
-		const std::string& GetExtension() const { return m_Extension; }
+		const String& GetFilePath() const { return m_FilePath; }
+		const String& GetExtension() const { return m_Extension; }
 
 	protected:
-		std::string m_FilePath = "";
-		std::string m_Extension = "";
+		String m_FilePath = "";
+		String m_Extension = "";
 
 		uint32_t m_ReferenceCount = 0;
 	};

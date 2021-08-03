@@ -8,10 +8,10 @@ namespace Engine
 	class Engine_API UIText : public UIElement
 	{
 	public:
-		UIText(Entity& Entity, const std::string& Text = "", const std::string& sName = "Text");
+		UIText(Entity& Entity, const String& Text = "", const String& sName = "Text");
 
-		const std::string& GetText() const { return m_Text; };
-		void SetText(const std::string& Text);
+		const String& GetText() const { return m_Text; };
+		void SetText(const String& Text);
 
 		uint32_t GetFontSize() const { return m_FontSize; };
 		void SetFontSize(uint32_t Size);
@@ -22,7 +22,7 @@ namespace Engine
 	private:
 		void MeasureSize();
 		
-		std::string m_Text = "";
+		String m_Text = "";
 		uint32_t m_FontSize = 18;
 
 		SkFont m_Font;

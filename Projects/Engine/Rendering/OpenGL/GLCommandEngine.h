@@ -12,7 +12,7 @@ namespace Engine
 	class Engine_API GLCommandEngine : public CommandEngine
 	{
 	public:
-		GLCommandEngine(Type type, const std::string& sName = "Command Engine");
+		GLCommandEngine(Type type, const String& sName = "Command Engine");
 		virtual ~GLCommandEngine();
 
 		virtual DrawPass* Create(const ShaderProgram::Descriptor& shaderPipeline) override;

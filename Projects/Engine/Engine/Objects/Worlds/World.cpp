@@ -5,7 +5,7 @@
 
 namespace Engine
 {
-	World::World(const std::string& sName) : LayeredObject(sName)
+	World::World(const String& sName) : LayeredObject(sName)
 	{
 
 	}

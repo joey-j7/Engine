@@ -18,29 +18,29 @@ namespace Engine
 			TESS_EVALUATION
 		};
 
-		ShaderFile(const std::string& filePath) : RenderFile(filePath)
+		ShaderFile(const String& filePath) : RenderFile(filePath)
 		{
-			if (filePath.find(".frag.") != std::string::npos)
+			if (filePath.find(".frag.") != String::npos)
 			{
 				m_Type = PIXEL;
 			}
-			else if (filePath.find(".vert.") != std::string::npos)
+			else if (filePath.find(".vert.") != String::npos)
 			{
 				m_Type = VERTEX;
 			}
-			else if (filePath.find(".comp.") != std::string::npos)
+			else if (filePath.find(".comp.") != String::npos)
 			{
 				m_Type = COMPUTE;
 			}
-			else if (filePath.find(".geom.") != std::string::npos)
+			else if (filePath.find(".geom.") != String::npos)
 			{
 				m_Type = GEOMETRY;
 			}
-			else if (filePath.find(".tesc.") != std::string::npos)
+			else if (filePath.find(".tesc.") != String::npos)
 			{
 				m_Type = TESS_CONTROL;
 			}
-			else if (filePath.find(".tese.") != std::string::npos)
+			else if (filePath.find(".tese.") != String::npos)
 			{
 				m_Type = TESS_EVALUATION;
 			}
@@ -52,21 +52,21 @@ namespace Engine
 		}
 
 	protected:
-		std::string ParseIncludes(const std::string& filePath, const char* data, uint32_t& length)
+		String ParseIncludes(const String& filePath, const char* data, uint32_t& length)
 		{
-			std::string s = std::string(data, length);
+			String s = String(data, length);
 
-			std::string fileDir = FileLoader::GetPath(filePath, FileLoader::E_ROOT);
+			String fileDir = FileLoader::GetPath(filePath, FileLoader::E_ROOT);
 			fileDir = fileDir.substr(0, fileDir.find_last_of(FileLoader::GetDefaultSeperator()) + 1);
 
-			static const std::string inc = "#include \"";
+			static const String inc = "#include \"";
 
 			uint32_t j = 0;
 
 			uint32_t start = 0;
 			uint32_t end = 0;
 
-			std::string incFile = "";
+			String incFile = "";
 
 			// Check include directories
 			for (uint32_t i = 0; i < length; ++i)

@@ -3,9 +3,9 @@
 #include "Engine/Objects/Object.h"
 
 #include "Engine/Events/Event.h"
-#include "Engine/General/Math.h"
-
 #include "Transform.h"
+
+#include <vector>
 
 namespace Engine
 {
@@ -34,174 +34,307 @@ namespace Engine
 
 		const Transform<T, R>& GetTransform(bool Local = true) const
 		{
-			return m_Transform;
+			return m_LocalTransform;
 		}
 
-		const T& GetPosition(bool Local = true) const
+		const T& GetPosition(bool Local = false)
 		{
-			return m_Transform.m_Position;
+			if (Local)
+			{
+				return m_LocalTransform.m_Position;
+			}
+
+			if (m_TranslationDirty)
+			{
+				m_CachedGlobalTransform.m_Position = m_ParentTransform ?
+					m_ParentTransform->GetPosition(false) + m_LocalTransform.m_Position :
+					m_LocalTransform.m_Position
+				;
+				
+				m_TranslationDirty = false;
+			}
+
+			return m_CachedGlobalTransform.m_Position;
 		}
 		
 		void SetPosition(const T& ToPosition, bool Local = true)
 		{
-			if (ToPosition == m_Transform.m_Position)
+			if (
+				(Local && ToPosition == m_LocalTransform.m_Position) ||
+				(!Local && ToPosition == m_CachedGlobalTransform.m_Position)
+			)
 				return;
 
-			MarkDirty(E_TRANSLATION);
-
-			T Old = m_Transform.m_Position;
-			
-			Transform<T, R> From = Transform(Old, m_Transform.m_Rotation, m_Transform.m_Scale);
-			Transform<T, R> To = Transform(ToPosition, m_Transform.m_Rotation, m_Transform.m_Scale);
-			
+			// Local -> Local can be set directly, global is delayed (avoids nested lookup)
 			if (Local)
 			{
-				m_Transform.m_Position = ToPosition;
-				
+				T& Old = m_LocalTransform.m_Position;
+
+				Transform<T, R> From = Transform(Old, m_LocalTransform.m_Rotation, m_LocalTransform.m_Scale);
+				Transform<T, R> To = Transform(ToPosition, m_LocalTransform.m_Rotation, m_LocalTransform.m_Scale);
+
 				OnTranslation(Old, ToPosition);
 				OnTransformation(From, To);
 
-				return;
+				Old = ToPosition;
+
+				MarkDirty(E_TRANSLATION);
 			}
+			// Global -> Local will be set directly
+			else
+			{
+				const T& OldGlobal = m_CachedGlobalTransform.m_Position;
+				const T& NewGlobal = ToPosition;
+				const T DiffGlobal = NewGlobal - OldGlobal;
 
-			// TODO: Global
-			m_Transform.m_Position = ToPosition;
+				const T& OldLocal = m_LocalTransform.m_Position;
+				const T NewLocal = m_LocalTransform.m_Position + DiffGlobal;
 
-			OnTranslation(Old, ToPosition);
-			OnTransformation(From, To);
+				Transform<T, R> From = Transform(OldLocal, m_LocalTransform.m_Rotation, m_LocalTransform.m_Scale);
+				Transform<T, R> To = Transform(NewLocal, m_LocalTransform.m_Rotation, m_LocalTransform.m_Scale);
+
+				OnTranslation(OldLocal, NewLocal);
+				OnTransformation(From, To);
+
+				m_LocalTransform.m_Position = NewLocal;
+				m_CachedGlobalTransform.m_Position = NewGlobal;
+			}
+			
+			// Mark all children as dirty
+			for (auto Transform : m_ChildTransforms)
+			{
+				Transform->MarkDirty(E_TRANSLATION);
+			}
 		}
 		
-		void Translate(const T& Translation)
+		void Translate(const T& Translation, bool Local = false)
 		{
 			if (Translation == T(0.f))
 				return;
 
-			T Old = m_Transform.m_Position;
-
-			m_Transform.m_Position += Translation;
-
-			Transform<T, R> From = Transform<T, R>(Old, m_Transform.m_Rotation, m_Transform.m_Scale);
-			Transform<T, R> To = Transform<T, R>(m_Transform.m_Position, m_Transform.m_Rotation, m_Transform.m_Scale);
-
-			OnTranslation(Old, m_Transform.m_Position);
-			OnTransformation(From, To);
+			T Old = m_LocalTransform.m_Position;
+			T ToAdd = Translation;
 			
-			MarkDirty(E_TRANSLATION);
-		}
-
-		const R& GetRotation(bool Local = true) const
-		{
+			// TODO: Local should consider translation based on current direction
 			if (Local)
 			{
-				return m_Transform.m_Rotation;
-			}
-
-			// TODO: Global
-			return m_Transform.m_Rotation;
-		}
-		
-		void SetRotation(const R& Rotation, bool Local = true)
-		{
-			if (m_Transform.m_Rotation == Rotation)
-				return;
-
-			MarkDirty(E_ROTATION);
-
-			R Old = Rotation;
-			
-			Transform<T, R> From = Transform<T, R>(m_Transform.m_Position, Old, m_Transform.m_Scale);
-			Transform<T, R> To = Transform<T, R>(m_Transform.m_Position, Rotation, m_Transform.m_Scale);
-
-			if (Local)
-			{
-				m_Transform.m_Rotation = Rotation;
-
-				OnRotation(Old, m_Transform.m_Rotation);
-				OnTransformation(From, To);
 				
-				return;
+			}
+			
+			m_LocalTransform.m_Position += ToAdd;
+			m_CachedGlobalTransform.m_Position += ToAdd;
+
+			Transform<T, R> From = Transform<T, R>(Old, m_LocalTransform.m_Rotation, m_LocalTransform.m_Scale);
+			Transform<T, R> To = Transform<T, R>(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, m_LocalTransform.m_Scale);
+
+			OnTranslation(Old, m_LocalTransform.m_Position);
+			OnTransformation(From, To);
+
+			// Mark all children as dirty
+			for (auto Transform : m_ChildTransforms)
+			{
+				Transform->MarkDirty(E_TRANSLATION);
+			}
+		}
+
+		const R& GetRotation(bool Local = false)
+		{
+			if (Local)
+			{
+				return m_LocalTransform.m_Rotation;
 			}
 
-			// TODO: Global
-			m_Transform.m_Rotation = Rotation;
+			if (m_RotationDirty)
+			{
+				m_CachedGlobalTransform.m_Rotation = m_ParentTransform ?
+					m_ParentTransform->GetRotation(false) + m_LocalTransform.m_Rotation :
+					m_LocalTransform.m_Rotation
+				;
+				
+				m_RotationDirty = false;
+			}
 
-			OnRotation(Old, m_Transform.m_Rotation);
-			OnTransformation(From, To);
+			return m_CachedGlobalTransform.m_Rotation;
 		}
 		
-		void Rotate(const R& Rotation)
+		void SetRotation(const R& ToRotation, bool Local = false)
+		{
+			if (
+				(Local && ToRotation == m_LocalTransform.m_Rotation) ||
+				(!Local && ToRotation == m_CachedGlobalTransform.m_Rotation)
+			)
+				return;
+
+			// Local -> Local can be set directly, global is delayed (avoids nested lookup)
+			if (Local)
+			{
+				R& Old = m_LocalTransform.m_Rotation;
+
+				Transform<T, R> From = Transform(m_LocalTransform.m_Position, Old, m_LocalTransform.m_Scale);
+				Transform<T, R> To = Transform(m_LocalTransform.m_Position, ToRotation, m_LocalTransform.m_Scale);
+
+				OnRotation(Old, ToRotation);
+				OnTransformation(From, To);
+
+				Old = ToRotation;
+
+				MarkDirty(E_ROTATION);
+			}
+			// Global -> Local will be set directly
+			else
+			{
+				const R& OldGlobal = m_CachedGlobalTransform.m_Rotation;
+				const R& NewGlobal = ToRotation;
+				const R DiffGlobal = NewGlobal - OldGlobal;
+
+				const R& OldLocal = m_LocalTransform.m_Rotation;
+				const R NewLocal = m_LocalTransform.m_Rotation + DiffGlobal;
+
+				Transform<T, R> From = Transform(m_LocalTransform.m_Position, OldLocal, m_LocalTransform.m_Scale);
+				Transform<T, R> To = Transform(m_LocalTransform.m_Position, NewLocal, m_LocalTransform.m_Scale);
+
+				OnRotation(OldLocal, NewLocal);
+				OnTransformation(From, To);
+
+				m_LocalTransform.m_Rotation = NewLocal;
+				m_CachedGlobalTransform.m_Rotation = NewGlobal;
+			}
+
+			// Mark all children as dirty
+			for (auto Transform : m_ChildTransforms)
+			{
+				Transform->MarkDirty(E_ROTATION);
+			}
+		}
+		
+		void Rotate(const R& Rotation, bool Local = false)
 		{
 			if (Rotation == R(0.f))
 				return;
 
-			R Old = Rotation;
+			R Old = m_LocalTransform.m_Rotation;
+			R ToAdd = Rotation;
 
-			m_Transform.m_Rotation += Rotation;
+			// TODO: Local should consider rotation based on current direction
+			if (Local)
+			{
 
-			Transform<T, R> From = Transform<T, R>(m_Transform.m_Position, Old, m_Transform.m_Scale);
-			Transform<T, R> To = Transform<T, R>(m_Transform.m_Position, m_Transform.m_Rotation, m_Transform.m_Scale);
+			}
 
-			OnRotation(Old, m_Transform.m_Rotation);
+			m_LocalTransform.m_Rotation += ToAdd;
+			m_CachedGlobalTransform.m_Rotation += ToAdd;
+
+			Transform<T, R> From = Transform<T, R>(m_LocalTransform.m_Position, Old, m_LocalTransform.m_Scale);
+			Transform<T, R> To = Transform<T, R>(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, m_LocalTransform.m_Scale);
+
+			OnRotation(Old, m_LocalTransform.m_Rotation);
 			OnTransformation(From, To);
-			
-			MarkDirty(E_ROTATION);
+
+			// Mark all children as dirty
+			for (auto Transform : m_ChildTransforms)
+			{
+				Transform->MarkDirty(E_ROTATION);
+			}
 		}
 		
-		const T& GetScale(bool Local = true) const
+		const T& GetScale(bool Local = false)
 		{
 			if (Local)
 			{
-				return m_Transform.m_Scale;
+				return m_LocalTransform.m_Scale;
 			}
 
-			// TODO: Global
-			return m_Transform.m_Scale;
+			if (m_ScaleDirty)
+			{
+				m_CachedGlobalTransform.m_Scale = m_ParentTransform ?
+					m_ParentTransform->GetScale(false) + m_LocalTransform.m_Scale :
+					m_LocalTransform.m_Scale
+				;
+				
+				m_ScaleDirty = false;
+			}
+
+			return m_CachedGlobalTransform.m_Scale;
 		}
 		
 		void SetScale(const T& ToScale, bool Local = true)
 		{
-			if (ToScale == m_Transform.m_Scale)
+			if (
+				(Local && ToScale == m_LocalTransform.m_Scale) ||
+				(!Local && ToScale == m_CachedGlobalTransform.m_Scale)
+			)
 				return;
 
-			MarkDirty(E_SCALING);
-
-			T Old = m_Transform.m_Scale;
-			
-			Transform<T, R> From = Transform<T, R>(m_Transform.m_Position, m_Transform.m_Rotation, Old);
-			Transform<T, R> To = Transform<T, R>(m_Transform.m_Position, m_Transform.m_Rotation, ToScale);
-
+			// Local -> Local can be set directly, global is delayed (avoids nested lookup)
 			if (Local)
 			{
-				m_Transform.m_Scale = ToScale;
+				T& Old = m_LocalTransform.m_Scale;
 
-				OnScale(Old, m_Transform.m_Scale);
+				Transform<T, R> From = Transform(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, Old);
+				Transform<T, R> To = Transform(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, ToScale);
+
+				OnScale(Old, ToScale);
 				OnTransformation(From, To);
-				
-				return;
+
+				Old = ToScale;
+
+				MarkDirty(E_SCALING);
+			}
+			// Global -> Local will be set directly
+			else
+			{
+				const T& OldGlobal = m_CachedGlobalTransform.m_Scale;
+				const T& NewGlobal = ToScale;
+				const T DiffGlobal = NewGlobal - OldGlobal;
+
+				const T& OldLocal = m_LocalTransform.m_Scale;
+				const T NewLocal = m_LocalTransform.m_Scale + DiffGlobal;
+
+				Transform<T, R> From = Transform(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, OldLocal);
+				Transform<T, R> To = Transform(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, NewLocal);
+
+				OnScale(OldLocal, NewLocal);
+				OnTransformation(From, To);
+
+				m_LocalTransform.m_Scale = NewLocal;
+				m_CachedGlobalTransform.m_Scale = NewGlobal;
 			}
 
-			// TODO: Global
-			m_Transform.m_Scale = ToScale;
-
-			OnScale(Old, m_Transform.m_Scale);
-			OnTransformation(From, To);
+			// Mark all children as dirty
+			for (auto Transform : m_ChildTransforms)
+			{
+				Transform->MarkDirty(E_SCALING);
+			}
 		}
 		
-		void Scale(const T& Scaling)
+		void Scale(const T& Scaling, bool Local = false)
 		{
-			if (m_Transform.m_Scale == T(1.f))
+			if (Scaling == T(1.f))
 				return;
 
-			MarkDirty(E_SCALING);
-			
-			T Old = m_Transform.m_Scale;
-			m_Transform.m_Scale *= Scaling;
+			T Old = m_LocalTransform.m_Scale;
+			T ToAdd = Scaling;
 
-			Transform<T, R> From = Transform<T, R>(m_Transform.m_Position, m_Transform.m_Rotation, Old);
-			Transform<T, R> To = Transform<T, R>(m_Transform.m_Position, m_Transform.m_Rotation, m_Transform.m_Scale);
+			// TODO: Local should consider rotation based on current direction
+			if (Local)
+			{
 
-			OnScale(Old, m_Transform.m_Scale);
+			}
+
+			m_LocalTransform.m_Scale += ToAdd;
+			m_CachedGlobalTransform.m_Scale += ToAdd;
+
+			Transform<T, R> From = Transform<T, R>(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, Old);
+			Transform<T, R> To = Transform<T, R>(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, m_LocalTransform.m_Scale);
+
+			OnScale(Old, m_LocalTransform.m_Scale);
 			OnTransformation(From, To);
+
+			// Mark all children as dirty
+			for (auto Transform : m_ChildTransforms)
+			{
+				Transform->MarkDirty(E_SCALING);
+			}
 		}
 		
 		void MarkDirty(TransformType Type)
@@ -209,15 +342,30 @@ namespace Engine
 			switch (Type)
 			{
 			case E_TRANSLATION:
-				m_IsTranslationDirty = true;
+				if (m_TranslationDirty)
+					return;
+
+				m_TranslationDirty = true;
 				break;
 			case E_ROTATION:
-				m_IsRotationDirty = true;
+				if (m_RotationDirty)
+					return;
+
+				m_RotationDirty = true;
 				break;
 			case E_SCALING:
 			default:
-				m_IsScaleDirty = true;
+				if (m_ScaleDirty)
+					return;
+
+				m_ScaleDirty = true;
 				break;
+			}
+			
+			// Mark all children as dirty
+			for (auto Transform : m_ChildTransforms)
+			{
+				Transform->MarkDirty(Type);
 			}
 		}
 
@@ -226,13 +374,13 @@ namespace Engine
 			switch (Type)
 			{
 			case E_TRANSLATION:
-				return m_IsTranslationDirty;
+				return m_TranslationDirty;
 			case E_ROTATION:
-				return m_IsRotationDirty;
+				return m_RotationDirty;
 			case E_SCALING:
-				return m_IsScaleDirty;
+				return m_ScaleDirty;
 			default:
-				return m_IsTranslationDirty;
+				return m_TranslationDirty || m_RotationDirty || m_ScaleDirty;
 			}
 		}
 
@@ -242,37 +390,118 @@ namespace Engine
 		Event<void, const Transform<T, R>&, const Transform<T, R>&> OnTransformation = Event<void, const Transform<T, R>&, const Transform<T, R>&>("TransformComponent::OnTransformation");
 		
 	protected:
-		TransformComponent(Entity& Entity, const std::string& sName = "Transform Component") : Component(Entity, sName)
+		Event<void, Entity&, Entity*, Entity*>::HandlerType::IDType m_ParentChangedID;
+		
+		TransformComponent(Entity& Entity, const String& sName = "Transform Component") : Component(Entity, sName)
 		{
 			m_ForceUniqueness = true;
 
-			GetEntity().OnParentChanged.Bind(
+			m_ParentChangedID = GetEntity().OnParentChanged.Bind(
 				this,
 				&TransformComponent<T, R>::OnParentChanged
 			);
+
+			AssignParentTransform();
+			AssignChildTransforms();
 		}
 
-		virtual ~TransformComponent() {};
+		virtual ~TransformComponent()
+		{
+			GetEntity().OnParentChanged.Unbind(m_ParentChangedID);
+		}
+
+		void AssignParentTransform()
+		{
+			// Get first compatible TransformComponent parent
+			Entity* Parent = GetEntity().GetParent();
+
+			while (Parent)
+			{
+				auto Components = Parent->template GetComponentsOfType<TransformComponent<T, R>>();
+
+				if (Components.size() > 0)
+				{
+					// Still the same
+					if (m_ParentTransform == Components.at(0))
+						break;
+					
+					m_ParentTransform = Components.at(0);
+					
+					MarkDirty(E_TRANSLATION);
+					MarkDirty(E_ROTATION);
+					MarkDirty(E_SCALING);
+					
+					break;
+				}
+
+				Parent = Parent->GetParent();
+			}
+		}
+
+		void AssignChildTransforms()
+		{
+			m_ChildTransforms.clear();
+			
+			for (Entity* Child : GetEntity().GetChildren())
+			{
+				auto Components = Child->GetComponentsOfType<TransformComponent<T, R>>();
+
+				for (TransformComponent<T, R>* Component : Components)
+				{
+					m_ChildTransforms.push_back(Component);
+				}
+			}
+		}
 		
 		void OnParentChanged(Entity& Origin, Entity* OldEntity, Entity* NewEntity)
 		{
-			CB_CORE_TRACE(
-				"Parent for {0} changed from {1} to {2}",
-				Origin.GetName(),
-				OldEntity ? OldEntity->GetName() : "nullptr",
-				NewEntity ? NewEntity->GetName() : "nullptr"
-			);
+			// Unassign its transforms
+			if (OldEntity == &GetEntity())
+			{
+				auto Components = OldEntity->GetComponentsOfType<TransformComponent<T, R>>();
 
-			MarkDirty(E_TRANSLATION);
-			MarkDirty(E_ROTATION);
-			MarkDirty(E_SCALING);
+				for (TransformComponent<T, R>* Component : Components)
+				{
+					m_ChildTransforms.erase(
+						std::find(
+							m_ChildTransforms.begin(),
+							m_ChildTransforms.end(),
+							Component
+						)
+					);
+				}
+			}
+
+			// Assign its transforms
+			if (NewEntity == &GetEntity())
+			{
+				auto Components = NewEntity->GetComponentsOfType<TransformComponent<T, R>>();
+
+				for (TransformComponent<T, R>* Component : Components)
+				{
+					m_ChildTransforms.push_back(Component);
+				}
+			}
+
+			// Check closest parent transform, old parent might not be valid due to chain break
+			// This component will be marked dirty if any parent change has occurred
+			AssignParentTransform();
 		}
-
-		Transform<T, R> m_Transform;
-
-		bool m_IsTranslationDirty = false;
-		bool m_IsRotationDirty = false;
-		bool m_IsScaleDirty = false;
+		
+		Transform<T, R> m_LocalTransform;
+		Transform<T, R> m_CachedGlobalTransform;
+		
+		// First parent that holds a valid transform
+		TransformComponent<T, R>* m_ParentTransform = nullptr;
+		std::vector<TransformComponent<T, R>*> m_ChildTransforms;
+		
+		// For performance considerations, some transformations are not instantly applied
+		// but should be updated in the future (in getter) during the following scenarios:
+		// On LOCAL --> Local directly, global delayed
+		// On GLOBAL-- > Local directly, global directly
+		bool m_TranslationDirty = true;
+		bool m_RotationDirty = true;
+		bool m_ScaleDirty = true;
 	};
 
 	template TransformComponent<Vector3, Vector3>;

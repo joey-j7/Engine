@@ -5,13 +5,16 @@
 
 #include "Engine/Objects/Worlds/Entities/StaticEntity.h"
 
-#include "Engine/Objects/Worlds/Entities/Components/Transform/TransformComponent2D.h"
-#include "Engine/Objects/Worlds/Entities/Components/Transform/TransformComponent3D.h"
+#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform2DComponent.h"
+#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform3DComponent.h"
 #include "Engine/Objects/Worlds/Entities/Components/ClickableComponent.h"
 #include "Engine/Objects/Worlds/Entities/Components/UI/Elements/UIImage.h"
 #include "Engine/Objects/Worlds/Entities/Components/UI/Elements/UIText.h"
+#include "Engine/Objects/Worlds/Entities/Components/UI/Elements/Shapes/UILine.h"
+#include "Engine/Objects/Worlds/Entities/Components/UI/Elements/Shapes/UIOval.h"
 #include "Engine/Objects/Worlds/Entities/Components/UI/Elements/Shapes/UIRect.h"
-#include "Engine/Objects/Worlds/Entities/UI/UIButtonEntity.h"
+#include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
+#include "Engine/Objects/Worlds/Entities/UI/Camera/UICameraPreview.h"
 
 using namespace Engine;
 
@@ -26,12 +29,12 @@ DebugWorld::DebugWorld()
 	// m_pPass = pEngine->Create(shaderDesc);
 	
 	// StaticEntity* Entity = new StaticEntity("Test Entity");
-	// Entity->AddComponent<TransformComponent2D>()->SetPosition(Vector2(100.f, 0.f));
+	// Entity->AddComponent<Transform2DComponent>()->SetPosition(Vector2(100.f, 0.f));
 	// Entity->AddComponent<UIText>("Zico bruh")->SetColor(SK_ColorGREEN);
 	// Entity->AddComponent<ClickableComponent>();
 
 	// StaticEntity* Entity2 = new StaticEntity("Test Rect");
-	// Entity2->AddComponent<TransformComponent2D>();// ->SetPosition(Vector2(10.f, 10.f));
+	// Entity2->AddComponent<Transform2DComponent>();// ->SetPosition(Vector2(10.f, 10.f));
 	// Entity2->AddComponent<ClickableComponent>();
 	// UIRect* Rect = Entity2->AddComponent<UIRect>();
 	// Rect->SetColor(SK_ColorRED);
@@ -39,7 +42,7 @@ DebugWorld::DebugWorld()
 	// Rect->SetBorder(5, UIElement::Gradient({ { 0, SK_ColorBLACK }, { 1, SK_ColorGREEN } }));
 	
 	// StaticEntity* Entity3 = new StaticEntity("Test Entity 2");
-	// Entity3->AddComponent<TransformComponent2D>()->SetPosition(Vector2(100.f, 50.f));
+	// Entity3->AddComponent<Transform2DComponent>()->SetPosition(Vector2(100.f, 50.f));
 	// Entity3->AddComponent<ClickableComponent>();
 	// UIText* Text = Entity3->AddComponent<UIText>("Alles goed jonge");
 	// Text->SetFontSize(32);
@@ -48,13 +51,58 @@ DebugWorld::DebugWorld()
 	// 	UIElement::Gradient::E_VERTICAL),
 	// 	false
 	// );
-	
-	Camera& Camera = Application::Get().GetHardwareContext().GetCamera();
-	Camera.OnStartCallback.Bind(this, &DebugWorld::OnCameraCallback);
-	
-	Camera.Start();
 
-	// OnCameraCallback();
+	UICameraPreview* CameraPreview = new UICameraPreview();
+	CameraPreview->GetComponent<UIImage>()->SetShader(
+		"uniform shader Element;"
+		"half4 main(float2 Coord) {"
+		"  return sample(Element, Coord).rgba;"  // Sample 'input', then swap red and blue
+		"}"
+	);
+	
+	UIButton* Button = new UIButton(
+		[]() {
+			Application::Get().GetHardwareContext().GetCamera().TakePhoto();
+		},
+		{
+			"Capture"
+		},
+		{
+			"Hover",
+			Color(1.f, 1.f, 0.f)
+		},
+		{
+			"Press",
+			Color(1.f, 0.f, 0.f)
+		}
+	);
+
+	/*StaticEntity* Line = new StaticEntity("Line");
+	Line->AddComponent<UILine>();
+	
+	UIButton* Oval1 = new UIButton("", nullptr);
+	Oval1->SetParent(Line);
+	UIOval* OvalC1 = Oval1->AddComponent<UIOval>();
+	OvalC1->SetWidth(100);
+	OvalC1->SetHeight(100);
+	
+	UIButton* Oval2 = new UIButton("", nullptr);
+	Oval2->SetParent(Line);
+	UIOval* OvalC2 = Oval1->AddComponent<UIOval>();
+	OvalC2->SetWidth(100);
+	OvalC2->SetHeight(100);
+
+	UIButton* Oval3 = new UIButton("", nullptr);
+	Oval3->SetParent(Line);
+	UIOval* OvalC3 = Oval1->AddComponent<UIOval>();
+	OvalC3->SetWidth(100);
+	OvalC3->SetHeight(100);
+
+	UIButton* Oval4 = new UIButton("", nullptr);
+	Oval4->SetParent(Line);
+	UIOval* OvalC4 = Oval1->AddComponent<UIOval>();
+	OvalC4->SetWidth(100);
+	OvalC4->SetHeight(100);*/
 	
 	// StaticEntity* Entity4 = new StaticEntity("Button");
 	// Entity4->AddComponent<ClickableComponent>();
@@ -70,43 +118,4 @@ void DebugWorld::Draw(float fDeltaTime)
 	// m_pPass->Clear();
 	// m_pPass->Draw();
 	// m_pPass->End();
-}
-
-void DebugWorld::OnCameraCallback()
-{
-	Window& Window = Application::Get().GetRenderContext().GetWindow();
-	Camera& Cam = Application::Get().GetHardwareContext().GetCamera();
-
-	StaticEntity* Preview = new StaticEntity("Camera Preview");
-
-	TransformComponent2D* Transform2D = Preview->AddComponent<TransformComponent2D>();
-
-	//Transform2D->SetPosition(Vector2(-Window.GetWidth() / Window.GetScale()));
-	Transform2D->SetRotation(
-		static_cast<float>(Cam.GetOrientation())
-	);
-
-	UIImage* PreviewImage = Preview->AddComponent<UIImage>();
-	PreviewImage->ScaleWithDPI(false);
-	PreviewImage->SetAlignment(Vector2(0.5f));
-	PreviewImage->SetAnchor(E_ANCH_CENTER);
-	PreviewImage->SetWidth(Cam.GetOrientation() == 90 || Cam.GetOrientation() == 270 ? Window.GetHeight() : Window.GetWidth());
-	PreviewImage->SetHeight(Cam.GetOrientation() == 90 || Cam.GetOrientation() == 270 ? Window.GetWidth() : Window.GetHeight());
-
-	PreviewImage->SetShader(
-		"uniform shader Element;"
-		"half4 main(float2 Coord) {"
-		"  return sample(Element, Coord).bgra;"  // Sample 'input', then swap red and blue
-		"}"
-	);
-
-	Cam.SetPreviewImage(*PreviewImage);
-	
-	// PreviewImage->SetShaderUniform("", 0, 1);
-
-	UIButtonEntity* Button = new UIButtonEntity("This is a test button", []()
-	{
-		Camera& Cam = Application::Get().GetHardwareContext().GetCamera();
-		Cam.TakePhoto();
-	});
 }

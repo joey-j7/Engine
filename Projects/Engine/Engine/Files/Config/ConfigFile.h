@@ -8,13 +8,13 @@ namespace Engine
 	class Engine_API ConfigFile : public FileReference
 	{
 	public:
-		ConfigFile(const std::string& filePath) : FileReference(filePath)
+		ConfigFile(const String& filePath) : FileReference(filePath)
 		{
 			m_File = mINI::INIFile(filePath);
 			m_File.read(m_Structure);
 		};
 
-		std::string GetValue(const std::string& section, const std::string& key) const
+		String GetValue(const String& section, const String& key) const
 		{
 			return m_Structure.get(section).get(key);
 		}

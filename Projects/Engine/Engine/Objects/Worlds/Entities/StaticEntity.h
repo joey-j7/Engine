@@ -10,8 +10,8 @@ namespace Engine
 	public:
 		friend class World;
 		
-		StaticEntity(const std::string& sName = "Entity");
-		const std::string& GetName() const override { return Object::GetName(); };
+		StaticEntity(const String& sName = "Entity");
+		const String& GetName() const override { return Object::GetName(); };
 		
 	protected:
 		virtual void Awake() override {};

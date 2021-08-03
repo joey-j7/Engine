@@ -49,7 +49,7 @@ namespace Engine {
 		virtual void Suspend() override;
 		virtual void Resume() override;
 
-		virtual CommandEngine* GetCommandEngine(const std::string& sName) override;
+		virtual CommandEngine* GetCommandEngine(const String& sName) override;
 
 		VkQueue GetGraphicsQueue() const { return GraphicsQueue; }
 		VkQueue GetPresentQueue() const { return PresentQueue; }
@@ -103,7 +103,7 @@ namespace Engine {
 		VkQueue GraphicsQueue;
 		VkQueue PresentQueue;
 		
-		std::unordered_map<std::string, VkCommandEngine*> m_CommandEngines;
+		std::unordered_map<String, VkCommandEngine*> m_CommandEngines;
 		VkScreenCommandEngine* m_ScreenCommandEngine = nullptr;
 
 		bool m_InitializedOnce = false;

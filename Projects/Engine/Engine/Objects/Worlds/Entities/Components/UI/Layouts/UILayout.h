@@ -20,15 +20,15 @@ namespace Engine
 			uint32_t IndexY = 0;
 		};
 		
-		UILayout(Entity& Entity, const std::string& sName = "UI Layout");
-		virtual ~UILayout() {}
+		UILayout(Entity& Entity, const String& sName = "UI Layout");
+		virtual ~UILayout();
 
 		AABB GetBounds() const;
 		
 	protected:
 		virtual void OnComponentMeasurement(Entity& Entity, ComponentData& ComponentData, uint32_t ComponentID) = 0;
 		
-		TransformComponent2D* m_Transform = nullptr;
+		Transform2DComponent* m_Transform = nullptr;
 
 	private:
 		void OnChildAdded(Entity& Origin, Entity& Entity);
@@ -39,6 +39,10 @@ namespace Engine
 
 		void OnParentChanged(Entity& Origin, Entity* Old, Entity* New);
 		UILayout* CheckParentLayout(Entity& Origin) const;
+
+		Event<void, Entity&, Entity&>::HandlerType::IDType m_ChildAddedID;
+		Event<void, Entity&, Entity&>::HandlerType::IDType m_ChildRemovedID;
+		Event<void, Entity&, Entity*, Entity*>::HandlerType::IDType m_ParentChangedID;
 
 		std::unordered_map<Entity*, std::vector<ComponentData>> m_EntitiesComponents;
 	};

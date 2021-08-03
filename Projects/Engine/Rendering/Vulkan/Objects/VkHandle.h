@@ -10,9 +10,9 @@ namespace Engine {
         using Handle = T;
         using Disposer = std::function<void(Handle)>;
 
-        VkHandle(const std::string& sName = typeid(T).name()) : Object(sName) {}
+        VkHandle(const String& sName = typeid(T).name()) : Object(sName) {}
 
-        VkHandle(Handle handle, const Disposer& disposer = nullptr, const std::string& sName = typeid(T).name()) :
+        VkHandle(Handle handle, const Disposer& disposer = nullptr, const String& sName = typeid(T).name()) :
             Object(sName)
         {
             m_Handle = handle;

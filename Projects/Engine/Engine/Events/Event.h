@@ -19,7 +19,7 @@ namespace Engine
 
 		explicit EventHandler(
 			const FunctionType& Function,
-			const std::string& sName = "Event Handler"
+			const String& sName = "Event Handler"
 		)
 			: m_Function(Function)//, Object(sName)
 		{
@@ -88,7 +88,7 @@ namespace Engine
 		FunctionType m_Function;
 
 		IDType m_ID;
-		std::string m_sName;
+		String m_sName;
 		static std::atomic_uint m_IDCounter;
 	};
 
@@ -103,9 +103,9 @@ namespace Engine
 	public:
 		typedef EventHandler<T, Args...> HandlerType;
 
-		virtual std::string ToString() const { return GetName(); }
+		virtual String ToString() const { return GetName(); }
 
-		Event(const std::string& sName = "Event") : Object(sName)
+		Event(const String& sName = "Event") : Object(sName)
 		{
 		}
 
@@ -131,16 +131,31 @@ namespace Engine
 		typename HandlerType::IDType Bind(C* Object, T(C::* Function)(Args...))
 		{
 			return Add([Object, Function](Args... args)->T { return (Object->*Function)(args...); },
-				"Event Handler " + std::string(
+				"Event Handler " + String(
 					typeid(Function).name()
 				)
 			);
 		}
-
-		template<typename C>
-		typename HandlerType::IDType Unbind(C* Object, T(C::* Function)(Args...))
+		
+		bool Unbind(const typename HandlerType::IDType& HandlerID)
 		{
-			return Remove([Object, Function](Args... args)->T { return (Object->*Function)(args...); });
+			std::lock_guard<std::mutex> Lock(m_HandlersLocker);
+
+			auto it = std::find_if(
+				m_Handlers.begin(), m_Handlers.end(),
+				[HandlerID](const HandlerType& handler)
+			{
+				return handler.GetID() == HandlerID;
+			}
+			);
+
+			if (it != m_Handlers.end())
+			{
+				m_Handlers.erase(it);
+				return true;
+			}
+
+			return false;
 		}
 
 		void Clear()
@@ -204,7 +219,7 @@ namespace Engine
 		}
 
 	protected:
-		typename HandlerType::IDType Add(const typename HandlerType::FunctionType& Handler, const std::string& sName)
+		typename HandlerType::IDType Add(const typename HandlerType::FunctionType& Handler, const String& sName)
 		{
 			std::lock_guard<std::mutex> lock(m_HandlersLocker);
 			m_Handlers.emplace_back(Handler, sName);
@@ -228,27 +243,6 @@ namespace Engine
 		bool Remove(const typename HandlerType::FunctionType& Handler)
 		{
 			return Remove(HandlerType(Handler));
-		}
-
-		bool RemoveID(const typename HandlerType::IDType& HandlerID)
-		{
-			std::lock_guard<std::mutex> Lock(m_HandlersLocker);
-
-			auto it = std::find_if(
-				m_Handlers.begin(), m_Handlers.end(),
-				[HandlerID](const HandlerType& handler)
-			{
-				return handler.id() == HandlerID;
-			}
-			);
-
-			if (it != m_Handlers.end())
-			{
-				m_Handlers.erase(it);
-				return true;
-			}
-
-			return false;
 		}
 
 		typedef std::list<HandlerType> HandlerCollectionType;

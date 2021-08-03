@@ -56,7 +56,7 @@ namespace Engine
 		m_bResized = false;
 	}
 
-	RenderFile* RenderAPI::Load(const std::string& filePath, FileLoader::Type pathType)
+	RenderFile* RenderAPI::Load(const String& filePath, FileLoader::Type pathType)
 	{
 		if (RenderFile* p = static_cast<RenderFile*>(FileDatabase::Get().Load(filePath, pathType)))
 		{

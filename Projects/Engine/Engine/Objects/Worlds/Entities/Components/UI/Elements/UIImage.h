@@ -9,11 +9,11 @@ namespace Engine
 	class Engine_API UIImage : public UIElement
 	{
 	public:
-		UIImage(Entity& Entity, const std::string& ImagePath = "", const std::string& sName = "Image");
+		UIImage(Entity& Entity, const String& ImagePath = "", const String& sName = "Image");
 		
-		const std::string& GetPath() const { return m_Path; }
+		const String& GetPath() const { return m_Path; }
 
-		void SetImage(const std::string& Path);
+		void SetImage(const String& Path);
 		void SetImageData(char* Data, size_t Length);
 
 		bool GetLinearFiltering() const { return m_UseLinearFiltering; }
@@ -25,7 +25,7 @@ namespace Engine
 	private:
 		void MeasureSize();
 		
-		std::string m_Path = "";
+		String m_Path = "";
 		bool m_Loaded = false;
 
 		bool m_UseLinearFiltering = true;

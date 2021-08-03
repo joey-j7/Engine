@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	StaticEntity::StaticEntity(const std::string& sName) : Object(sName)
+	StaticEntity::StaticEntity(const String& sName) : Object(sName)
 	{
 		
 	}

@@ -13,7 +13,7 @@ namespace Engine
 		Window& GetWindow() const { return *m_pWindow; };
 		
 		// Upload
-		void Upload(const std::string& m_FilePath);
+		void Upload(const String& m_FilePath);
 		RenderAPI& GetAPI() const { return *m_pAPI; };
 
 		static RenderAPI::Type GetAPIType() { return m_APIType; }

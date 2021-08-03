@@ -219,7 +219,7 @@ namespace Engine
 
         m_Manager = ACameraManager_create();
 
-        const std::string ID = PollID();
+        const String ID = PollID();
         camera_status_t Status = ACAMERA_OK;
 
         CB_CORE_INFO("Attempting to open camera (id: {0})", ID);
@@ -272,7 +272,7 @@ namespace Engine
         return Status == ACAMERA_OK;
 	}
 
-    std::string AndCamera::PollID()
+    String AndCamera::PollID()
 	{
         ACameraIdList* CameraIDs = nullptr;
         ACameraManager_getCameraIdList(m_Manager, &CameraIDs);
@@ -587,11 +587,11 @@ namespace Engine
             int Length = 0;
             AImage_getPlaneData(Image, 0, &Data, &Length);
 
-            std::string Path = "/storage/emulated/0/DCIM/Appuil/" + Application::Get().GetName() + "/";
-            std::string Filename = Time::GetFormattedString("%d_%m_%Y_%H_%M_%S") + ".jpg";
-        	
+            String Path = "/storage/emulated/0/DCIM/Appuil/" + Application::Get().GetName() + "/";
+            String Filename = Time::GetFormattedString("%d_%m_%Y_%H_%M_%S") + ".jpg";
+
             AndCamera* Camera = static_cast<AndCamera*>(Context);
-        	
+
             if (!FileLoader::Write(Path, Filename, (char*)Data, Length, FileLoader::E_ROOT))
             {
                 CB_CORE_ERROR("Photo could not be written to disk");

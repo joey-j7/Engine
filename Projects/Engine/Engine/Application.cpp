@@ -14,7 +14,7 @@ namespace Engine
 
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application(const std::string& sName) : LayeredObject(sName)
+	Application::Application(const String& sName) : LayeredObject(sName)
 	{
 		CB_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;

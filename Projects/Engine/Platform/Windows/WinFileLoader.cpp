@@ -15,20 +15,20 @@ namespace Engine
 
 		m_WorkingDirectory[E_INTERNAL] = workDir;
 		m_WorkingDirectory[E_EXTERNAL] = workDir;
-		m_WorkingDirectory[E_CONTENT] = std::string(workDir) + "Content\\";
+		m_WorkingDirectory[E_CONTENT] = String(workDir) + "Content\\";
 
 		m_DefaultSeperator = "\\";
 	}
 
-	char* FileLoader::Read(const std::string& filePath, uint32_t& length, Type type, bool addNull)
+	char* FileLoader::Read(const String& filePath, uint32_t& length, Type type, bool addNull)
 	{
 		return ReadStream(filePath, length, type, addNull);
 	}
 
-	bool FileLoader::Exists(const std::string& filePath, Type type /*= E_CONTENT*/)
+	bool FileLoader::Exists(const String& filePath, Type type /*= E_CONTENT*/)
 	{
 		// Retrieve full absolute path
-		std::string path = GetPath(filePath, type);
+		String path = GetPath(filePath, type);
 
 		struct stat buffer;
 		return (stat(path.c_str(), &buffer) == 0);

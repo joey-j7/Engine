@@ -6,6 +6,8 @@
 
 namespace Engine
 {
+	Clickable* Clickable::PressedClickable = nullptr;
+	
 	Clickable::Clickable() : m_Window(Application::Get().GetRenderContext().GetWindow())
 	{
 		m_Window.OnCursorPosition.Bind(this, &Clickable::OnCursorPosition);
@@ -34,19 +36,28 @@ namespace Engine
 		OnExitEvent(Position);
 	}
 
-	void Clickable::OnPressed()
+	bool Clickable::OnPressed()
 	{
+		if (!CanPress())
+			return false;
+
+		PressedClickable = this;
+		
 		m_IsPressed = true;
 		OnPressedEvent();
+
+		return true;
 	}
 
 	void Clickable::OnReleased()
 	{
+		PressedClickable = nullptr;
+
 		if (m_IsHovered)
 		{
 			OnClicked();
 		}
-
+		
 		m_IsPressed = false;
 		OnReleasedEvent();
 	}

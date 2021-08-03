@@ -17,7 +17,7 @@ namespace Engine
 		return pass;
 	}
 
-	VkCommandEngine::VkCommandEngine(Type type, const std::string& sName) : CommandEngine(type, sName)
+	VkCommandEngine::VkCommandEngine(Type type, const String& sName) : CommandEngine(type, sName)
 	{
 		API = &VkRenderAPI::Get();
 

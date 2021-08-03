@@ -27,13 +27,13 @@ namespace Engine
 		}
 	};
 
-	VkTexture::VkTexture(const std::string& sName) : Texture(sName),
+	VkTexture::VkTexture(const String& sName) : Texture(sName),
 		m_API(VkRenderAPI::Get())
 	{
 		m_CreateInfo = m_DefaultCreateInfo;
 	}
 
-	VkTexture::VkTexture(const VkImage& Image, const VkImageViewCreateInfo& CreateInfo = m_DefaultCreateInfo, const std::string& sName = "Texture") : Texture(sName),                                                                                                                                                         m_API(VkRenderAPI::Get())
+	VkTexture::VkTexture(const VkImage& Image, const VkImageViewCreateInfo& CreateInfo = m_DefaultCreateInfo, const String& sName = "Texture") : Texture(sName),                                                                                                                                                         m_API(VkRenderAPI::Get())
 	{
 		Init(Image, CreateInfo);
 	}

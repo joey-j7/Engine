@@ -8,7 +8,7 @@ namespace Engine
 	class Engine_API VkShaderFile : public ShaderFile
 	{
 	public:
-		VkShaderFile(const std::string& filePath);
+		VkShaderFile(const String& filePath);
 		virtual ~VkShaderFile();
 
 		const VkShaderModule& GetModule() const { return m_ShaderModule; };

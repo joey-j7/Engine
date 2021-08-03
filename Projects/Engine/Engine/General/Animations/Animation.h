@@ -8,7 +8,7 @@ namespace Engine
 	{
 	public:
 		Animation(
-			const std::string& sName = "Animation"
+			const String& sName = "Animation"
 		) : DynamicObject(sName) {}
 
 	private:

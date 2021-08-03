@@ -45,7 +45,7 @@ public:
 
 	void flush() final override	{}
 
-	void set_pattern(const std::string &pattern) override final
+	void set_pattern(const String &pattern) override final
 	{
 		formatter_ = std::unique_ptr<spdlog::formatter>(new spdlog::pattern_formatter(pattern));
 	}
@@ -57,7 +57,7 @@ public:
 };
 
 template<typename Factory = spdlog::default_factory>
-inline std::shared_ptr<spdlog::logger> EngineLogSink(const std::string &logger_name)
+inline std::shared_ptr<spdlog::logger> EngineLogSink(const String &logger_name)
 {
 	return Factory::template create<engine_sink>(logger_name);
 }

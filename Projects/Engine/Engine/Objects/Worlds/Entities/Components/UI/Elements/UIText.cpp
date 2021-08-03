@@ -6,7 +6,7 @@
 
 namespace Engine
 {
-	UIText::UIText(Entity& Entity, const std::string& Text, const std::string& sName) : UIElement(Entity, sName)
+	UIText::UIText(Entity& Entity, const String& Text, const String& sName) : UIElement(Entity, sName)
 	{
 		m_Font.setSize(static_cast<SkScalar>(m_FontSize));
 		m_Font.setSubpixel(m_UseAntialiasing);
@@ -15,7 +15,7 @@ namespace Engine
 		MeasureSize();
 	}
 
-	void UIText::SetText(const std::string& Text)
+	void UIText::SetText(const String& Text)
 	{
 		if (m_Text == Text)
 			return;

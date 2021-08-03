@@ -5,6 +5,10 @@
 
 #include "Engine/Core.h"
 
+#ifdef CB_PLATFORM_WINDOWS
+typedef int mode_t;
+#endif
+
 namespace Engine
 {
 	class Engine_API FileLoader
@@ -22,21 +26,21 @@ namespace Engine
 		static void Init();
 
 		// Reads the entire file to memory
-		static char* Read(const std::string& filePath, uint32_t& length, Type type = E_CONTENT, bool addNull = false);
-		static bool Write(const std::string& filePath, const std::string& fileName, char* buffer, uint32_t length, Type type = E_CONTENT);
-		static bool CreateRecursivePath(const std::string& Path, Type type = E_CONTENT, mode_t Mode = 0700);
+		static char* Read(const String& filePath, uint32_t& length, Type type = E_CONTENT, bool addNull = false);
+		static bool Write(const String& filePath, const String& fileName, char* buffer, uint32_t length, Type type = E_CONTENT);
+		static bool CreateRecursivePath(const String& Path, Type type = E_CONTENT, mode_t Mode = 0700);
 		
-		static bool Exists(const std::string& filePath, Type type = E_CONTENT);
+		static bool Exists(const String& filePath, Type type = E_CONTENT);
 
-		static std::string GetPath(const std::string& filePath, Type type);
-		static std::string GetExtension(const std::string& filePath);
+		static String GetPath(const String& filePath, Type type);
+		static String GetExtension(const String& filePath);
 
-		static std::string GetDefaultSeperator() { return m_DefaultSeperator; }
+		static String GetDefaultSeperator() { return m_DefaultSeperator; }
 
 	private:
-		static char* ReadStream(const std::string& filePath, uint32_t& length, Type type, bool addNull = false);
+		static char* ReadStream(const String& filePath, uint32_t& length, Type type, bool addNull = false);
 
-		static std::unordered_map<Type, std::string> m_WorkingDirectory;
-		static std::string m_DefaultSeperator;
+		static std::unordered_map<Type, String> m_WorkingDirectory;
+		static String m_DefaultSeperator;
 	};
 }

@@ -7,7 +7,7 @@
 
 namespace Engine
 {
-	GLShaderFile::GLShaderFile(const std::string& filePath) : ShaderFile(filePath)
+	GLShaderFile::GLShaderFile(const String& filePath) : ShaderFile(filePath)
 	{
 		uint32_t length = 0;
 		const char* data = FileLoader::Read(filePath, length, FileLoader::E_ROOT, false);
@@ -42,9 +42,9 @@ namespace Engine
 		// Create an empty vertex shader handle
 		m_uiHandle = glCreateShader(m_GLType);
 
-		if (filePath.find(".glsl") != std::string::npos)
+		if (filePath.find(".glsl") != String::npos)
 		{
-			std::string s = ParseIncludes(filePath, data, length);
+			String s = ParseIncludes(filePath, data, length);
 			s.insert(s.find_first_of('\n') + 1, "#define API_GLSL\r\n");
 
 			const char* d = s.c_str();
@@ -59,7 +59,7 @@ namespace Engine
 		{
 			glShaderBinary(1, &m_uiHandle, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, data, length);
 
-			static const std::string entryPoint = "main"; // Get entry point name
+			static const String entryPoint = "main"; // Get entry point name
 			glSpecializeShader(m_uiHandle, (const GLchar*)entryPoint.c_str(), 0, nullptr, nullptr);
 		}
 

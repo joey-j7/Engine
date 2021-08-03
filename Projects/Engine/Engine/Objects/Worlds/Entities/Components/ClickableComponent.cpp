@@ -1,18 +1,18 @@
 #include "pch.h"
 #include "ClickableComponent.h"
 
-#include "Transform/TransformComponent2D.h"
-#include "Transform/TransformComponent3D.h"
+#include "Transform/Transform2DComponent.h"
+#include "Transform/Transform3DComponent.h"
 
 #include "UI/Elements/UIText.h"
 
 namespace Engine
 {
-	ClickableComponent::ClickableComponent(Entity& Entity, const std::string& sName) : Component(Entity, sName), Clickable()
+	ClickableComponent::ClickableComponent(Entity& Entity, const String& sName) : Component(Entity, sName), Clickable()
 	{
-		if (!GetEntity().GetComponent<TransformComponent3D>())
+		if (!GetEntity().GetComponent<Transform3DComponent>())
 		{
-			AddDependencyTypes<TransformComponent2D>();
+			AddDependencyTypes<Transform2DComponent>();
 		}
 	}
 

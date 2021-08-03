@@ -183,7 +183,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
-      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -218,7 +218,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
-      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -253,7 +253,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
-      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -288,7 +288,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
-      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

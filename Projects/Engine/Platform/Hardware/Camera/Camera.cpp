@@ -33,9 +33,7 @@ namespace Engine
 		if (!m_bStarted)
 			return false;
 
-		if (m_bOpened)
-			Close();
-		
+		Close();
 		m_bStarted = false;
 		
 		return true;

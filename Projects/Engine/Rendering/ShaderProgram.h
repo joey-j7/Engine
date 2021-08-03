@@ -9,12 +9,12 @@ namespace Engine
 	public:
 		struct Descriptor
 		{
-			std::string Vertex = "";
-			std::string Pixel = "";
-			std::string Geometry = "";
-			std::string Compute = "";
-			std::string TessControl = "";
-			std::string TessEvaluation = "";
+			String Vertex = "";
+			String Pixel = "";
+			String Geometry = "";
+			String Compute = "";
+			String TessControl = "";
+			String TessEvaluation = "";
 		};
 
 		ShaderProgram(const Descriptor& descriptor)

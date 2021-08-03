@@ -14,7 +14,7 @@ namespace Engine
 			STOPPED
 		};
 
-		DynamicObject(const std::string& sName = "Dynamic Object") : Object(sName) {}
+		DynamicObject(const String& sName = "Dynamic Object") : Object(sName) {}
 		virtual ~DynamicObject() { };
 
 		bool IsActive() const { return m_State == ACTIVE; }

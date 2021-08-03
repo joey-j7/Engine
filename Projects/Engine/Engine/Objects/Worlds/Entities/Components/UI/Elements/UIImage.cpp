@@ -5,12 +5,12 @@
 
 namespace Engine
 {
-	UIImage::UIImage(Entity& Entity, const std::string& Text, const std::string& sName) : UIElement(Entity, sName)
+	UIImage::UIImage(Entity& Entity, const String& Text, const String& sName) : UIElement(Entity, sName)
 	{
 		SetImage(Text);
 	}
 	
-	void UIImage::SetImage(const std::string& Path)
+	void UIImage::SetImage(const String& Path)
 	{
 		if (m_Path == Path)
 			return;

@@ -21,12 +21,12 @@ namespace Engine {
 		virtual void Suspend() override {};
 		virtual void Resume() override {};
 		
-		virtual CommandEngine* GetCommandEngine(const std::string& sName) override;
+		virtual CommandEngine* GetCommandEngine(const String& sName) override;
 
 	private:
 		static GLRenderAPI* s_Instance;
 
-		std::unordered_map<std::string, GLCommandEngine*> m_CommandEngines;
+		std::unordered_map<String, GLCommandEngine*> m_CommandEngines;
 		GLCommandEngine* m_ScreenCommandEngine = nullptr;
 	};
 }

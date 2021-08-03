@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	DynamicEntity::DynamicEntity(const std::string& sName) : DynamicObject(sName), Entity()
+	DynamicEntity::DynamicEntity(const String& sName) : DynamicObject(sName), Entity()
 	{
 		m_Type = E_DYNAMIC;
 	}

@@ -150,8 +150,8 @@ namespace Engine
 		image_info.fSampleCount = 1;
 		image_info.fLevelCount = 1;
 
-		m_ColorType = desired[0].color_type_;
-		m_ColorSpace = desired[0].color_space_;
+		m_SkColorType = desired[0].color_type_;
+		m_SkColorSpace = desired[0].color_space_;
 		
 		for (const VkTexture& image : images) {
 			image_info.fImage = image.GetImage();
@@ -164,8 +164,8 @@ namespace Engine
 				m_Context.get(),                // context
 				backend_render_target,         // backend render target
 				kTopLeft_GrSurfaceOrigin,	  // origin
-				m_ColorType,                 // color type
-				m_ColorSpace,				// color space
+				m_SkColorType,                 // color type
+				m_SkColorSpace,				// color space
 				&props                     // surface properties
 			);
 

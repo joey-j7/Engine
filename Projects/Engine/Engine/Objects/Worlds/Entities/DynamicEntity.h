@@ -10,10 +10,10 @@ namespace Engine
 	public:
 		friend class World;
 		
-		DynamicEntity(const std::string& sName = "Entity");
+		DynamicEntity(const String& sName = "Entity");
 		virtual ~DynamicEntity();
 
-		virtual const std::string& GetName() const override { return DynamicObject::GetName(); };
+		virtual const String& GetName() const override { return DynamicObject::GetName(); };
 		
 	protected:
 		virtual void Awake() override {};

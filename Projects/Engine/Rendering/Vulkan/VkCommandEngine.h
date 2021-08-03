@@ -15,7 +15,7 @@ namespace Engine
 	class Engine_API VkCommandEngine : public CommandEngine
 	{
 	public:
-		VkCommandEngine(Type type, const std::string& sName = "Command Engine");
+		VkCommandEngine(Type type, const String& sName = "Command Engine");
 		virtual ~VkCommandEngine();
 
 		virtual void Init();

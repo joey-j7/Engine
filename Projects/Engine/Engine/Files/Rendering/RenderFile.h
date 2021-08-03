@@ -7,7 +7,7 @@ namespace Engine
 	class Engine_API RenderFile : public FileReference
 	{
 	public:
-		RenderFile(const std::string & filePath) : FileReference(filePath)
+		RenderFile(const String & filePath) : FileReference(filePath)
 		{
 		};
 	};

@@ -13,12 +13,12 @@ namespace Engine {
 
 	struct WindowProps
 	{
-		std::string Title;
+		String Title;
 		uint32_t Width;
 		uint32_t Height;
 
 		WindowProps(
-			const std::string& title = TOSTRING(CB_NAME),
+			const String& title = TOSTRING(CB_NAME),
 			uint32_t width = 1280,
 			uint32_t height = 720
 		)
@@ -35,7 +35,7 @@ namespace Engine {
 	public:
 		struct Data
 		{
-			std::string Title;
+			String Title;
 			unsigned int Width, Height;
 			float Scale;
 

@@ -182,7 +182,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
-      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -226,7 +226,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
-      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -270,7 +270,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
-      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -314,7 +314,7 @@
 		$(CB_PREPROCESSORS_LIBRARY);
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
-      <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -520,15 +520,18 @@
     <ClInclude Include="Engine\Objects\LayeredObject.h" />
     <ClInclude Include="Engine\Objects\DynamicObject.h" />
     <ClInclude Include="Engine\Objects\Object.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent2D.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent3D.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UILine.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIOval.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\UILayout.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIRect.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIShape.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIImage.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\DynamicEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\StaticEntity.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\UI\UIButtonEntity.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\UI\Camera\UICameraPreview.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\UI\UIButton.h" />
     <ClInclude Include="Engine\Objects\Worlds\World.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Entity.h" />
     <ClInclude Include="Engine\Input\Input.h" />
@@ -612,8 +615,10 @@
     <ClCompile Include="Engine\Objects\LayeredObject.cpp" />
     <ClCompile Include="Engine\Objects\Object.cpp" />
     <ClCompile Include="Engine\Objects\DynamicObject.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent2D.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent3D.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UILine.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIOval.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UICanvasPanel.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\UILayout.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIRect.cpp" />
@@ -622,7 +627,8 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\DynamicEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\StaticEntity.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\UI\UIButtonEntity.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\UI\Camera\UICameraPreview.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\UI\UIButton.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\World.cpp" />
     <ClCompile Include="Engine\Layers\Layer.cpp" />
     <ClCompile Include="Engine\Logger\Log.cpp" />

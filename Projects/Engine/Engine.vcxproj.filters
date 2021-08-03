@@ -78,8 +78,8 @@
     <ClInclude Include="Rendering\Renderers\Renderer.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\RenderComponent.h" />
     <ClInclude Include="Rendering\Renderers\Renderer3D.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent2D.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent3D.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.h" />
     <ClInclude Include="Rendering\Vulkan\Renderers\VkRenderer3D.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIShape.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIRect.h" />
@@ -97,8 +97,11 @@
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIImage.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\UILayout.h" />
     <ClInclude Include="Engine\General\Animations\Animation.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\UI\UIButtonEntity.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\UI\UIButton.h" />
     <ClInclude Include="Engine\General\Time.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\UI\Camera\UICameraPreview.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIOval.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UILine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -158,8 +161,8 @@
     <ClCompile Include="Rendering\Renderers\Renderer.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\RenderComponent.cpp" />
     <ClCompile Include="Rendering\Renderers\Renderer3D.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent2D.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent3D.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.cpp" />
     <ClCompile Include="Rendering\Vulkan\Renderers\VkRenderer3D.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIRect.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIShape.cpp" />
@@ -168,6 +171,9 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIImage.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\UILayout.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UICanvasPanel.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\UI\UIButtonEntity.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\UI\UIButton.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\UI\Camera\UICameraPreview.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIOval.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UILine.cpp" />
   </ItemGroup>
 </Project>

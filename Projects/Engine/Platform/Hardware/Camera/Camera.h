@@ -26,7 +26,7 @@ namespace Engine
 		virtual bool Stop();
 
 		virtual void TakePhoto() = 0;
-		const std::string& GetLastPhotoPath() const { return m_LastPhotoPath; }
+		const String& GetLastPhotoPath() const { return m_LastPhotoPath; }
 
 		static int32_t GetOrientation() { return m_Orientation; }
 
@@ -39,9 +39,12 @@ namespace Engine
 		{
 			m_PreviewImage = &Image;
 		}
+
+		bool IsStarted() const { return m_bStarted; }
+		bool IsOpened() const { return m_bOpened; }
 		
 		Event<void> OnStartCallback = Event<void>("Camera::OnStartCallback");
-		Event<void, const std::string&> OnPhotoTakenCallback = Event<void, const std::string&>("Camera::OnPhotoTakenCallback");
+		Event<void, const String&> OnPhotoTakenCallback = Event<void, const String&>("Camera::OnPhotoTakenCallback");
 		
 	protected:
 		virtual bool Open();
@@ -51,7 +54,7 @@ namespace Engine
 		bool m_bOpened = false;
 
 		static int32_t m_Orientation;
-		std::string m_LastPhotoPath = "";
+		String m_LastPhotoPath = "";
 
 		CameraType m_Type = E_CAMERA_FRONTFACE;
 

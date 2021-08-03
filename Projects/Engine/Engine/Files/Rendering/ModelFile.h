@@ -7,7 +7,7 @@ namespace Engine
 	class Engine_API ModelFile : public RenderFile
 	{
 	public:
-		ModelFile(const std::string& filePath) : RenderFile(filePath)
+		ModelFile(const String& filePath) : RenderFile(filePath)
 		{
 		}
 	};

@@ -10,7 +10,7 @@ namespace Engine
 	class Engine_API VkWrapper : public Object
 	{
 	public:
-		VkWrapper(const std::string& sName = "Vulkan Object");
+		VkWrapper(const String& sName = "Vulkan Object");
 
 		bool IsValid() const
 		{

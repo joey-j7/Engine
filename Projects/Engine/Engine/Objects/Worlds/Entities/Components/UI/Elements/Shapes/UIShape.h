@@ -7,7 +7,7 @@ namespace Engine
 	class Engine_API UIShape : public UIElement
 	{
 	public:
-		UIShape(Entity& Entity, const std::string& sName = "Text") : UIElement(Entity, sName)
+		UIShape(Entity& Entity, const String& sName = "Shape") : UIElement(Entity, sName)
 		{
 
 		}

@@ -51,7 +51,7 @@ namespace Engine
 			
 			Gradient() {}
 			Gradient(
-				const std::map<SkScalar, SkColor>& PositionsColors,
+				const std::map<SkScalar, Color>& PositionsColors,
 				Type Type = E_HORIZONTAL
 			)
 			{
@@ -78,7 +78,7 @@ namespace Engine
 			Type GetType() const { return m_Type; }
 			bool HasColors() const { return m_Type != E_NONE; }
 			
-			const std::vector<SkColor>& GetColors() const { return m_Colors; }
+			const std::vector<Color>& GetColors() const { return m_Colors; }
 			const std::vector<SkScalar>& GetPositions() const { return m_Positions; }
 			
 			bool operator==(const Gradient& Other) const
@@ -100,32 +100,35 @@ namespace Engine
 		private:
 			Type m_Type = E_NONE;
 
-			std::vector<SkColor> m_Colors;
+			std::vector<Color> m_Colors;
 			std::vector<SkScalar> m_Positions;
 		};
 		
-		UIElement(Entity& Entity, const std::string& sName = "UI Component");
+		UIElement(Entity& Entity, const String& sName = "UI Component");
 		virtual ~UIElement();
 
-		const SkColor& GetColor() const { return m_Color; }
-		void SetColor(const SkColor& Color);
+		const Color& GetColor() const { return m_Color; }
+		void SetColor(const Color& Color);
 
 		const Gradient& GetGradient() const { return m_Gradient; }
 		void SetGradient(const Gradient& Gradient);
 
 		const SkPaint::Style& GetStyle() const { return m_PaintStyle; }
 
-		void SetBorder(uint32_t Width, const SkColor& Color = SK_ColorBLACK, bool ShowFill = true);
+		void SetBorder(uint32_t Width, const Color& Color = SK_ColorBLACK, bool ShowFill = true);
 		void SetBorder(uint32_t Width, const Gradient& Gradient, bool ShowFill = true);
 
 		uint32_t GetWidth() const { return m_Width; }
-		void SetWidth(uint32_t Width);
+		virtual void SetWidth(uint32_t Width);
 
 		uint32_t GetHeight() const { return m_Height; }
-		void SetHeight(uint32_t Height);
+		virtual void SetHeight(uint32_t Height);
 
 		void SetSize(uint32_t Width, uint32_t Height);
 
+		uint32_t GetBorderWidth() const { return m_BorderWidth; }
+		virtual void SetBorderWidth(uint32_t Thickness);
+		
 		bool ScalesWithDPI() const { return m_ScaleWithDPI; }
 		void ScaleWithDPI(bool Scale);
 
@@ -139,10 +142,10 @@ namespace Engine
 		void SetAnchor(Anchor Anchor);
 
 		SkShader* GetShader();
-		void SetShader(const std::string& Source);
+		void SetShader(const String& Source);
 
 		template <typename T>
-		void SetShaderUniform(const std::string& UniformName, const T Value[], const int32_t Count)
+		void SetShaderUniform(const String& UniformName, const T Value[], const int32_t Count)
 		{
 			if (!m_RuntimeShaderInfo.m_Builder)
 			{
@@ -182,13 +185,13 @@ namespace Engine
 		
 		SkMatrix m_Matrix;
 
-		SkColor m_Color = SK_ColorBLACK;
+		Color m_Color = SK_ColorBLACK;
 		Gradient m_Gradient;
 
-		SkColor m_BorderColor = SK_ColorBLACK;
+		Color m_BorderColor = SK_ColorBLACK;
 		Gradient m_BorderGradient;
 		SkPaint::Style m_PaintStyle = SkPaint::Style::kFill_Style;
-		uint32_t m_BorderWidth = 0;
+		uint32_t m_BorderWidth = 5;
 
 		uint32_t m_Width = 50;
 		uint32_t m_Height = 50;

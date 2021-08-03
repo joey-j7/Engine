@@ -8,11 +8,16 @@ namespace Engine
 {
 	void UIRect::Draw()
 	{
-		const SkRect Rect = SkRect::MakeXYWH(
+		SkRect Rect = SkRect::MakeXYWH(
 			0, 0,
 			static_cast<SkScalar>(m_Width),
 			static_cast<SkScalar>(m_Height)
 		);
+
+		Rect.fBottom += m_Padding.y;
+		Rect.fTop -= m_Padding.w;
+		Rect.fLeft -= m_Padding.x;
+		Rect.fRight += m_Padding.z;
 
 		if (m_Type == E_ROUNDED)
 		{

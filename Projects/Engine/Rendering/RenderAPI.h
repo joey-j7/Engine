@@ -35,7 +35,7 @@ namespace Engine
 
 		virtual ShaderProgram* Create(const ShaderProgram::Descriptor& descriptor) = 0;
 
-		virtual RenderFile* Load(const std::string& filePath, FileLoader::Type pathType = FileLoader::Type::E_CONTENT);
+		virtual RenderFile* Load(const String& filePath, FileLoader::Type pathType = FileLoader::Type::E_CONTENT);
 		virtual bool Unload(RenderFile* resource);
 
 		virtual bool Swap() = 0;
@@ -44,7 +44,7 @@ namespace Engine
 		virtual void Suspend() = 0;
 		virtual void Resume() = 0;
 
-		virtual CommandEngine* GetCommandEngine(const std::string& sName) = 0;
+		virtual CommandEngine* GetCommandEngine(const String& sName) = 0;
 		RenderContext& GetRenderContext() const { return *m_pRenderContext; }
 
 		Renderer2D* GetRenderer2D() const { return m_pRenderer2D.get(); }

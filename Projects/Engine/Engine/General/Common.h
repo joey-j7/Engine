@@ -2,8 +2,10 @@
 
 #include <string>
 
+typedef std::string String;
+
 #define TOSTR(var) #var
 #define TOSTRING(var) TOSTR(var)
 
-std::string& ReplaceAll(std::string& str, const std::string& from, const std::string& to);
-bool Contains(const std::string& str, const std::string& search);
+String& ReplaceAll(String& str, const String& from, const String& to);
+bool Contains(const String& str, const String& search);

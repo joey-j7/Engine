@@ -7,6 +7,12 @@ namespace Engine
 {
 	Entity::~Entity()
 	{
+		// Pass along parent to children
+		for (auto Child : m_Children)
+		{
+			Child->SetParent(GetParent());
+		}
+		
 		SetParent(nullptr);
 	}
 
@@ -53,13 +59,26 @@ namespace Engine
 
 	bool Entity::RemoveComponent(Component* Comp)
 	{
-		auto Find = m_Components.find(Comp->GetID());
+		uint32_t ID = Comp->GetID();
+		
+		auto Find = m_Components.find(ID);
 		const bool Found = Find != m_Components.end();
 		
 		if (Found)
 		{
 			OnComponentRemoved(*this, *Find->second);
+			CB_CORE_TRACE("Removed component {0} from {1}", Comp->GetName(), GetName());
+
 			m_Components.erase(Find);
+			
+			// Remove all components that depend on this
+			for (auto& Component : m_Components)
+			{
+				if (!Component.second->HasDependency(ID))
+					continue;
+
+				RemoveComponent(Component.second.get());
+			}
 		}
 		
 		return Found;
@@ -67,24 +86,42 @@ namespace Engine
 
 	void Entity::SetParent(Entity* NewEntity)
 	{
-		if (Parent == NewEntity)
+		if (m_Parent == NewEntity)
 			return;
-
-		if (Parent)
+		
+		if (m_Parent)
 		{
-			Parent->OnChildRemoved(*Parent, *this);
-			Parent->Children.remove(this);
+			m_Parent->OnChildRemoved(*m_Parent, *this);
+			m_Parent->m_Children.erase(std::find(m_Parent->m_Children.begin(), m_Parent->m_Children.end(), this));
 		}
 
-		Entity* OldEntity = Parent;
-		Parent = NewEntity;
+		Entity* OldEntity = m_Parent;
+		m_Parent = NewEntity;
 		
 		OnParentChanged(*this, OldEntity, NewEntity);
+		NotifyChildrenOnParentChanged(*this, OldEntity, NewEntity);
 
-		if (!Parent)
+		CB_CORE_TRACE(
+			"Parent for {0} changed from {1} to {2}",
+			GetName(),
+			OldEntity ? OldEntity->GetName() : "nullptr",
+			NewEntity ? NewEntity->GetName() : "nullptr"
+		);
+
+		if (!m_Parent)
 			return;
 
-		Parent->Children.push_back(this);
-		Parent->OnChildAdded(*Parent, *this);
+		m_Parent->m_Children.push_back(this);
+		m_Parent->OnChildAdded(*m_Parent, *this);
+	}
+
+	void Entity::NotifyChildrenOnParentChanged(Entity& Origin, Entity* Old, Entity* New)
+	{
+		// Notify all children that this entity's parent has changed, nested loop
+		for (Entity* Child : m_Children)
+		{
+			Child->OnParentChanged(Origin, Old, New);
+			Child->NotifyChildrenOnParentChanged(Origin, Old, New);
+		}
 	}
 }

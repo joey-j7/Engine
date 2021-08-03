@@ -8,20 +8,32 @@
 #include <sys/stat.h> 
 #include <errno.h>
 
-namespace Engine {
-	std::string FileLoader::m_DefaultSeperator = "/";
+#ifndef PATH_MAX
+#define PATH_MAX MAX_PATH
+#endif
 
-	std::string FileLoader::GetPath(const std::string& filePath, Type type)
+#ifndef MKDIR(x, y)
+#ifdef CB_PLATFORM_WINDOWS
+#define MKDIR(x, y) _mkdir(x)
+#else
+#define MKDIR(x, y) mkdir(x, y)
+#endif
+#endif
+
+namespace Engine {
+	String FileLoader::m_DefaultSeperator = "/";
+
+	String FileLoader::GetPath(const String& filePath, Type type)
 	{
-		std::string path = filePath;
+		String path = filePath;
 		return m_WorkingDirectory[type] + ReplaceAll(path, "/", m_DefaultSeperator);
 	}
 
-	std::string FileLoader::GetExtension(const std::string& filePath)
+	String FileLoader::GetExtension(const String& filePath)
 	{
 		size_t i = filePath.rfind('.', filePath.length());
 		
-		if (i != std::string::npos)
+		if (i != String::npos)
 		{
 			return(filePath.substr(i + 1, filePath.length() - i));
 		}
@@ -29,10 +41,10 @@ namespace Engine {
 		return("");
 	}
 
-	char* FileLoader::ReadStream(const std::string& filePath, uint32_t& length, Type type, bool addNull)
+	char* FileLoader::ReadStream(const String& filePath, uint32_t& length, Type type, bool addNull)
 	{
 		// Retrieve full absolute path
-		std::string path = GetPath(filePath, type);
+		String path = GetPath(filePath, type);
 
 		std::ifstream ifs(path.c_str(), std::ios::binary | std::ios::ate);
 
@@ -59,10 +71,10 @@ namespace Engine {
 		return nullptr;
 	}
 	
-	bool FileLoader::Write(const std::string& filePath, const std::string& fileName, char* buffer, uint32_t length, Type type)
+	bool FileLoader::Write(const String& filePath, const String& fileName, char* buffer, uint32_t length, Type type)
 	{
-		std::string FullPath = m_WorkingDirectory[type] + filePath;
-		std::string FullFilePath = FullPath + fileName;
+		String FullPath = m_WorkingDirectory[type] + filePath;
+		String FullFilePath = FullPath + fileName;
 
 		CB_CORE_INFO("Writing file {0} to path {1}", fileName, FullFilePath);
 		
@@ -87,9 +99,9 @@ namespace Engine {
 		return true;
 	}
 
-	bool FileLoader::CreateRecursivePath(const std::string& Path, Type type, mode_t Mode)
+	bool FileLoader::CreateRecursivePath(const String& Path, Type type, mode_t Mode)
 	{
-		std::string FullPath = m_WorkingDirectory[type] + Path;
+		String FullPath = m_WorkingDirectory[type] + Path;
 		
 		const size_t len = FullPath.size();
 		char _path[PATH_MAX];
@@ -110,7 +122,7 @@ namespace Engine {
 				/* Temporarily truncate */
 				*p = '\0';
 
-				if (mkdir(_path, Mode) != 0)
+				if (MKDIR(_path, Mode) != 0)
 				{
 					if (errno != EEXIST)
 						return false;
@@ -120,7 +132,7 @@ namespace Engine {
 			}
 		}
 
-		if (mkdir(_path, Mode) != 0) {
+		if (MKDIR(_path, Mode) != 0) {
 			if (errno != EEXIST)
 				return false;
 		}
@@ -129,7 +141,7 @@ namespace Engine {
 	}
 
 	// Define root as empty string
-	std::unordered_map<FileLoader::Type, std::string> FileLoader::m_WorkingDirectory = {
-		std::pair<FileLoader::Type, std::string>(E_ROOT, "")
+	std::unordered_map<FileLoader::Type, String> FileLoader::m_WorkingDirectory = {
+		std::pair<FileLoader::Type, String>(E_ROOT, "")
 	};
 }

@@ -12,7 +12,7 @@ namespace Engine
 		return new GLDrawPass(*this, shaderPipeline);
 	}
 
-	GLCommandEngine::GLCommandEngine(Type type, const std::string& sName) : CommandEngine(type, sName)
+	GLCommandEngine::GLCommandEngine(Type type, const String& sName) : CommandEngine(type, sName)
 	{
 	}
 

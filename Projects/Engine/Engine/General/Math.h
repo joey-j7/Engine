@@ -3,6 +3,7 @@
 #include "Engine/Core.h"
 
 #include <glm/glm.hpp>
+#include <include/core/SkColor.h>
 
 #include "box2d/b2_math.h"
 
@@ -221,7 +222,84 @@ namespace Engine
         {
             return *this < Vector2(Other);
         }
+
+        template<typename T>
+        Vector2 operator+(const T& Other) const
+        {
+            return *this + Vector2(Other.x, Other.y);
+        }
+
+        Vector2 operator+(const Vector2& Other) const
+        {
+            return Vector2(
+                this->x + Other.x,
+                this->y + Other.y
+            );
+        }
+
+        Vector2 operator+(float Other) const
+        {
+            return *this + Vector2(Other);
+        }
+
+        template<typename T>
+        Vector2 operator-(const T& Other) const
+        {
+            return *this - Vector2(Other.x, Other.y);
+        }
+
+        Vector2 operator-(const Vector2& Other) const
+        {
+            return Vector2(
+                this->x - Other.x,
+                this->y - Other.y
+            );
+        }
+
+        Vector2 operator-(float Other) const
+        {
+            return *this - Vector2(Other);
+        }
+
+        template<typename T>
+        Vector2 operator*(const T& Other) const
+        {
+            return *this * Vector2(Other.x, Other.y);
+        }
+
+        Vector2 operator*(const Vector2& Other) const
+        {
+            return Vector2(
+                this->x * Other.x,
+                this->y * Other.y
+            );
+        }
+
+        Vector2 operator*(float Other) const
+        {
+            return *this * Vector2(Other);
+        }
+
+        template<typename T>
+        Vector2 operator/(const T& Other) const
+        {
+            return *this / Vector2(Other.x, Other.y);
+        }
+
+        Vector2 operator/(const Vector2& Other) const
+        {
+            return Vector2(
+                this->x / Other.x,
+                this->y / Other.y
+            );
+        }
+
+        Vector2 operator/(float Other) const
+        {
+            return *this / Vector2(Other);
+        }
     };
+	
     class Engine_API Vector3 : public Vector2 {
     public:
         union { float z, b, p; };
@@ -380,13 +458,14 @@ namespace Engine
         template<typename T>
         bool operator>=(const T& Other) const
         {
-            return *this >= Vector3(Other.x, Other.y);
+            return *this >= Vector3(Other.x, Other.y, Other.z);
         }
 
         bool operator>=(const Vector3& Other) const
         {
             return this->x >= Other.x &&
-                this->y >= Other.y;
+                this->y >= Other.y &&
+                this->z > Other.z;
         }
 
         bool operator>=(float Other) const
@@ -397,13 +476,14 @@ namespace Engine
         template<typename T>
         bool operator<=(const T& Other) const
         {
-            return *this <= Vector3(Other.x, Other.y);
+            return *this <= Vector3(Other.x, Other.y, Other.z);
         }
 
         bool operator<=(const Vector3& Other) const
         {
             return this->x <= Other.x &&
-                this->y <= Other.y;
+                this->y <= Other.y &&
+                this->z > Other.z;
         }
 
         bool operator<=(float Other) const
@@ -414,13 +494,14 @@ namespace Engine
         template<typename T>
         bool operator>(const T& Other) const
         {
-            return *this > Vector3(Other.x, Other.y);
+            return *this > Vector3(Other.x, Other.y, Other.y);
         }
 
         bool operator>(const Vector3& Other) const
         {
             return this->x > Other.x &&
-                this->y > Other.y;
+                this->y > Other.y &&
+                this->z > Other.z;
         }
 
         bool operator>(float Other) const
@@ -431,23 +512,439 @@ namespace Engine
         template<typename T>
         bool operator<(const T& Other) const
         {
-            return *this < Vector3(Other.x, Other.y);
+            return *this < Vector3(Other.x, Other.y, Other.z);
         }
 
         bool operator<(const Vector3& Other) const
         {
             return this->x < Other.x&&
-                this->y < Other.y;
+                this->y < Other.y&&
+                this->z < Other.z;
         }
 
         bool operator<(float Other) const
         {
             return *this < Vector3(Other);
         }
+
+        template<typename T>
+        Vector3 operator+(const T& Other) const
+        {
+            return *this + Vector3(Other.x, Other.y, Other.z);
+        }
+
+        Vector3 operator+(const Vector3& Other) const
+        {
+            return Vector3(
+                this->x + Other.x,
+                this->y + Other.y,
+                this->z + Other.z
+            );
+        }
+
+        Vector3 operator+(float Other) const
+        {
+            return *this + Vector3(Other);
+        }
+
+        template<typename T>
+        Vector3 operator-(const T& Other) const
+        {
+            return *this - Vector3(Other.x, Other.y, Other.z);
+        }
+
+        Vector3 operator-(const Vector3& Other) const
+        {
+            return Vector3(
+                this->x - Other.x,
+                this->y - Other.y,
+                this->z - Other.z
+            );
+        }
+
+        Vector3 operator-(float Other) const
+        {
+            return *this - Vector3(Other);
+        }
+
+        template<typename T>
+        Vector3 operator*(const T& Other) const
+        {
+            return *this * Vector3(Other.x, Other.y, Other.z);
+        }
+
+        Vector3 operator*(const Vector3& Other) const
+        {
+            return Vector3(
+                this->x * Other.x,
+                this->y * Other.y,
+                this->z * Other.z
+            );
+        }
+
+        Vector3 operator*(float Other) const
+        {
+            return *this * Vector3(Other);
+        }
+
+        template<typename T>
+        Vector3 operator/(const T& Other) const
+        {
+            return *this / Vector3(Other.x, Other.y, Other.z);
+        }
+
+        Vector3 operator/(const Vector3& Other) const
+        {
+            return Vector3(
+                this->x / Other.x,
+                this->y / Other.y,
+                this->z / Other.z
+            );
+        }
+
+        Vector3 operator/(float Other) const
+        {
+            return *this / Vector3(Other);
+        }
+    };
+    
+    class Engine_API Vector4 : public Vector3 {
+    public:
+        union { float w, a, q; };
+
+        Vector4() : Vector3(0.f), w(0.f) {}
+
+        template <typename T>
+        Vector4(const T& Val) : Vector3(static_cast<float>(Val)), w(static_cast<float>(Val)) {}
+
+        template <typename T>
+        Vector4(const T& xVal, const T& yVal) : Vector3(xVal, yVal), w(1.f) {}
+
+        template <typename T>
+        Vector4(const T& xVal, const T& yVal, const T& zVal) : Vector3(xVal, yVal, zVal), w(1.f) {}
+
+        template <typename T>
+        Vector4(const T& xVal, const T& yVal, const T& zVal, const T& wVal) : Vector3(xVal, yVal, zVal), w(static_cast<float>(wVal)) {}
+    	
+        Vector4(const glm::vec4& Vector) : Vector3(Vector.x, Vector.y, Vector.z), w(Vector.w) {}
+        Vector4(const SkColor& Vector) : Vector3(
+            SkColorGetR(Vector) / 255.f,
+            SkColorGetG(Vector) / 255.f,
+            SkColorGetB(Vector) / 255.f),
+    		a(SkColorGetA(Vector) / 255.f) {}
+        Vector4(const b2Vec3& Vector) : Vector3(Vector.x, Vector.y, Vector.z), w(1.f) {}
+
+        operator glm::vec4() const { return glm::vec4(x, y, z, w); }
+        operator SkColor() const { return SkColorSetARGB(
+            static_cast<uint32_t>(a * 255.f),
+            static_cast<uint32_t>(r * 255.f),
+            static_cast<uint32_t>(g * 255.f),
+            static_cast<uint32_t>(b * 255.f)
+        ); }
+        operator b2Vec3() const { return b2Vec3(x, y, z); }
+
+        template<typename T>
+        Vector4& operator=(const T& Other)
+        {
+            *this = Vector4(Other.x, Other.y, Other.z, Other.w);
+            return *this;
+        }
+
+        Vector4& operator=(float Other)
+        {
+            *this = Vector4(Other);
+            return *this;
+        }
+
+        template<typename T>
+        Vector4& operator+=(const T& Other)
+        {
+            *this += Vector4(Other.x, Other.y, Other.z, Other.w);
+            return *this;
+        }
+
+        Vector4& operator+=(const Vector4& Other)
+        {
+            this->x += Other.x;
+            this->y += Other.y;
+            this->z += Other.z;
+            this->w += Other.w;
+            return *this;
+        }
+
+        Vector4& operator+=(float Other)
+        {
+            *this += Vector4(Other);
+            return *this;
+        }
+
+        template<typename T>
+        Vector4& operator-=(const T& Other)
+        {
+            *this -= Vector4(Other.x, Other.y, Other.z, Other.w);
+            return *this;
+        }
+
+        Vector4& operator-=(const Vector4& Other)
+        {
+            this->x -= Other.x;
+            this->y -= Other.y;
+            this->z -= Other.z;
+            this->w -= Other.w;
+            return *this;
+        }
+
+        Vector4& operator-=(float Other)
+        {
+            *this -= Vector4(Other);
+            return *this;
+        }
+
+        template<typename T>
+        Vector4& operator*=(const T& Other)
+        {
+            *this *= Vector4(Other.x, Other.y, Other.z, Other.w);
+            return *this;
+        }
+
+        Vector4& operator*=(const Vector4& Other)
+        {
+            this->x *= Other.x;
+            this->y *= Other.y;
+            this->z *= Other.z;
+            this->w *= Other.w;
+            return *this;
+        }
+
+        Vector4& operator*=(float Other)
+        {
+            *this *= Vector4(Other);
+            return *this;
+        }
+
+        template<typename T>
+        Vector4& operator/=(const T& Other)
+        {
+            *this /= Vector4(Other.x, Other.y, Other.z, Other.w);
+            return *this;
+        }
+
+        Vector4& operator/=(const Vector4& Other)
+        {
+            this->x /= Other.x;
+            this->y /= Other.y;
+            this->z /= Other.z;
+            this->w /= Other.w;
+
+            return *this;
+        }
+
+        Vector4& operator/=(float Other)
+        {
+            *this /= Vector4(Other);
+            return *this;
+        }
+
+        template<typename T>
+        bool operator==(const T& Other) const
+        {
+            return *this == Vector4(Other.x, Other.y, Other.z, Other.w);
+        }
+
+        bool operator==(const Vector4& Other) const
+        {
+            return this->x == Other.x &&
+                this->y == Other.y &&
+                this->z == Other.z &&
+                this->w == Other.w;
+        }
+
+        bool operator==(float Other) const
+        {
+            return *this == Vector4(Other);
+        }
+
+        template<typename T>
+        bool operator!=(const T& Other) const
+        {
+            return *this == Vector4(Other.x, Other.y, Other.z, Other.w);
+        }
+
+        bool operator!=(const Vector4& Other) const
+        {
+            return this->x != Other.x ||
+                this->y != Other.y ||
+                this->z != Other.z ||
+                this->w != Other.w;
+        }
+
+        bool operator!=(float Other) const
+        {
+            return *this == Vector4(Other);
+        }
+
+        template<typename T>
+        bool operator>=(const T& Other) const
+        {
+            return *this >= Vector4(Other.x, Other.y, Other.z, Other.w);
+        }
+
+        bool operator>=(const Vector4& Other) const
+        {
+            return this->x >= Other.x &&
+                this->y >= Other.y &&
+                this->z >= Other.z &&
+                this->w >= Other.w;
+        }
+
+        bool operator>=(float Other) const
+        {
+            return *this >= Vector4(Other);
+        }
+
+        template<typename T>
+        bool operator<=(const T& Other) const
+        {
+            return *this <= Vector4(Other.x, Other.y, Other.z, Other.w);
+        }
+
+        bool operator<=(const Vector4& Other) const
+        {
+            return this->x <= Other.x &&
+                this->y <= Other.y &&
+                this->z <= Other.z &&
+                this->w <= Other.w;
+        }
+
+        bool operator<=(float Other) const
+        {
+            return *this <= Vector4(Other);
+        }
+
+        template<typename T>
+        bool operator>(const T& Other) const
+        {
+            return *this > Vector4(Other.x, Other.y, Other.y, Other.w);
+        }
+
+        bool operator>(const Vector4& Other) const
+        {
+            return this->x > Other.x &&
+                this->y > Other.y &&
+                this->z > Other.z &&
+                this->w > Other.w;
+        }
+
+        bool operator>(float Other) const
+        {
+            return *this > Vector4(Other);
+        }
+
+        template<typename T>
+        bool operator<(const T& Other) const
+        {
+            return *this < Vector4(Other.x, Other.y, Other.z, Other.w);
+        }
+
+        bool operator<(const Vector4& Other) const
+        {
+            return this->x < Other.x &&
+                this->y < Other.y &&
+                this->z < Other.z &&
+                this->w < Other.w;
+        }
+
+        bool operator<(float Other) const
+        {
+            return *this < Vector4(Other);
+        }
+
+        template<typename T>
+        Vector4 operator+(const T& Other) const
+        {
+            return *this + Vector4(Other.x, Other.y, Other.z, Other.w);
+        }
+
+        Vector4 operator+(const Vector4& Other) const
+        {
+            return Vector4(
+                this->x + Other.x,
+                this->y + Other.y,
+                this->z + Other.z,
+                this->w + Other.w
+            );
+        }
+
+        Vector4 operator+(float Other) const
+        {
+            return *this + Vector4(Other);
+        }
+
+        template<typename T>
+        Vector4 operator-(const T& Other) const
+        {
+            return *this - Vector4(Other.x, Other.y, Other.z, Other.w);
+        }
+
+        Vector4 operator-(const Vector4& Other) const
+        {
+            return Vector4(
+                this->x - Other.x,
+                this->y - Other.y,
+                this->z - Other.z,
+                this->w - Other.w
+            );
+        }
+
+        Vector4 operator-(float Other) const
+        {
+            return *this - Vector4(Other);
+        }
+
+        template<typename T>
+        Vector4 operator*(const T& Other) const
+        {
+            return *this * Vector4(Other.x, Other.y, Other.z, Other.w);
+        }
+
+        Vector4 operator*(const Vector4& Other) const
+        {
+            return Vector4(
+                this->x * Other.x,
+                this->y * Other.y,
+                this->z * Other.z,
+                this->w * Other.w
+            );
+        }
+
+        Vector4 operator*(float Other) const
+        {
+            return *this * Vector4(Other);
+        }
+
+        template<typename T>
+        Vector4 operator/(const T& Other) const
+        {
+            return *this / Vector4(Other.x, Other.y, Other.z, Other.w);
+        }
+
+        Vector4 operator/(const Vector4& Other) const
+        {
+            return Vector4(
+                this->x / Other.x,
+                this->y / Other.y,
+                this->z / Other.z,
+                this->w / Other.w
+            );
+        }
+
+        Vector4 operator/(float Other) const
+        {
+            return *this / Vector4(Other);
+        }
     };
 
-    typedef glm::vec4 Vector4;
-    typedef glm::vec4 Color;
+    typedef Vector4 Color;
 
     typedef glm::ivec1 IVector1;
     typedef glm::ivec2 IVector2;

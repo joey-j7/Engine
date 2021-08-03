@@ -12,14 +12,14 @@ namespace Engine
 		virtual ~FileManagerBase() {};
 
 	protected:
-		virtual FileReference* Add(const std::string& filePath) = 0;
+		virtual FileReference* Add(const String& filePath) = 0;
 		virtual bool Remove(FileReference* resource) = 0;
 
-		bool Supports(const std::string& extension)
+		bool Supports(const String& extension)
 		{
 			return std::find(m_SupportedExtensions.begin(), m_SupportedExtensions.end(), extension) != m_SupportedExtensions.end();
 		}
 
-		std::vector<std::string> m_SupportedExtensions;
+		std::vector<String> m_SupportedExtensions;
 	};
 }

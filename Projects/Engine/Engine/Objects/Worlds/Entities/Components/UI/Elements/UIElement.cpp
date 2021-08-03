@@ -3,8 +3,8 @@
 
 #include "Engine/Application.h"
 
-#include "Engine/Objects/Worlds/Entities/Components/Transform/TransformComponent2D.h"
-#include "Engine/Objects/Worlds/Entities/Components/Transform/TransformComponent3D.h"
+#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform2DComponent.h"
+#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform3DComponent.h"
 
 #include "Rendering/Renderers/Renderer2D.h"
 #include "Engine/Objects/Worlds/Entities/Components/UI/Layouts/UILayout.h"
@@ -13,15 +13,10 @@
 
 namespace Engine
 {
-	UIElement::UIElement(Entity& Entity, const std::string& sName) :
+	UIElement::UIElement(Entity& Entity, const String& sName) :
 		Render2DComponent(Entity, sName),
 		m_Window(Application::Get().GetRenderContext().GetWindow())
 	{
-		if (!GetEntity().GetComponent<TransformComponent3D>())
-		{
-			AddDependencyTypes<TransformComponent2D>();
-		}
-
 		AddProhibitedTypes<UILayout>();
 		
 		m_Bounds.fRight = static_cast<float>(m_Width);
@@ -33,7 +28,7 @@ namespace Engine
 
 	}
 	
-	void UIElement::SetColor(const SkColor& Color)
+	void UIElement::SetColor(const Color& Color)
 	{
 		if (m_Color == Color)
 			return;
@@ -57,7 +52,7 @@ namespace Engine
 		MarkDirty();
 	}
 
-	void UIElement::SetBorder(uint32_t Width, const SkColor& Color, bool ShowFill)
+	void UIElement::SetBorder(uint32_t Width, const Color& Color, bool ShowFill)
 	{
 		if (m_BorderWidth == Width && m_BorderColor == Color && m_ShowFill == ShowFill)
 			return;
@@ -264,10 +259,12 @@ namespace Engine
 				break;
 			}
 
+			SkColor Color = m_Gradient.GetColors()[0];
+			
 			m_Paint.setShader(
 				SkGradientShader::MakeLinear(
 					Points,
-					&m_Gradient.GetColors()[0],
+					&Color,
 					&m_Gradient.GetPositions()[0],
 					m_Gradient.GetColors().size(),
 					SkTileMode::kClamp
@@ -374,10 +371,12 @@ namespace Engine
 					break;
 				}
 
+				SkColor Color = m_BorderGradient.GetColors()[0];
+				
 				m_Paint.setShader(
 					SkGradientShader::MakeLinear(
 						Points,
-						&m_BorderGradient.GetColors()[0],
+						&Color,
 						&m_BorderGradient.GetPositions()[0],
 						m_BorderGradient.GetColors().size(),
 						SkTileMode::kClamp
@@ -427,6 +426,15 @@ namespace Engine
 	{
 		SetWidth(Width);
 		SetHeight(Height);
+	}
+
+	void UIElement::SetBorderWidth(uint32_t Thickness)
+	{
+		if (m_BorderWidth == Thickness)
+			return;
+
+		m_BorderWidth = Thickness;
+		MarkDirty();
 	}
 
 	void UIElement::ScaleWithDPI(bool Scale)
@@ -499,7 +507,7 @@ namespace Engine
 		return nullptr;
 	}
 
-	void UIElement::SetShader(const std::string& Source)
+	void UIElement::SetShader(const String& Source)
 	{
 		auto [Effect, Error] = SkRuntimeEffect::MakeForShader(SkString(Source.c_str()));
 

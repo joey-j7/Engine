@@ -15,14 +15,14 @@ namespace Engine
 		static_assert(std::is_base_of<FileReference, T>::value, "Type must be a descendant of FileReference");
 
 	public:
-		FileManager(const std::vector<std::string>& supportedExtensions) { m_SupportedExtensions = supportedExtensions; };
+		FileManager(const std::vector<String>& supportedExtensions) { m_SupportedExtensions = supportedExtensions; };
 		~FileManager();
 
-		virtual FileReference* Add(const std::string& filePath) override;
+		virtual FileReference* Add(const String& filePath) override;
 		virtual bool Remove(FileReference* resource) override;
 
 	protected:
-		std::unordered_map<std::string, T*> m_Resources;
+		std::unordered_map<String, T*> m_Resources;
 	};
 
 	template<class T>
@@ -35,7 +35,7 @@ namespace Engine
 	}
 
 	template<class T>
-	FileReference* FileManager<T>::Add(const std::string& filePath)
+	FileReference* FileManager<T>::Add(const String& filePath)
 	{
 		auto it = m_Resources.find(filePath);
 

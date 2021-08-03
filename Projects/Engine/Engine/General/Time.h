@@ -29,28 +29,28 @@ public:
 		return tm;
 	}
 	
-	static std::string GetFormattedString(const std::string& Format)
+	static String GetFormattedString(const String& Format)
 	{
 		/* Get time */
 		std::tm tm = GetTM();
 
-		std::string F = Format;
+		String F = Format;
 		// auto Second = F.find("%S");
 
 		// Do seconds separately as padding isn't normally applied
-		/*if (Second != std::string::npos)
+		/*if (Second != String::npos)
 		{
-			std::string sec = std::to_string(tm.tm_sec);
+			String sec = std::to_string(tm.tm_sec);
 			if (sec.length() < 2) sec = "0" + sec;
 
-			while (Second != std::string::npos)
+			while (Second != String::npos)
 			{
 				F.replace(Second, 2, sec);
 				Second = F.find("%S");
 			}
 		}*/
 		
-		std::string Buffer;
+		String Buffer;
 		Buffer.resize(F.size());
 
 		int32_t Length = strftime(&Buffer[0], Buffer.size(), F.c_str(), &tm);

@@ -30,7 +30,7 @@ namespace Engine
 		
 	}
 
-	CommandEngine* GLRenderAPI::GetCommandEngine(const std::string& sName)
+	CommandEngine* GLRenderAPI::GetCommandEngine(const String& sName)
 	{
 		auto it = m_CommandEngines.find(sName);
 

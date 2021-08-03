@@ -15,13 +15,14 @@ namespace Engine
 {
 	class World;
 	
-	class TransformComponent2D;
-	class TransformComponent3D;
+	class Transform2DComponent;
+	class Transform3DComponent;
 	
 	class Engine_API Entity
 	{
 	public:
 		friend class World;
+		friend class Entity;
 		friend class Component;
 		
 		enum Type
@@ -34,7 +35,7 @@ namespace Engine
 		Entity& operator =(const Entity&) = delete;
 		virtual ~Entity();
 
-		virtual const std::string& GetName() const = 0;
+		virtual const String& GetName() const = 0;
 		const AABB GetBounds() const;
 		
 		World* GetWorld() const { return m_pWorld; }
@@ -68,10 +69,10 @@ namespace Engine
 		template <class T>
 		bool RemoveComponent();
 
-		Entity* GetParent() const { return Parent; }
+		Entity* GetParent() const { return m_Parent; }
 		void SetParent(Entity* Object);
 
-		const std::list<Entity*>& GetChildren() const { return Children; }
+		const std::vector<Entity*>& GetChildren() const { return m_Children; }
 
 		Event<void, Entity&, Component&> OnComponentAdded = Event<void, Entity&, Component&>("Entity::OnComponentAdded");
 		Event<void, Entity&, Component&> OnComponentRemoved = Event<void, Entity&, Component&>("Entity::OnComponentRemoved");
@@ -90,8 +91,10 @@ namespace Engine
 		template <class T>
 		T* AddComponent(T* Comp);
 
-		Entity* Parent = nullptr;
-		std::list<Entity*> Children;
+		void NotifyChildrenOnParentChanged(Entity& Origin, Entity* Old, Entity* New);
+
+		Entity* m_Parent = nullptr;
+		std::vector<Entity*> m_Children;
 		
 		World* m_pWorld = nullptr;
 		uint32_t m_uiID = 0;
@@ -149,7 +152,7 @@ namespace Engine
 			m_Components.erase(m_Components.find(ID));
 			return nullptr;
 		}
-		
+
 		return Comp;
 	}
 
@@ -225,11 +228,15 @@ namespace Engine
 				m_Components.insert(std::pair<size_t, std::unique_ptr<Component>>(
 					Pair.first, std::move(Pair.second)
 				));
+
+				Pair.second.release();
 			}
 		}
 		
 		Comp->m_PendingComponentsToAdd.clear();
 		OnComponentAdded(*this, *Comp);
+
+		Comp->OnInitialized();
 
 		return Comp;
 	}
@@ -248,9 +255,22 @@ namespace Engine
 		if (Found)
 		{
 			if (Find->second)
+			{
 				OnComponentRemoved(*this, *Find->second);
+			}
+
+			CB_CORE_TRACE("Removed component {0} from {1}", Find->second ? Find->second->GetName() : "nullptr", GetName());
 			
 			m_Components.erase(Find);
+
+			// Remove all components that depend on this
+			for (auto& Comp : m_Components)
+			{
+				if (!Comp.second->HasDependency(Component::GetClassID<T>()))
+					continue;
+
+				RemoveComponent(Comp.second.get());
+			}
 		}
 		
 		return Found;

@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	VkWrapper::VkWrapper(const std::string& sName) : Object(sName), m_API(VkRenderAPI::Get())
+	VkWrapper::VkWrapper(const String& sName) : Object(sName), m_API(VkRenderAPI::Get())
 	{
 
 	}

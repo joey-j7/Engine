@@ -7,8 +7,8 @@
 #include "Engine/Objects/Renderable.h"
 #include "Transform/Transform.h"
 
-#include "Transform/TransformComponent2D.h"
-#include "Transform/TransformComponent3D.h"
+#include "Transform/Transform2DComponent.h"
+#include "Transform/Transform3DComponent.h"
 
 namespace Engine
 {
@@ -17,13 +17,13 @@ namespace Engine
 	{
 		static_assert(
 			(!std::is_base_of<Vector2, T>::value && !std::is_base_of<Vector3, T>::value) ||
-			(std::is_base_of<Vector2, T>::value && (!std::is_base_of<TransformComponent2D, R>::value || !std::is_base_of<float, S>::value)) ||
-			(std::is_base_of<Vector3, T>::value && (!std::is_base_of<TransformComponent3D, R>::value || !std::is_base_of<Vector3, S>::value)),
+			(std::is_base_of<Vector2, T>::value && (!std::is_base_of<Transform2DComponent, R>::value || !std::is_base_of<float, S>::value)) ||
+			(std::is_base_of<Vector3, T>::value && (!std::is_base_of<Transform3DComponent, R>::value || !std::is_base_of<Vector3, S>::value)),
 			"Invalid template type detected"
 		);
 		
 	public:
-		RenderComponent(Entity& Entity, const std::string& sName = "Button") :
+		RenderComponent(Entity& Entity, const String& sName = "Button") :
 			Component(Entity, sName)
 		{
 			AddDependencyTypes<R>();
@@ -38,8 +38,8 @@ namespace Engine
 				m_Renderer = Application::Get().GetRenderContext().GetAPI().GetRenderer3D();
 				m_RenderDimension = E_3D;
 			}
-
-			GetEntity().template GetComponent<R>()->OnTransformation.Bind(
+			
+			GetDependency<R>()->OnTransformation.Bind(
 				this, &RenderComponent<T, R, S>::OnTransformation
 			);
 
@@ -48,22 +48,37 @@ namespace Engine
 
 		const T& GetPosition() const
 		{
-			return m_Entity.GetComponent<R>()->GetPosition();
+			return GetDependency<R>()->GetPosition();
+		}
+
+		void SetPosition(const T& Position)
+		{
+			return GetDependency<R>()->SetPosition(Position);
 		}
 		
 		const S& GetRotation() const
 		{
-			return m_Entity.GetComponent<R>()->GetRotation();
+			return GetDependency<R>()->GetRotation();
+		}
+
+		void SetRotation(const R& Rotation)
+		{
+			return GetDependency<R>()->SetRotation(Rotation);
 		}
 		
 		const T& GetScale() const
 		{
-			return m_Entity.GetComponent<R>()->GetScale();
+			return GetDependency<R>()->GetScale();
+		}
+
+		void SetScale(const T& Scale)
+		{
+			return GetDependency<R>()->SetScale(Scale);
 		}
 
 		R* GetTransform() const
 		{
-			return m_Entity.GetComponent<R>();
+			return GetDependency<R>();
 		}
 
 	private:
@@ -73,6 +88,6 @@ namespace Engine
 		}
 	};
 
-	typedef RenderComponent<Vector3, TransformComponent3D, Vector3> Render3DComponent;
-	typedef RenderComponent<Vector2, TransformComponent2D, float> Render2DComponent;
+	typedef RenderComponent<Vector3, Transform3DComponent, Vector3> Render3DComponent;
+	typedef RenderComponent<Vector2, Transform2DComponent, float> Render2DComponent;
 }

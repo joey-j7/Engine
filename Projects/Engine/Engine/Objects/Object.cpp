@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	Object::Object(const std::string& sName)
+	Object::Object(const String& sName)
 	{
 		m_sName = sName;
 		

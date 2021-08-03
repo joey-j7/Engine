@@ -8,7 +8,7 @@ namespace Engine
 	class Engine_API GLShaderFile : public ShaderFile
 	{
 	public:
-		GLShaderFile(const std::string& filePath);
+		GLShaderFile(const String& filePath);
 		virtual ~GLShaderFile();
 
 		uint32_t GetHandle() const { return m_uiHandle; };

@@ -5,7 +5,7 @@ namespace Engine {
 	std::mutex Log::m_Mutex;
 	std::vector<ScreenMessage> Log::m_ScreenLogger;
 	
-	void Log::AddScreenMessage(const std::string& message, Color color, float fTimer)
+	void Log::AddScreenMessage(const String& message, Color color, float fTimer)
 	{	
 		m_ScreenLogger.push_back({ message, color, fTimer });
 

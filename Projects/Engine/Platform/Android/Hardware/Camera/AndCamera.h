@@ -44,7 +44,7 @@ namespace Engine
 		virtual bool Open() override;
 		virtual bool Close() override;
 
-		std::string PollID();
+		String PollID();
 
 		static void OnDisconnected(void* Context, ACameraDevice* Device);
 		static void OnError(void* Context, ACameraDevice* Device, int Error);
@@ -87,7 +87,7 @@ namespace Engine
 		AImageReader_ImageListener m_PreviewImageCallbacks;
 		AImageReader_ImageListener m_PhotoImageCallbacks;
 		
-		std::string m_ID = "";
+		String m_ID = "";
 		
 		bool m_HasPermission = false;
 		bool m_DelayedStart = false;

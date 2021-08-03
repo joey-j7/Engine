@@ -3,7 +3,7 @@
 
 namespace Engine
 {
-	Buffer::Buffer(const std::string& sName) : Object(sName)
+	Buffer::Buffer(const String& sName) : Object(sName)
 	{
 
 	}

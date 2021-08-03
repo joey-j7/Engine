@@ -22,19 +22,24 @@ namespace Engine
 		Event<void> OnPressedEvent = Event<void>("Clickable::OnPressed");
 		Event<void> OnReleasedEvent = Event<void>("Clickable::OnReleased");
 		Event<void> OnClickedEvent = Event<void>("Clickable::OnClicked");
+
+		static bool CanPress() { return !PressedClickable; }
 		
 	protected:
 		virtual void OnEnter(const DVector2& Position);
 		virtual void OnHover(const DVector2& Position);
 		virtual void OnExit(const DVector2& Position);
 
-		virtual void OnPressed();
+		virtual bool OnPressed();
 		virtual void OnReleased();
 
 		virtual void OnClicked();
 
 		bool m_IsHovered = false;
 		bool m_IsPressed = false;
+
+	protected:
+		static Clickable* PressedClickable;
 
 	private:
 		void OnCursorPosition(const DVector2& Position);

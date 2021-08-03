@@ -26,7 +26,7 @@ namespace Engine
 			E_EXECUTING
 		};
 
-		CommandEngine(Type type, const std::string& sName = "Command Engine") : Object(sName)
+		CommandEngine(Type type, const String& sName = "Command Engine") : Object(sName)
 		{
 			m_Type = type;
 		}

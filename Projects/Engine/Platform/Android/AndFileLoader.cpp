@@ -26,18 +26,18 @@ namespace Engine
 		m_AssetManager = activity->assetManager;
 
 		// Set working directory
-		m_WorkingDirectory[E_INTERNAL] = std::string(
+		m_WorkingDirectory[E_INTERNAL] = String(
 			activity->internalDataPath
 		) + "/";
 
-		m_WorkingDirectory[E_EXTERNAL] = std::string(
+		m_WorkingDirectory[E_EXTERNAL] = String(
 			activity->externalDataPath
 		) + "/";
 
 		m_WorkingDirectory[E_CONTENT] = "Content/";
 	}
 
-	char* FileLoader::Read(const std::string& filePath, uint32_t& fileLength, Type type, bool addNull)
+	char* FileLoader::Read(const String& filePath, uint32_t& fileLength, Type type, bool addNull)
 	{
 		// Read apk asset
 		//if (type == E_CONTENT)
@@ -68,10 +68,10 @@ namespace Engine
 		// return ReadStream(filePath, fileLength, type, addNull);
 	}
 	
-	bool FileLoader::Exists(const std::string& filePath, Type type /*= E_CONTENT*/)
+	bool FileLoader::Exists(const String& filePath, Type type /*= E_CONTENT*/)
 	{
 		// Retrieve full absolute path
-		std::string path = GetPath(filePath, type);
+		String path = GetPath(filePath, type);
 		
 		// Read apk asset
 		if (type == E_CONTENT)

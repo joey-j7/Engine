@@ -1,3 +1,5 @@
+generate_gen_folders.bat
+
 cd ../
 python %cd%/Libraries/skia/tools/git-sync-deps
 

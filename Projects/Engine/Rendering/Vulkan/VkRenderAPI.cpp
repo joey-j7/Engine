@@ -17,7 +17,7 @@
 
 #if CB_DEBUG && defined(CB_PLATFORM_WINDOWS)
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-	const std::string s = std::string("[VULKAN] ") + pCallbackData->pMessage + '\0';
+	const String s = String("[VULKAN] ") + pCallbackData->pMessage + '\0';
 	
 	switch (messageSeverity)
 	{
@@ -96,7 +96,7 @@ namespace Engine
 		
 	}
 
-	CommandEngine* VkRenderAPI::GetCommandEngine(const std::string& sName)
+	CommandEngine* VkRenderAPI::GetCommandEngine(const String& sName)
 	{
 		auto it = m_CommandEngines.find(sName);
 
@@ -466,7 +466,7 @@ namespace Engine
 		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
 		vk(EnumerateDeviceExtensionProperties, device, nullptr, &extensionCount, availableExtensions.data());
 
-		std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
+		std::set<String> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
 
 		for (const auto& extension : availableExtensions) {
 			requiredExtensions.erase(extension.extensionName);

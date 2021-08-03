@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Engine/Core.h"
-#include <string>
+#include "Engine/General/Common.h"
+
 #include <stdexcept>
 
 // The most simple class is called an object, an object has a name and can exist outside of any world
@@ -24,11 +25,11 @@ namespace Engine
 	class Engine_API Object
 	{
 	public:
-		Object(const std::string& sName = "Object");
+		Object(const String& sName = "Object");
 		virtual ~Object();
 
-		void SetName(const std::string& sName) { m_sName = sName; }
-		virtual const std::string& GetName() const { return m_sName; }
+		void SetName(const String& sName) { m_sName = sName; }
+		virtual const String& GetName() const { return m_sName; }
 
 		// Disable new keyword
 		// inline void* operator new (std::size_t) throw(std::bad_alloc) {
@@ -37,6 +38,6 @@ namespace Engine
 		// }
 		
 	protected:
-		std::string m_sName = "";
+		String m_sName = "";
 	};
 }

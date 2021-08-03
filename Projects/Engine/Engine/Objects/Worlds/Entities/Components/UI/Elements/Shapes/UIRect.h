@@ -13,12 +13,12 @@ namespace Engine
 			E_ROUNDED = 1
 		};
 		
-		UIRect(Entity& Entity, const std::string& sName = "Text") : UIShape(Entity, sName)
+		UIRect(Entity& Entity, const String& sName = "Rect") : UIShape(Entity, sName)
 		{
 
 		}
 
-		virtual void Draw() override;
+		void Draw() override;
 		
 		Type GetType() const { return m_Type; }
 
@@ -27,7 +27,10 @@ namespace Engine
 		
 	private:
 		Type m_Type = E_DEFAULT;
-		SkScalar m_LeftRadius, m_TopRadius, m_RightRadius, m_BottomRadius;
+		SkScalar m_LeftRadius = 0.f,
+			m_TopRadius = 0.f,
+			m_RightRadius = 0.f,
+			m_BottomRadius = 0.f;
 	};
 
 	Engine_REGISTER_COMP(UIRect);

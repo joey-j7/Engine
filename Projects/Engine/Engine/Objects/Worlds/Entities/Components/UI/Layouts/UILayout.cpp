@@ -5,17 +5,25 @@
 
 namespace Engine
 {
-	UILayout::UILayout(Entity& Entity, const std::string& sName) : Component(Entity, sName)
+	UILayout::UILayout(Entity& Entity, const String& sName) : Component(Entity, sName)
 	{
-		AddDependencyTypes<TransformComponent2D>();
+		AddDependencyTypes<Transform2DComponent>();
 		AddProhibitedTypes<UIElement>();
 
-		m_Entity.OnChildAdded.Bind(this, &UILayout::OnChildAdded);
-		m_Entity.OnChildRemoved.Bind(this, &UILayout::OnChildRemoved);
+		m_ChildAddedID = m_Entity.OnChildAdded.Bind(this, &UILayout::OnChildAdded);
+		m_ChildRemovedID = m_Entity.OnChildRemoved.Bind(this, &UILayout::OnChildRemoved);
 
-		m_Entity.OnParentChanged.Bind(this, &UILayout::OnParentChanged);
+		m_ParentChangedID = m_Entity.OnParentChanged.Bind(this, &UILayout::OnParentChanged);
 
-		m_Transform = GetEntity().GetComponent<TransformComponent2D>();
+		m_Transform = GetEntity().GetComponent<Transform2DComponent>();
+	}
+
+	UILayout::~UILayout()
+	{
+		m_Entity.OnChildAdded.Unbind(m_ChildAddedID);
+		m_Entity.OnChildRemoved.Unbind(m_ChildRemovedID);
+
+		m_Entity.OnParentChanged.Unbind(m_ParentChangedID);
 	}
 
 	AABB UILayout::GetBounds() const
@@ -76,8 +84,8 @@ namespace Engine
 			);
 		}
 
-		Child.OnComponentAdded.Bind(this, &UILayout::OnComponentAdded);
-		Child.OnComponentRemoved.Bind(this, &UILayout::OnComponentRemoved);
+		// Child.OnComponentAdded.Bind(this, &UILayout::OnComponentAdded);
+		// Child.OnComponentRemoved.Bind(this, &UILayout::OnComponentRemoved);
 	}
 
 	void UILayout::OnChildRemoved(Entity& Origin, Entity& Child)
@@ -89,8 +97,8 @@ namespace Engine
 			// Pair.Component->SetLayoutOffset(Vector2(0.f));
 		}
 
-		Child.OnComponentAdded.Unbind(this, &UILayout::OnComponentAdded);
-		Child.OnComponentRemoved.Unbind(this, &UILayout::OnComponentRemoved);
+		// Child.OnComponentAdded.Unbind(this, &UILayout::OnComponentAdded);
+		// Child.OnComponentRemoved.Unbind(this, &UILayout::OnComponentRemoved);
 
 		m_EntitiesComponents.erase(Find);
 	}

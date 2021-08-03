@@ -16,7 +16,7 @@ namespace Engine
 		friend class Window;
 
 	public:
-		Application(const std::string& sName = "Application");
+		Application(const String& sName = "Application");
 		virtual ~Application();
 
 		void Run();

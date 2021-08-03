@@ -18,7 +18,7 @@ namespace Engine
 {
 	struct Engine_API ScreenMessage
 	{
-		std::string Message = "";
+		String Message = "";
 		Color Color;
 		Timer Time = Timer(1.0f);
 	};
@@ -41,7 +41,7 @@ namespace Engine
 		inline static std::vector<ScreenMessage>& GetScreenLogger() { return m_ScreenLogger; }
 
 	private:
-		static void AddScreenMessage(const std::string& message, Color color, float fTimer);
+		static void AddScreenMessage(const String& message, Color color, float fTimer);
 		
 		static inline Type Level = 
 			#ifdef CB_DEBUG
@@ -63,7 +63,7 @@ namespace Engine
 			return;
 
 		Color col = Color(1.0f);
-		static const std::string typeNames[] = { "TRACE", "INFO", "WARN", "ERROR", "FATAL" };
+		static const String typeNames[] = { "TRACE", "INFO", "WARN", "ERROR", "FATAL" };
 
 		switch (type)
 		{
@@ -98,9 +98,9 @@ namespace Engine
 #endif
 		
 		/* Format message */
-		std::string message = "";
-		std::string name = ((isCore) ? "CORE" : "USER");
-		std::string time = Time::GetFormattedString("%H:%M:%S");
+		String message = "";
+		String name = ((isCore) ? "CORE" : "USER");
+		String time = Time::GetFormattedString("%H:%M:%S");
 
 		fmt::memory_buffer formatted;
 

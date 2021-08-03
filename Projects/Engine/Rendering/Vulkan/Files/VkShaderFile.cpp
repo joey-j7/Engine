@@ -7,7 +7,7 @@
 
 namespace Engine
 {
-	VkShaderFile::VkShaderFile(const std::string& filePath) : ShaderFile(filePath)
+	VkShaderFile::VkShaderFile(const String& filePath) : ShaderFile(filePath)
 	{
 		uint32_t length = 0;
 		const char* data = FileLoader::Read(filePath, length, FileLoader::E_ROOT, false);
