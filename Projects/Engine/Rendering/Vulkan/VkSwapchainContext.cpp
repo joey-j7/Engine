@@ -134,6 +134,7 @@ namespace Engine
 
 		CreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		CreateInfo.surface = API->Surface;
+		CreateInfo.pNext = nullptr;
 
 		CreateInfo.minImageCount = FrameCount;
 

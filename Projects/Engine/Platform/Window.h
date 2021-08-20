@@ -69,8 +69,10 @@ namespace Engine {
 		static Window* Create(const WindowProps& props = WindowProps());
 		virtual void Reset() = 0;
 
-		virtual bool IsMousePressed() const = 0;
-		virtual DVector2 GetMousePosition() const = 0;
+		static bool IsMousePressed() { return m_MousePressed; }
+		static bool IsMouseInView() { return m_MouseInView; }
+		static DVector2 GetMousePosition() { return m_MousePosition; }
+		static DVector2 GetMouseDelta() { return m_MouseDelta; }
 
 		virtual void Wait() = 0;
 
@@ -90,12 +92,17 @@ namespace Engine {
 		Event<void, int32_t> OnKeyReleased = Event<void, int32_t>("Window::OnKeyReleased");
 		
 		Event<void, const DVector2&> OnScroll = Event<void, const DVector2&>("Window::OnScroll");
-		Event<void, const DVector2&> OnCursorPosition = Event<void, const DVector2&>("Window::OnCursorPosition");
+		Event<void, const DVector2&, const DVector2&> OnCursorPosition = Event<void, const DVector2&, const DVector2&>("Window::OnCursorPosition");
 
 	protected:
 		virtual void Shutdown() = 0;
 
-		Data m_Data;
+		static bool m_MousePressed;
+		static bool m_MouseInView;
+		static DVector2 m_MousePosition;
+		static DVector2 m_MouseDelta;
+
+		static Data m_Data;
 	};
 
 }

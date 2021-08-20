@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Component.h"
 #include "Engine/Objects/Clickable.h"
 
 namespace Engine

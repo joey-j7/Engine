@@ -60,8 +60,7 @@ namespace Engine
 		void SetPosition(const T& ToPosition, bool Local = true)
 		{
 			if (
-				(Local && ToPosition == m_LocalTransform.m_Position) ||
-				(!Local && ToPosition == m_CachedGlobalTransform.m_Position)
+				(Local && ToPosition == m_LocalTransform.m_Position)
 			)
 				return;
 
@@ -78,12 +77,20 @@ namespace Engine
 
 				Old = ToPosition;
 
-				MarkDirty(E_TRANSLATION);
+				if (m_ParentTransform)
+				{
+					MarkDirty(E_TRANSLATION);
+				}
+				else
+				{
+					m_CachedGlobalTransform.m_Position = ToPosition;
+					m_TranslationDirty = false;
+				}
 			}
 			// Global -> Local will be set directly
 			else
 			{
-				const T& OldGlobal = m_CachedGlobalTransform.m_Position;
+				const T& OldGlobal = GetPosition();
 				const T& NewGlobal = ToPosition;
 				const T DiffGlobal = NewGlobal - OldGlobal;
 
@@ -177,8 +184,16 @@ namespace Engine
 				OnTransformation(From, To);
 
 				Old = ToRotation;
-
-				MarkDirty(E_ROTATION);
+				
+				if (m_ParentTransform)
+				{
+					MarkDirty(E_ROTATION);
+				}
+				else
+				{
+					m_CachedGlobalTransform.m_Rotation = ToRotation;
+					m_RotationDirty = false;
+				}
 			}
 			// Global -> Local will be set directly
 			else
@@ -247,7 +262,7 @@ namespace Engine
 			if (m_ScaleDirty)
 			{
 				m_CachedGlobalTransform.m_Scale = m_ParentTransform ?
-					m_ParentTransform->GetScale(false) + m_LocalTransform.m_Scale :
+					m_ParentTransform->GetScale(false) * m_LocalTransform.m_Scale :
 					m_LocalTransform.m_Scale
 				;
 				
@@ -278,9 +293,17 @@ namespace Engine
 
 				Old = ToScale;
 
-				MarkDirty(E_SCALING);
+				if (m_ParentTransform)
+				{
+					MarkDirty(E_SCALING);
+				}
+				else
+				{
+					m_CachedGlobalTransform.m_Scale = ToScale;
+					m_ScaleDirty = false;
+				}
 			}
-			// Global -> Local will be set directly
+			// Global -> Local will be set directly, TODO: fix
 			else
 			{
 				const T& OldGlobal = m_CachedGlobalTransform.m_Scale;
@@ -315,14 +338,14 @@ namespace Engine
 			T Old = m_LocalTransform.m_Scale;
 			T ToAdd = Scaling;
 
-			// TODO: Local should consider rotation based on current direction
+			// TODO: Local should consider scaling based on current direction
 			if (Local)
 			{
 
 			}
 
-			m_LocalTransform.m_Scale += ToAdd;
-			m_CachedGlobalTransform.m_Scale += ToAdd;
+			m_LocalTransform.m_Scale *= ToAdd;
+			m_CachedGlobalTransform.m_Scale *= ToAdd;
 
 			Transform<T, R> From = Transform<T, R>(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, Old);
 			Transform<T, R> To = Transform<T, R>(m_LocalTransform.m_Position, m_LocalTransform.m_Rotation, m_LocalTransform.m_Scale);
@@ -456,7 +479,7 @@ namespace Engine
 		void OnParentChanged(Entity& Origin, Entity* OldEntity, Entity* NewEntity)
 		{
 			// Unassign its transforms
-			if (OldEntity == &GetEntity())
+			if (&Origin == &GetEntity() && OldEntity)
 			{
 				auto Components = OldEntity->GetComponentsOfType<TransformComponent<T, R>>();
 
@@ -473,13 +496,20 @@ namespace Engine
 			}
 
 			// Assign its transforms
-			if (NewEntity == &GetEntity())
+			if (&Origin == &GetEntity() && NewEntity)
 			{
 				auto Components = NewEntity->GetComponentsOfType<TransformComponent<T, R>>();
 
 				for (TransformComponent<T, R>* Component : Components)
 				{
-					m_ChildTransforms.push_back(Component);
+					const auto Find = std::find(
+						Component->m_ChildTransforms.begin(),
+						Component->m_ChildTransforms.end(),
+						this
+					);
+
+					if (Find == Component->m_ChildTransforms.end())
+						Component->m_ChildTransforms.push_back(this);
 				}
 			}
 
@@ -503,7 +533,4 @@ namespace Engine
 		bool m_RotationDirty = true;
 		bool m_ScaleDirty = true;
 	};
-
-	template TransformComponent<Vector3, Vector3>;
-	template TransformComponent<Vector2, float>;
 }

@@ -8,13 +8,12 @@
 namespace Engine
 {
 	UIButton::UIButton(
-		std::function<void()> Function,
-		const Style& DefaultStyle,
-		const Style& HoverStyle,
-		const Style& PressStyle,
+		const ButtonStyle& DefaultStyle,
+		const ButtonStyle& HoverStyle,
+		const ButtonStyle& PressStyle,
 		const String& sName
 	) : StaticEntity(sName), m_DefaultStyle(DefaultStyle),
-	m_HoverStyle(HoverStyle), m_PressStyle(PressStyle), m_Function(Function)
+	m_HoverStyle(HoverStyle), m_PressStyle(PressStyle)
 	{
 		m_ClickableComponent = AddComponent<ClickableComponent>();
 		
@@ -22,17 +21,64 @@ namespace Engine
 		m_ClickableComponent->OnExitEvent.Bind(this, &UIButton::OnExit);
 		m_ClickableComponent->OnPressedEvent.Bind(this, &UIButton::OnPressed);
 		m_ClickableComponent->OnReleasedEvent.Bind(this, &UIButton::OnReleased);
-		
+
 		m_ClickableComponent->OnClickedEvent.Bind(this, &UIButton::OnClicked);
+		m_ClickableComponent->OnDraggedEvent.Bind(this, &UIButton::OnDragged);
 
 		m_BackgroundComponent = AddComponent<UIRect>();
 		m_BackgroundComponent->SetAlignment(Vector2(0.5f, 0.5f));
-		m_BackgroundComponent->SetAnchor(E_ANCH_CENTER);
 
 		m_ForegroundEntity = std::make_unique<StaticEntity>("Button Foreground");
 		m_ForegroundEntity->SetParent(this);
 
+		SetAnchor(m_Anchor);
 		ApplyStyle(m_DefaultStyle);
+	}
+
+	void UIButton::SetAnchor(Anchor NewAnchor)
+	{
+		m_Anchor = NewAnchor;
+
+		m_BackgroundComponent->SetAnchor(m_Anchor);
+
+		if (m_BackgroundImageComponent)
+			m_BackgroundImageComponent->SetAnchor(m_Anchor);
+		
+		if (m_ForegroundImageComponent)
+			m_ForegroundImageComponent->SetAnchor(m_Anchor);
+		
+		if (m_TextComponent)
+			m_TextComponent->SetAnchor(m_Anchor);
+	}
+
+	void UIButton::SetOnEnterCallback(const std::function<void()>& Enter)
+	{
+		m_OnEnter = Enter;
+	}
+
+	void UIButton::SetOnExitCallback(const std::function<void()>& Exit)
+	{
+		m_OnExit = Exit;
+	}
+
+	void UIButton::SetOnPressedCallback(const std::function<void()>& Pressed)
+	{
+		m_OnPressed = Pressed;
+	}
+
+	void UIButton::SetOnReleasedCallback(const std::function<void()>& Released)
+	{
+		m_OnReleased = Released;
+	}
+
+	void UIButton::SetOnClickedCallback(const std::function<void()>& Clicked)
+	{
+		m_OnClicked = Clicked;
+	}
+
+	void UIButton::SetOnDraggedCallback(const std::function<void(const DVector2&)>& Dragged)
+	{
+		m_OnDragged = Dragged;
 	}
 
 	void UIButton::SetText(const String& Text)
@@ -45,7 +91,7 @@ namespace Engine
 			m_TextComponent = AddComponent<UIText>();
 			
 			m_TextComponent->SetAlignment(Vector2(0.5f, 0.5f));
-			m_TextComponent->SetAnchor(E_ANCH_CENTER);
+			m_TextComponent->SetAnchor(m_Anchor);
 		}
 		
 		if (m_TextComponent->GetText() == Text)
@@ -69,17 +115,26 @@ namespace Engine
 	{
 		if (!m_ClickableComponent->IsPressed())
 			ApplyStyle(m_HoverStyle);
+
+		if (m_OnEnter)
+			m_OnEnter();
 	}
 
 	void UIButton::OnExit(const DVector2& Position)
 	{
 		if (!m_ClickableComponent->IsPressed())
 			ApplyStyle(m_DefaultStyle);
+
+		if (m_OnExit)
+			m_OnExit();
 	}
 
 	void UIButton::OnPressed()
 	{
 		ApplyStyle(m_PressStyle);
+
+		if (m_OnPressed)
+			m_OnPressed();
 	}
 
 	void UIButton::OnReleased()
@@ -88,23 +143,32 @@ namespace Engine
 			ApplyStyle(m_HoverStyle);
 		else
 			ApplyStyle(m_DefaultStyle);
+
+		if (m_OnReleased)
+			m_OnReleased();
 	}
 	
 	void UIButton::OnClicked()
 	{
-		if (m_Function)
-			m_Function();
-		
-		SetText(
-			m_TextComponent->GetText() == "Clicked!" ? "Unclicked!" : "Clicked!"
-		);
+		if (m_OnClicked)
+			m_OnClicked();
 	}
-	void UIButton::ApplyStyle(const Style& NewStyle)
+
+	void UIButton::OnDragged(const DVector2& Position, const DVector2& Delta)
+	{
+		if (m_OnDragged)
+			m_OnDragged(Delta);
+	}
+
+	void UIButton::ApplyStyle(const ButtonStyle& NewStyle)
 	{
 		if (!NewStyle.m_BackgroundImagePath.empty() || m_BackgroundImageComponent)
 		{
 			if (!m_BackgroundImageComponent)
+			{
 				m_BackgroundImageComponent = AddComponent<UIImage>();
+				m_BackgroundImageComponent->SetAnchor(m_Anchor);
+			}
 			
 			m_BackgroundImageComponent->SetImage(NewStyle.m_BackgroundImagePath);
 		}
@@ -112,8 +176,11 @@ namespace Engine
 		if (!NewStyle.m_ForegroundImagePath.empty() || m_ForegroundImageComponent)
 		{
 			if (!m_ForegroundImageComponent)
+			{
 				m_ForegroundImageComponent = m_ForegroundEntity->AddComponent<UIImage>();
-
+				m_ForegroundImageComponent->SetAnchor(m_Anchor);
+			}
+			
 			m_ForegroundImageComponent->SetImage(NewStyle.m_ForegroundImagePath);
 		}
 		

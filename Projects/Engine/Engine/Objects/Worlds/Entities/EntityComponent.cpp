@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Entity.h"
+#include "EntityComponent.h"
 
 #include "Components/RenderComponent.h"
 
@@ -25,6 +25,8 @@ namespace Engine
 		Bounds.fRight = FLT_MIN;
 		Bounds.fBottom = FLT_MIN;
 
+		bool Found = false;
+
 		auto Render3DComponents = GetComponentsOfType<Render3DComponent>();
 		
 		for (auto& Component : Render3DComponents)
@@ -35,6 +37,8 @@ namespace Engine
 			Bounds.fTop = glm::min(Bounds.fTop, Bounds2.fTop);
 			Bounds.fRight = glm::max(Bounds.fRight, Bounds2.fRight);
 			Bounds.fBottom = glm::max(Bounds.fBottom, Bounds2.fBottom);
+
+			Found = true;
 		}
 
 		auto Render2DComponents = GetComponentsOfType<Render2DComponent>();
@@ -47,9 +51,11 @@ namespace Engine
 			Bounds.fTop = glm::min(Bounds.fTop, Bounds2.fTop);
 			Bounds.fRight = glm::max(Bounds.fRight, Bounds2.fRight);
 			Bounds.fBottom = glm::max(Bounds.fBottom, Bounds2.fBottom);
+
+			Found = true;
 		}
 
-		if (Bounds.fLeft == FLT_MAX || Bounds.fTop == FLT_MAX || Bounds.fRight == FLT_MIN || Bounds.fBottom == FLT_MIN)
+		if (!Found)
 		{
 			Bounds.fLeft = Bounds.fTop = Bounds.fRight = Bounds.fBottom = 0.f;
 		}

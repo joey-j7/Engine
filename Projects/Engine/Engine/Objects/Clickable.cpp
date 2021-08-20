@@ -6,7 +6,7 @@
 
 namespace Engine
 {
-	Clickable* Clickable::PressedClickable = nullptr;
+	Clickable* Clickable::FocussedClickable = nullptr;
 	
 	Clickable::Clickable() : m_Window(Application::Get().GetRenderContext().GetWindow())
 	{
@@ -22,6 +22,8 @@ namespace Engine
 	void Clickable::OnEnter(const DVector2& Position)
 	{
 		m_IsHovered = true;
+		FocussedClickable = this;
+
 		OnEnterEvent(Position);
 	}
 
@@ -33,16 +35,20 @@ namespace Engine
 	void Clickable::OnExit(const DVector2& Position)
 	{
 		m_IsHovered = false;
+
+		if (!m_IsPressed)
+			FocussedClickable = nullptr;
+		
 		OnExitEvent(Position);
+	}
+
+	void Clickable::OnDrag(const DVector2& Position, const DVector2& Delta)
+	{
+		OnDraggedEvent(Position, Delta);
 	}
 
 	bool Clickable::OnPressed()
 	{
-		if (!CanPress())
-			return false;
-
-		PressedClickable = this;
-		
 		m_IsPressed = true;
 		OnPressedEvent();
 
@@ -51,14 +57,14 @@ namespace Engine
 
 	void Clickable::OnReleased()
 	{
-		PressedClickable = nullptr;
-
 		if (m_IsHovered)
 		{
 			OnClicked();
 		}
 		
 		m_IsPressed = false;
+		FocussedClickable = nullptr;
+
 		OnReleasedEvent();
 	}
 
@@ -67,11 +73,10 @@ namespace Engine
 		OnClickedEvent();
 	}
 
-	void Clickable::OnCursorPosition(const DVector2& Position)
+	void Clickable::OnCursorPosition(const DVector2& Position, const DVector2& Delta)
 	{
 		const AABB Bounds = GetBounds();
-		
-		const bool Hover = Bounds.contains(Position.x, Position.y);
+		const bool Hover = CanFocus() && Bounds.contains(Position.x, Position.y);
 		
 		if (Hover && !m_IsHovered)
 			OnEnter(Position);
@@ -79,6 +84,9 @@ namespace Engine
 			OnHover(Position);
 		else if (!Hover && m_IsHovered)
 			OnExit(Position);
+
+		if (m_IsPressed && Delta != DVector2(0))
+			OnDrag(Position, Delta);
 	}
 
 	void Clickable::OnMousePressed(uint32_t MouseButton)
@@ -87,7 +95,9 @@ namespace Engine
 			return;
 
 		const DVector2 Mouse = m_Window.GetMousePosition();
-		OnCursorPosition(Mouse);
+		const DVector2 Delta = m_Window.GetMouseDelta();
+		
+		OnCursorPosition(Mouse, Delta);
 		
 		if (m_IsHovered && !m_IsPressed)
 		{

@@ -4,7 +4,7 @@
 
 #include "Engine/Core.h"
 #include <string>
-#include <list>
+#include <vector>
 
 #include "Engine/Objects/Object.h"
 
@@ -82,6 +82,11 @@ namespace Engine
 		uint32_t GetID() const
 		{
 			return m_ID;
+		}
+
+		const String& GetName() const
+		{
+			return m_sName;
 		}
 
 	protected:
@@ -222,7 +227,7 @@ namespace Engine
 		typename HandlerType::IDType Add(const typename HandlerType::FunctionType& Handler, const String& sName)
 		{
 			std::lock_guard<std::mutex> lock(m_HandlersLocker);
-			m_Handlers.emplace_back(Handler, sName);
+			m_Handlers.push_back(HandlerType(Handler, sName));
 			return m_Handlers.back().GetID();
 		}
 
@@ -245,13 +250,13 @@ namespace Engine
 			return Remove(HandlerType(Handler));
 		}
 
-		typedef std::list<HandlerType> HandlerCollectionType;
+		typedef std::vector<HandlerType> HandlerCollectionType;
 
 		void CallInternal(const HandlerCollectionType& Handlers, Args... Params) const
 		{
-			for (const auto& Handler : Handlers)
+			for (auto i = Handlers.rbegin(); i != Handlers.rend(); ++i)
 			{
-				Handler(Params...);
+				(*i)(Params...);
 			}
 		}
 

@@ -36,9 +36,6 @@ namespace Engine {
 		virtual void Reset() override;
 
 		virtual void Wait() override;
-
-		virtual bool IsMousePressed() const;
-		virtual DVector2 GetMousePosition() const;
 		
 	private:
 		virtual void Init(const WindowProps& props);

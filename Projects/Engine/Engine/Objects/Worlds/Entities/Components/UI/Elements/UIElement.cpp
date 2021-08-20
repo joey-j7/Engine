@@ -18,7 +18,9 @@ namespace Engine
 		m_Window(Application::Get().GetRenderContext().GetWindow())
 	{
 		AddProhibitedTypes<UILayout>();
-		
+
+		m_Bounds.fLeft = 0.f;
+		m_Bounds.fTop = 0.f;
 		m_Bounds.fRight = static_cast<float>(m_Width);
 		m_Bounds.fBottom = static_cast<float>(m_Height);
 	}
@@ -35,6 +37,9 @@ namespace Engine
 
 		m_Color = Color;
 		m_Gradient = Gradient();
+
+		if (m_PaintStyle == SkPaint::Style::kStroke_Style)
+			m_BorderColor = Color;
 		
 		MarkDirty();
 	}
@@ -128,8 +133,8 @@ namespace Engine
 	{
 		Vector2 Offset;
 		
-		Offset.x = -(m_Width * m_Alignment.x - (m_Alignment.x == 0.5f ? 0.f : m_Alignment.x > 0.5f ? -m_Padding.z : m_Padding.x)) * ScreenScale.x;
-		Offset.y = -(m_Height * m_Alignment.y - (m_Alignment.y == 0.5f ? 0.f : m_Alignment.y > 0.5f ? -m_Padding.w : m_Padding.y)) * ScreenScale.y;
+		Offset.x = -(m_Width - (m_Alignment.x == 0.5f ? 0.f : m_Alignment.x > 0.5f ? -m_Padding.z : m_Padding.x)) * m_Alignment.x * ScreenScale.x;
+		Offset.y = -(m_Height - (m_Alignment.y == 0.5f ? 0.f : m_Alignment.y > 0.5f ? -m_Padding.w : m_Padding.y)) * m_Alignment.y * ScreenScale.y;
 
 		return Offset;
 	}
@@ -143,9 +148,20 @@ namespace Engine
 		
 		if (Parent)
 		{
+			AABB Bounds;
+			
 			if (UILayout* Layout = CheckParentLayout(*Parent))
 			{
-				AABB Bounds = Layout->GetBounds();
+				Bounds = Layout->GetBounds();
+
+				Offset += Vector2(Bounds.fLeft, Bounds.fTop);
+
+				Dims.x = Bounds.fRight - Bounds.fLeft;
+				Dims.y = Bounds.fBottom - Bounds.fTop;
+			}
+			else
+			{
+				Bounds = Parent->GetBounds();
 
 				Offset += Vector2(Bounds.fLeft, Bounds.fTop);
 
@@ -304,26 +320,7 @@ namespace Engine
 		}
 		
 		// Transform
-		const Vector2 ScreenPosition = GetPosition();
-		const float ScreenRotation = GetRotation();
-		Vector2 ScreenScale = GetScale();
-
-		const Vector2 Offset = ApplyAlignment(Vector2(1.f / ScreenScale.x, 1.f / ScreenScale.y));
-		
-		if (m_ScaleWithDPI)
-		{
-			ScreenScale *= m_Window.GetScale();
-		}
-
-		const Vector2 Anchor = ApplyAnchor(ScreenPosition, ScreenScale);
-		
-		m_Matrix = SkMatrix::Translate(Anchor.x, Anchor.y);
-		
-		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Scale(ScreenScale.x, ScreenScale.y));
-		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::RotateDeg(ScreenRotation));
-		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Translate(ScreenPosition.x + Offset.x, ScreenPosition.y + Offset.y));
-		
-		m_Canvas->setMatrix(m_Matrix);
+		m_Canvas->setMatrix(GetMatrix());
 	}
 
 	void UIElement::EndDraw()
@@ -420,6 +417,30 @@ namespace Engine
 		m_Bounds.fBottom = static_cast<float>(Height);
 		
 		MarkDirty();
+	}
+
+	const SkMatrix& UIElement::GetMatrix()
+	{
+		const Vector2 ScreenPosition = GetPosition(true);
+		const float ScreenRotation = GetRotation();
+		Vector2 ScreenScale = GetScale();
+
+		const Vector2 Offset = ApplyAlignment(Vector2(1.f / ScreenScale.x, 1.f / ScreenScale.y));
+
+		if (m_ScaleWithDPI)
+		{
+			ScreenScale *= m_Window.GetScale();
+		}
+
+		const Vector2 Anchor = ApplyAnchor(ScreenPosition, ScreenScale);
+
+		m_Matrix = SkMatrix::Translate(Anchor.x, Anchor.y);
+
+		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Scale(ScreenScale.x, ScreenScale.y));
+		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::RotateDeg(ScreenRotation));
+		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Translate(ScreenPosition.x + Offset.x, ScreenPosition.y + Offset.y));
+
+		return m_Matrix;
 	}
 
 	void UIElement::SetSize(uint32_t Width, uint32_t Height)
@@ -536,8 +557,8 @@ namespace Engine
 
 	const AABB UIElement::GetUnscaledBounds()
 	{
-		SkMatrix Matrix = m_Matrix;
-		Matrix = SkMatrix::Concat(SkMatrix::Scale(1.f / m_Matrix.getScaleX(), 1.f / m_Matrix.getScaleY()), Matrix);
+		SkMatrix Matrix = GetMatrix();
+		Matrix = SkMatrix::Concat(SkMatrix::Scale(1.f / Matrix.getScaleX(), 1.f / Matrix.getScaleY()), Matrix);
 
 		AABB Bounds;
 		Matrix.mapRect(&Bounds, m_Bounds);
@@ -552,7 +573,7 @@ namespace Engine
 
 	const AABB UIElement::GetBounds()
 	{
-		SkMatrix Matrix = m_Matrix;
+		SkMatrix Matrix = GetMatrix();
 		
 		AABB Bounds;
 		Matrix.mapRect(&Bounds, m_Bounds);

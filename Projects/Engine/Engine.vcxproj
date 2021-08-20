@@ -32,26 +32,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -183,6 +183,7 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -227,6 +228,7 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -271,6 +273,7 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -315,6 +318,7 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -361,6 +365,7 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
       <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -402,6 +407,7 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
       <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -443,6 +449,7 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
       <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -483,6 +490,7 @@
 		%(PreprocessorDefinitions);
 	  </PreprocessorDefinitions>
       <AdditionalOptions>-Wno-macro-redefined %(AdditionalOptions)</AdditionalOptions>
+      <CppLanguageStandard>c++1z</CppLanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
@@ -516,7 +524,6 @@
     <ClInclude Include="Engine\Core.h" />
     <ClInclude Include="Engine\DeltaTime.h" />
     <ClInclude Include="Engine\EntryPoint.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Component.h" />
     <ClInclude Include="Engine\Objects\LayeredObject.h" />
     <ClInclude Include="Engine\Objects\DynamicObject.h" />
     <ClInclude Include="Engine\Objects\Object.h" />
@@ -533,7 +540,7 @@
     <ClInclude Include="Engine\Objects\Worlds\Entities\UI\Camera\UICameraPreview.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\UI\UIButton.h" />
     <ClInclude Include="Engine\Objects\Worlds\World.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Entity.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\EntityComponent.h" />
     <ClInclude Include="Engine\Input\Input.h" />
     <ClInclude Include="Engine\Input\KeyCodes.h" />
     <ClInclude Include="Engine\Layers\Layer.h" />
@@ -604,7 +611,6 @@
     <ClCompile Include="Engine\Events\Event.cpp" />
     <ClCompile Include="Engine\Objects\Clickable.cpp" />
     <ClCompile Include="Engine\Objects\Renderable.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Component.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\RenderComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.cpp" />
     <ClCompile Include="Engine\Layers\LayerStack.cpp" />
@@ -625,7 +631,7 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIShape.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIImage.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\DynamicEntity.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\EntityComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\StaticEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\UI\Camera\UICameraPreview.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\UI\UIButton.cpp" />
@@ -653,6 +659,7 @@
     <ClCompile Include="Platform\GLFW\GLFWInput.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWWindow.cpp" />
     <ClCompile Include="Platform\Hardware\HardwareContext.cpp" />
+    <ClCompile Include="Platform\Window.cpp" />
     <ClCompile Include="Platform\Windows\WinFileLoader.cpp" />
     <ClCompile Include="Rendering\OpenGL\Files\GLShaderFile.cpp" />
     <ClCompile Include="Rendering\OpenGL\GLCommandEngine.cpp" />

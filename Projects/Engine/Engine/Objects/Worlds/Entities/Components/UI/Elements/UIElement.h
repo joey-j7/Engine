@@ -114,7 +114,7 @@ namespace Engine
 		void SetGradient(const Gradient& Gradient);
 
 		const SkPaint::Style& GetStyle() const { return m_PaintStyle; }
-
+		
 		void SetBorder(uint32_t Width, const Color& Color = SK_ColorBLACK, bool ShowFill = true);
 		void SetBorder(uint32_t Width, const Gradient& Gradient, bool ShowFill = true);
 
@@ -123,6 +123,8 @@ namespace Engine
 
 		uint32_t GetHeight() const { return m_Height; }
 		virtual void SetHeight(uint32_t Height);
+
+		const SkMatrix& GetMatrix();
 
 		void SetSize(uint32_t Width, uint32_t Height);
 
@@ -145,7 +147,7 @@ namespace Engine
 		void SetShader(const String& Source);
 
 		template <typename T>
-		void SetShaderUniform(const String& UniformName, const T Value[], const int32_t Count)
+		void SetShaderUniform(const String& UniformName, const T Value)
 		{
 			if (!m_RuntimeShaderInfo.m_Builder)
 			{
@@ -153,7 +155,7 @@ namespace Engine
 				return;
 			}
 
-			m_RuntimeShaderInfo.m_Builder->uniform(UniformName.c_str()).set(&Value, Count);
+			m_RuntimeShaderInfo.m_Builder->uniform(UniformName.c_str()) = Value;
 			m_RuntimeShaderInfo.m_Dirty = true;
 
 			MarkDirty();

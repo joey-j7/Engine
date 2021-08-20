@@ -211,8 +211,6 @@
   <ItemDefinitionGroup>
     <ClCompile />
     <ClCompile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <CppLanguageStandard>c++1z</CppLanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);

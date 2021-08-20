@@ -178,20 +178,7 @@ namespace Engine {
 	{
 		glfwWaitEvents();
 	}
-
-	bool GLFWWindow::IsMousePressed() const
-	{
-		return glfwGetMouseButton(m_Window, 0) == GLFW_PRESS;
-	}
-
-	DVector2 GLFWWindow::GetMousePosition() const
-	{
-		DVector2 Position;
-		glfwGetCursorPos(m_Window, &Position.x, &Position.y);
-
-		return Position;
-	}
-
+	
 	/* Events */
 	void GLFWWindow::OnUpdate()
 	{
@@ -291,12 +278,23 @@ namespace Engine {
 		{
 		case GLFW_PRESS:
 		{
+			DVector2 NewPosition;
+			glfwGetCursorPos(Window, &NewPosition.x, &NewPosition.y);
+				
+			m_MousePressed = true;
+			m_MousePosition = NewPosition;
+
+			m_MouseInView = m_MousePosition.x >= 0.f && m_MousePosition.x <= m_Data.Width &&
+				m_MousePosition.y >= 0.f && m_MousePosition.y <= m_Data.Height;
+				
 			GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
 			AppWindow.OnMousePressed(Button);
 			break;
 		}
 		case GLFW_RELEASE:
 		{
+			m_MousePressed = false;
+				
 			GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
 			AppWindow.OnMouseReleased(Button);
 			break;
@@ -312,7 +310,15 @@ namespace Engine {
 	
 	void GLFWWindow::OnCursorPositionCallback(GLFWwindow* Window, double PositionX, double PositionY)
 	{
+		const DVector2 NewPosition = DVector2(PositionX, PositionY);
+
+		m_MouseDelta = NewPosition - Window::m_MousePosition;
+		m_MousePosition = NewPosition;
+
+		m_MouseInView = m_MousePosition.x >= 0.f && m_MousePosition.x <= m_Data.Width &&
+			m_MousePosition.y >= 0.f && m_MousePosition.y <= m_Data.Height;
+
 		GLFWWindow& AppWindow = *(GLFWWindow*)glfwGetWindowUserPointer(Window);
-		AppWindow.OnCursorPosition(DVector2(PositionX, PositionY));
+		AppWindow.OnCursorPosition(m_MousePosition, m_MouseDelta);
 	}
 }

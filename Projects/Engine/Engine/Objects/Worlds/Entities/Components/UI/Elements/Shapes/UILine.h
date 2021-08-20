@@ -12,7 +12,7 @@ namespace Engine
 		void Draw() override;
 
 		const Vector2& GetStartPosition() const { return GetPosition(); }
-		void SetStartPosition(const Vector2& End) { SetPosition(End); };
+		void SetStartPosition(const Vector2& Start);
 		
 		const Vector2& GetEndPosition() const { return m_End; }
 		void SetEndPosition(const Vector2& End);

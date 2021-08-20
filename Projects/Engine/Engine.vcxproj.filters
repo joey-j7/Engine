@@ -57,10 +57,9 @@
     <ClInclude Include="Engine\Files\Config\ConfigFile.h" />
     <ClInclude Include="Rendering\Renderers\Renderer2D.h" />
     <ClInclude Include="Rendering\Vulkan\Renderers\VkRenderer2D.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Component.h" />
     <ClInclude Include="Engine\Objects\DynamicObject.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\DynamicEntity.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Entity.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\EntityComponent.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\StaticEntity.h" />
     <ClInclude Include="Rendering\Vulkan\Objects\Wrappers\VkWrapper.h" />
     <ClInclude Include="Rendering\Vulkan\Objects\VkHandle.h" />
@@ -149,12 +148,11 @@
     <ClCompile Include="Platform\Android\Hardware\Camera\AndCamera.cpp" />
     <ClCompile Include="Platform\Hardware\HardwareContext.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\TransformComponent.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Entity.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\EntityComponent.cpp" />
     <ClCompile Include="Engine\Events\Event.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkScreenCommandEngine.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIElement.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\ClickableComponent.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Component.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\StaticEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\DynamicEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIText.cpp" />
@@ -175,5 +173,6 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\UI\Camera\UICameraPreview.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIOval.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UILine.cpp" />
+    <ClCompile Include="Platform\Window.cpp" />
   </ItemGroup>
 </Project>

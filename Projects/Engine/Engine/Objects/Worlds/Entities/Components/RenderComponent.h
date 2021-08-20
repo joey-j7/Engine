@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Component.h"
-
 #include "Engine/Application.h"
 
 #include "Engine/Objects/Renderable.h"
@@ -46,9 +44,9 @@ namespace Engine
 			MarkDirty();
 		}
 
-		const T& GetPosition() const
+		const T& GetPosition(bool Local = false) const
 		{
-			return GetDependency<R>()->GetPosition();
+			return GetDependency<R>()->GetPosition(Local);
 		}
 
 		void SetPosition(const T& Position)
@@ -56,9 +54,9 @@ namespace Engine
 			return GetDependency<R>()->SetPosition(Position);
 		}
 		
-		const S& GetRotation() const
+		const S& GetRotation(bool Local = false) const
 		{
-			return GetDependency<R>()->GetRotation();
+			return GetDependency<R>()->GetRotation(Local);
 		}
 
 		void SetRotation(const R& Rotation)
@@ -66,9 +64,9 @@ namespace Engine
 			return GetDependency<R>()->SetRotation(Rotation);
 		}
 		
-		const T& GetScale() const
+		const T& GetScale(bool Local = false) const
 		{
-			return GetDependency<R>()->GetScale();
+			return GetDependency<R>()->GetScale(false);
 		}
 
 		void SetScale(const T& Scale)

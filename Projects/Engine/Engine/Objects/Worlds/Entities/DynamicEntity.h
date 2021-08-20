@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity.h"
+#include "EntityComponent.h"
 #include "Engine/Objects/DynamicObject.h"
 
 namespace Engine

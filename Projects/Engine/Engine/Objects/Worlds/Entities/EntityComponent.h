@@ -4,7 +4,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "Components/Component.h"
+#include "Engine/Objects/Object.h"
+#include "Engine/Objects/Worlds/Entities/Components/RegisterComponent.h"
 
 #include "Engine/Events/Event.h"
 #include "Engine/General/Collision.h"
@@ -17,6 +18,8 @@ namespace Engine
 	
 	class Transform2DComponent;
 	class Transform3DComponent;
+
+	class Component;
 	
 	class Engine_API Entity
 	{
@@ -46,20 +49,7 @@ namespace Engine
 		T* GetComponent();
 		
 		template <class T>
-		std::vector<T*> GetComponentsOfType() const
-		{
-			std::vector<T*> Components;
-			
-			for (auto& Pair : m_Components)
-			{
-				if (!dynamic_cast<T*>(Pair.second.get()))
-					continue;
-
-				Components.push_back(reinterpret_cast<T*>(Pair.second.get()));
-			}
-
-			return Components;
-		}
+		std::vector<T*> GetComponentsOfType() const;
 
 		template <class T, class... Args>
 		T* AddComponent(Args... Arguments);
@@ -110,6 +100,153 @@ namespace Engine
 		
 		std::unordered_map<size_t, std::unique_ptr<Component>> m_Components = {};
 	};
+
+	class Engine_API Component : public Object
+	{
+		friend class Entity;
+
+	public:
+		Component(Entity& Entity, const String& sName = "Component") : Object(sName), m_Entity(Entity) {}
+		Component(const Component&) = delete;
+		Component& operator =(const Component&) = delete;
+
+		virtual ~Component() = default;
+
+		Entity& GetEntity() const { return m_Entity; }
+		bool HasForcedUniqueness() const { return m_ForceUniqueness; }
+
+		bool IsCompatible(size_t ComponentID) const
+		{
+			return std::find(
+				m_ProhibitedTypes.begin(),
+				m_ProhibitedTypes.end(),
+				ComponentID
+			) == m_ProhibitedTypes.end();
+		}
+
+		bool HasDependency(size_t ComponentID) const
+		{
+			return std::find(
+				m_DependencyTypes.begin(),
+				m_DependencyTypes.end(),
+				ComponentID
+			) != m_DependencyTypes.end();
+		}
+
+		template <typename D>
+		D* GetDependency() const
+		{
+			D* Comp = GetEntity().template GetComponent<D>();
+
+			// Not added yet
+			if (!Comp)
+				Comp = static_cast<D*>(
+					m_PendingComponentsToAdd.at(
+						Component::GetClassID<D>()
+					).get()
+					);
+
+			return Comp;
+		}
+
+		template <class T>
+		static size_t GetClassID();
+
+		size_t GetID() const { return m_ID; }
+
+	protected:
+		Entity& m_Entity;
+
+		bool m_ForceUniqueness = false;
+
+		virtual void OnInitialized() {}
+
+		template <typename... ProhibitedTypes>
+		constexpr void AddProhibitedTypes();
+
+		template <typename... DependencyTypes>
+		constexpr void AddDependencyTypes();
+
+	private:
+		std::vector<size_t> m_DependencyTypes;
+		std::vector<size_t> m_ProhibitedTypes;
+
+		std::unordered_map<size_t, std::unique_ptr<Component>> m_PendingComponentsToAdd;
+
+		size_t m_ID = 0;
+	};
+
+	template <typename ... ProhibitedTypes>
+	constexpr void Component::AddProhibitedTypes()
+	{
+		m_ProhibitedTypes.reserve(m_ProhibitedTypes.size() + sizeof...(ProhibitedTypes));
+		const void* Add[sizeof...(ProhibitedTypes)] = {
+			[&]()->void*
+			{
+				static_assert(
+					std::is_base_of<Component, ProhibitedTypes>::value,
+					"Type is not a Component"
+				);
+
+				const size_t ID = GetClassID<ProhibitedTypes>();
+
+				if (std::find(m_ProhibitedTypes.begin(), m_ProhibitedTypes.end(), ID) != m_ProhibitedTypes.end())
+					return nullptr;
+
+				m_ProhibitedTypes.push_back(ID);
+				return nullptr;
+			}() ...
+		};
+	}
+
+	template <typename ... DependencyTypes>
+	constexpr void Component::AddDependencyTypes()
+	{
+		m_DependencyTypes.reserve(m_DependencyTypes.size() + sizeof...(DependencyTypes));
+		const void* Add[sizeof...(DependencyTypes)] = {
+			[&]()->void*
+			{
+				static_assert(
+					std::is_base_of<Component, DependencyTypes>::value,
+					"Type is not a Component"
+				);
+
+				size_t ID = GetClassID<DependencyTypes>();
+
+				if (m_PendingComponentsToAdd.find(ID) != m_PendingComponentsToAdd.end())
+					return nullptr;
+
+				m_DependencyTypes.push_back(ID);
+
+				if (GetEntity().template GetComponent<DependencyTypes>())
+					return nullptr;
+
+				m_PendingComponentsToAdd.emplace(
+					std::pair<size_t, std::unique_ptr<Component>>(
+						ID,
+						nullptr
+					)
+				);
+
+				std::unique_ptr<DependencyTypes> Comp = std::make_unique<DependencyTypes>(m_Entity);
+				Comp->m_ID = ID;
+				m_PendingComponentsToAdd[ID] = std::move(Comp);
+
+				return nullptr;
+			}() ...
+		};
+	}
+
+	template <class T>
+	size_t Component::GetClassID()
+	{
+		static_assert(
+			std::is_base_of<Component, T>::value,
+			"Type is not a Component"
+			);
+
+		return typeid(T).hash_code();
+	}
 	
 	template <class T>
 	T* Entity::GetComponent()
@@ -122,6 +259,22 @@ namespace Engine
 		return static_cast<T*>(GetComponentByID(
 			Component::GetClassID<T>()
 		));
+	}
+
+	template <class T>
+	std::vector<T*> Entity::GetComponentsOfType() const
+	{
+		std::vector<T*> Components;
+
+		for (auto& Pair : m_Components)
+		{
+			if (!dynamic_cast<T*>(Pair.second.get()))
+				continue;
+
+			Components.push_back(reinterpret_cast<T*>(Pair.second.get()));
+		}
+
+		return Components;
 	}
 	
 	template <class T, class... Args>

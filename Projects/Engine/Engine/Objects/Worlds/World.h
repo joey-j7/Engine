@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Entities/Entity.h"
+#include "Entities/EntityComponent.h"
 #include "Entities/DynamicEntity.h"
 
 #include "Engine/Managers/IDManager.h"

@@ -24,8 +24,7 @@
 #include "Engine/General/Math.h"
 #include "Engine/General/Collision.h"
 
-#include "Engine/Objects/Worlds/Entities/Entity.h"
-#include "Engine/Objects/Worlds/Entities/Components/Component.h"
+#include "Engine/Objects/Worlds/Entities/EntityComponent.h"
 
 #include "Engine/Logger/Log.h"
 #include "Engine/Timer.h"
