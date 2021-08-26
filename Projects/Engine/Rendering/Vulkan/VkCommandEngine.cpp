@@ -32,6 +32,12 @@ namespace Engine
 		CreateCommandPool();
 		CreateSyncObjects();
 
+		for (auto Pass : GetVkPasses())
+		{
+			Pass->Init();
+		}
+
+
 		m_Initialized = true;
 	}
 

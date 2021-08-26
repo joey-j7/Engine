@@ -8,7 +8,10 @@ namespace Engine
 	class Engine_API RenderContext
 	{
 	public:
+		~RenderContext();
+
 		void Init();
+		void Deinit();
 
 		Window& GetWindow() const { return *m_pWindow; };
 		
@@ -18,6 +21,8 @@ namespace Engine
 
 		static RenderAPI::Type GetAPIType() { return m_APIType; }
 		void SetAPIType(RenderAPI::Type type);
+
+		bool IsInitialized() const { return m_Initialized; }
 
 	private:
 		std::unique_ptr<Window> m_pWindow;

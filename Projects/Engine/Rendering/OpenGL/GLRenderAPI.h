@@ -17,9 +17,6 @@ namespace Engine {
 
 		virtual bool Swap() override;
 		virtual void Present() override;
-
-		virtual void Suspend() override {};
-		virtual void Resume() override {};
 		
 		virtual CommandEngine* GetCommandEngine(const String& sName) override;
 

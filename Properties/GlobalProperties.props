@@ -41,7 +41,7 @@
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
     <VCProjectVersion>15.0</VCProjectVersion>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
   </PropertyGroup>
   <!-- Android -->
@@ -52,7 +52,7 @@
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
     <PlatformToolset>Clang_5_0</PlatformToolset>
     <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
-    <AndroidAPILevel>android-19</AndroidAPILevel>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
     <ShowAndroidPathsVerbosity>Low</ShowAndroidPathsVerbosity>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='ARM64'" Label="Globals">
@@ -62,7 +62,7 @@
     <ApplicationTypeRevision>3.0</ApplicationTypeRevision>
     <PlatformToolset>Clang_5_0</PlatformToolset>
     <TargetPlatformIdentifier>Android</TargetPlatformIdentifier>
-    <AndroidAPILevel>android-21</AndroidAPILevel>
+    <AndroidAPILevel>android-30</AndroidAPILevel>
     <ShowAndroidPathsVerbosity>Low</ShowAndroidPathsVerbosity>
   </PropertyGroup>
   
@@ -89,6 +89,7 @@
 	<CB_INCLUDE_PATHS_WINDOWS>
 		$(MSBuildThisFileDirectory);
 		$(VK_SDK_PATH)\include;
+		$(VC_IncludePath)
 	</CB_INCLUDE_PATHS_WINDOWS>
 	
 	<CB_INCLUDE_PATHS_ANDROID>

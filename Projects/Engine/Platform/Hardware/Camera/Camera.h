@@ -25,6 +25,9 @@ namespace Engine
 		virtual bool Start(CameraType Type = E_CAMERA_BACKFACE);
 		virtual bool Stop();
 
+		virtual bool Pause();
+		virtual bool Resume();
+
 		virtual void TakePhoto() = 0;
 		const String& GetLastPhotoPath() const { return m_LastPhotoPath; }
 
@@ -52,6 +55,7 @@ namespace Engine
 
 		bool m_bStarted = false;
 		bool m_bOpened = false;
+		bool m_bPaused = false;
 
 		static int32_t m_Orientation;
 		String m_LastPhotoPath = "";

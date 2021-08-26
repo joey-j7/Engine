@@ -133,8 +133,14 @@ namespace Engine {
 
 	void GLFWWindow::Shutdown()
 	{
+		Wait();
+
 		glfwDestroyWindow(m_Window);
 		glfwTerminate();
+
+		m_Window = nullptr;
+
+		s_GLFWInitialized = false;
 	}
 
 	void GLFWWindow::SetVSync(bool enabled)
@@ -167,8 +173,7 @@ namespace Engine {
 
 	void GLFWWindow::Reset()
 	{
-		glfwDestroyWindow(m_Window);
-		m_Window = nullptr;
+		Shutdown();
 
 		const WindowProps props(m_Data.Title, m_Data.Width, m_Data.Height);
 		Init(props);

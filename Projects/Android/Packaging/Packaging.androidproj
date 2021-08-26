@@ -23,6 +23,7 @@
     <RootNamespace>Launcher</RootNamespace>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ProjectVersion>1.0</ProjectVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <ProjectGuid>{f8317474-a145-4211-8f2a-608cc66cb428}</ProjectGuid>
     <LaunchActivity Condition="'$(LaunchActivity)' == ''">com.appuil.Launcher.MainActivity</LaunchActivity>
     <JavaSourceRoots>src\main\java</JavaSourceRoots>

@@ -101,12 +101,19 @@ namespace Engine
 
 		if (m_bPaused)
 		{
-			m_RenderContext->GetAPI().Suspend();
+			m_HardwareContext->Pause();
+			m_RenderContext->GetAPI().Deinit();
 		}
 		else
 		{
 			m_DeltaTime->Reset();
-			m_RenderContext->GetAPI().Resume();
+
+// #ifdef CB_PLATFORM_ANDROID
+			m_RenderContext->Deinit();
+			m_RenderContext->Init();
+// #endif
+
+			m_HardwareContext->Resume();
 		}
 
 		OnPauseChanged(m_bPaused);

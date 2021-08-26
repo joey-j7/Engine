@@ -41,9 +41,6 @@ namespace Engine
 		virtual bool Swap() = 0;
 		virtual void Present() = 0;
 
-		virtual void Suspend() = 0;
-		virtual void Resume() = 0;
-
 		virtual CommandEngine* GetCommandEngine(const String& sName) = 0;
 		RenderContext& GetRenderContext() const { return *m_pRenderContext; }
 

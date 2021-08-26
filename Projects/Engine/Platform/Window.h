@@ -67,7 +67,9 @@ namespace Engine {
 		virtual void* GetNativeWindow() const = 0;
 
 		static Window* Create(const WindowProps& props = WindowProps());
+		virtual void Init(const WindowProps& props = WindowProps()) = 0;
 		virtual void Reset() = 0;
+		virtual void Shutdown() = 0;
 
 		static bool IsMousePressed() { return m_MousePressed; }
 		static bool IsMouseInView() { return m_MouseInView; }
@@ -95,8 +97,6 @@ namespace Engine {
 		Event<void, const DVector2&, const DVector2&> OnCursorPosition = Event<void, const DVector2&, const DVector2&>("Window::OnCursorPosition");
 
 	protected:
-		virtual void Shutdown() = 0;
-
 		static bool m_MousePressed;
 		static bool m_MouseInView;
 		static DVector2 m_MousePosition;

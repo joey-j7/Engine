@@ -33,14 +33,14 @@ namespace Engine {
 		bool IsTrippleBuffering() const override;
 
 		inline virtual void* GetNativeWindow() const override { return m_Window; }
+
+		virtual void Init(const WindowProps& props = WindowProps()) override;
 		virtual void Reset() override;
+		virtual void Shutdown() override;
 
 		virtual void Wait() override;
 		
 	private:
-		virtual void Init(const WindowProps& props);
-		virtual void Shutdown() override;
-
 		static void OnResizeCallback(GLFWwindow* window, int width, int height);
 		static void OnFramebufferResizeCallback(GLFWwindow* window, int width, int height);
 		

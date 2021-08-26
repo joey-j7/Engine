@@ -13,9 +13,6 @@
 [submodule "Libraries/glfw"]
 	path = Libraries/glfw
 	url = https://github.com/joey-j7/glfw-multi/
-[submodule "Libraries/crossshader"]
-	path = Libraries/crossshader
-	url = https://github.com/alaingalvan/crossshader.git
 [submodule "Libraries/box2d"]
 	path = Libraries/box2d
 	url = https://github.com/erincatto/box2d.git

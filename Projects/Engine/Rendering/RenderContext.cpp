@@ -14,29 +14,55 @@ namespace Engine
 
 	RenderAPI::Type RenderContext::m_APIType = RenderAPI::E_VULKAN;
 
+	RenderContext::~RenderContext()
+	{
+		Deinit();
+	}
+
 	void RenderContext::Init()
 	{
 		if (m_Initialized)
 			return;
-		
-		m_pWindow = std::unique_ptr<Window>(Window::Create());
-		
-		if (!glfwVulkanSupported())
-		{
-			m_APIType = RenderAPI::E_OPENGL;
-		}
 
-		switch(m_APIType)
+		if (!m_pWindow.get())
+			m_pWindow = std::unique_ptr<Window>(Window::Create());
+		else
+			m_pWindow->Init();
+		
+		if (!m_pAPI)
 		{
-		case RenderAPI::E_VULKAN:
-			m_pAPI = std::unique_ptr<RenderAPI>(new VkRenderAPI(*this));
-			break;
-		default:
-			m_pAPI = std::unique_ptr<RenderAPI>(new GLRenderAPI(*this));
-			break;
+			if (!glfwVulkanSupported())
+			{
+				m_APIType = RenderAPI::E_OPENGL;
+			}
+
+			switch (m_APIType)
+			{
+			case RenderAPI::E_VULKAN:
+				m_pAPI = std::unique_ptr<RenderAPI>(new VkRenderAPI(*this));
+				break;
+			default:
+				m_pAPI = std::unique_ptr<RenderAPI>(new GLRenderAPI(*this));
+				break;
+			}
+		}
+		else
+		{
+			m_pAPI->Init();
 		}
 
 		m_Initialized = true;
+	}
+
+	void RenderContext::Deinit()
+	{
+		if (!m_Initialized)
+			return;
+		
+		m_pAPI->Deinit();
+		m_pWindow->Shutdown();
+		
+		m_Initialized = false;
 	}
 
 	void RenderContext::SetAPIType(RenderAPI::Type type)

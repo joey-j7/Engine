@@ -9,6 +9,9 @@ namespace Engine
 	public:
 		Camera& GetCamera();
 
+		void Pause();
+		void Resume();
+
 	private:
 		std::unique_ptr<Camera> m_pCamera;
 	};

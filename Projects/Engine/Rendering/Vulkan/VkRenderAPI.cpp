@@ -47,8 +47,7 @@ namespace Engine
 	VkRenderAPI::VkRenderAPI(RenderContext& renderContext) : RenderAPI(renderContext), SwapchainCtx(*this)
 	{
 		CB_CORE_ASSERT(!s_Instance, "VkRenderAPI already exists!");
-		s_Instance = this;
-
+		
 		// m_pDatabase->Add<VkModelFile>({ "fbx", "obj", "vox" });
 		// m_pDatabase->Add<VkTextureFile>({ "png", "jpg", "bmp" });
 		FileDatabase::Get().Add<VkShaderFile>({ "vspv" });
@@ -61,17 +60,20 @@ namespace Engine
 		VkResult err = vk(DeviceWaitIdle, Device);
 		Verify(err);
 
+		Deinit();
+
 		m_pRenderer2D.reset();
 		m_pRenderer3D.reset();
-		
-		for (auto& it : m_CommandEngines)
+
+		for (auto it1 : m_CommandEngines)
 		{
-			delete it.second;
+			delete it1.second;
 		}
 
-		SwapchainCtx.Deinit();
+		m_CommandEngines.clear();
 
-		vk(DestroySurfaceKHR, Instance, Surface, nullptr);
+		if (s_Instance == this)
+			s_Instance = nullptr;
 	}
 
 	bool VkRenderAPI::Swap()
@@ -85,17 +87,7 @@ namespace Engine
 		// Transition swapchain image barrier to PRESENT
 		m_ScreenCommandEngine->Present();
 	}
-
-	void VkRenderAPI::Suspend()
-	{
-		
-	}
-
-	void VkRenderAPI::Resume()
-	{
-		
-	}
-
+	
 	CommandEngine* VkRenderAPI::GetCommandEngine(const String& sName)
 	{
 		auto it = m_CommandEngines.find(sName);
@@ -177,6 +169,8 @@ namespace Engine
 		if (m_bInitialized)
 			return false;
 
+		s_Instance = this;
+
 		if (!m_InitializedOnce)
 		{
 			m_sName = "Vulkan";
@@ -189,10 +183,13 @@ namespace Engine
 #if defined(CB_DEBUG) && defined(CB_PLATFORM_WINDOWS)
 			SetupDebugMessages();
 #endif
+		}
+		
+		/* Create GLFW Window and screen related buffers */
+		CreateSurface();
 
-			/* Create GLFW Window and screen related buffers */
-			CreateSurface();
-
+		if (!m_InitializedOnce)
+		{
 			PickPhysicalDevice();
 			CreateLogicalDevice();
 
@@ -211,16 +208,6 @@ namespace Engine
 		/* Create swap chain and image views */
 		SwapchainCtx.Init();
 		
-		for (auto it1 : m_CommandEngines)
-		{
-			it1.second->Init();
-			
-			for (auto it2 : it1.second->GetVkPasses())
-			{
-				it2->Init();
-			}
-		}
-
 		if (!m_InitializedOnce)
 		{
 			/* Create screen render pass, graphics pipeline (draw pass) */
@@ -233,6 +220,11 @@ namespace Engine
 			vk(GetPhysicalDeviceFeatures, PhysicalDevice, &Features);
 
 			m_InitializedOnce = true;
+		}
+
+		for (auto it1 : m_CommandEngines)
+		{
+			it1.second->Init();
 		}
 		
 		/* Create 2D renderer surface */
@@ -247,15 +239,23 @@ namespace Engine
 			return false;
 
 		vk(DeviceWaitIdle, Device);
-		
+
 		for (auto it1 : m_CommandEngines)
 		{
 			it1.second->Deinit();
 		}
 
 		m_pRenderer2D->Deinit();
+		// m_pRenderer3D->Deinit();
+
 		SwapchainCtx.Deinit();
-		
+
+		if (Surface)
+		{
+			vk(DestroySurfaceKHR, Instance, Surface, nullptr);
+			Surface = nullptr;
+		}
+
 		return RenderAPI::Deinit();
 	}
 

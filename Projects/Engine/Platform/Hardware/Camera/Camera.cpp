@@ -39,6 +39,28 @@ namespace Engine
 		return true;
 	}
 
+	bool Camera::Pause()
+	{
+		if (!m_bStarted)
+			return false;
+
+		Stop();
+
+		m_bPaused = true;
+		return true;
+	}
+
+	bool Camera::Resume()
+	{
+		if (!m_bPaused)
+			return false;
+
+		Start(m_Type);
+
+		m_bPaused = false;
+		return true;
+	}
+
 	bool Camera::Open()
 	{
 		if (m_bOpened)
