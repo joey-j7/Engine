@@ -10,6 +10,7 @@
 #include "Engine/Objects/Worlds/Entities/Components/UI/Layouts/UILayout.h"
 
 #include <include/effects/SkGradientShader.h>
+#include <src/core/SkRuntimeEffectPriv.h>
 
 namespace Engine
 {
@@ -129,17 +130,17 @@ namespace Engine
 		return Components[0];
 	}
 
-	Vector2 UIElement::ApplyAlignment(const Vector2& ScreenScale) const
+	Vector2 UIElement::CalcPivot(const Vector2& ScreenScale) const
 	{
 		Vector2 Offset;
 		
-		Offset.x = -(m_Width - (m_Alignment.x == 0.5f ? 0.f : m_Alignment.x > 0.5f ? -m_Padding.z : m_Padding.x)) * m_Alignment.x * ScreenScale.x;
-		Offset.y = -(m_Height - (m_Alignment.y == 0.5f ? 0.f : m_Alignment.y > 0.5f ? -m_Padding.w : m_Padding.y)) * m_Alignment.y * ScreenScale.y;
+		Offset.x = -glm::max(static_cast<float>(m_Width), m_Padding.z + m_Padding.x) * m_Pivot.x * ScreenScale.x;
+		Offset.y = -glm::max(static_cast<float>(m_Height), m_Padding.w + m_Padding.y) * m_Pivot.y * ScreenScale.y;
 
 		return Offset;
 	}
 
-	Vector2 UIElement::ApplyAnchor(const Vector2& ScreenPosition, const Vector2& ScreenScale)
+	Vector2 UIElement::CalcAnchor(const Vector2& ScreenScale)
 	{
 		Vector2 Offset;
 
@@ -173,7 +174,8 @@ namespace Engine
 		if (Dims == Vector2(0.f))
 		{
 			Window& Window = Application::Get().GetRenderContext().GetWindow();
-			Dims = Vector2(Window.GetWidth(), Window.GetHeight());
+			const float Scale = 1.f;// / Window.GetScale();
+			Dims = Vector2(Window.GetWidth() * Scale, Window.GetHeight() * Scale);
 		}
 		
 		switch (m_Anchor)
@@ -188,7 +190,7 @@ namespace Engine
 		case(E_ANCH_CENTER_RIGHT):
 		case(E_ANCH_BOTTOM_RIGHT):
 		case(E_ANCH_RIGHT_FILL):
-			Offset.x += Dims.x - ScreenPosition.x - m_RightOffset * ScreenScale.x;
+			Offset.x += Dims.x - m_RightOffset * ScreenScale.x;
 			break;
 		default:
 			break;
@@ -206,7 +208,7 @@ namespace Engine
 		case(E_ANCH_BOTTOM):
 		case(E_ANCH_BOTTOM_RIGHT):
 		case(E_ANCH_BOTTOM_FILL):
-			Offset.y += Dims.y - ScreenPosition.y - m_BottomOffset * ScreenScale.y;
+			Offset.y += Dims.y - m_BottomOffset * ScreenScale.y;
 			break;
 		default:
 			break;
@@ -217,17 +219,17 @@ namespace Engine
 		case(E_ANCH_TOP_FILL):
 		case(E_ANCH_CENTER_FILL_HORIZONTAL):
 		case(E_ANCH_BOTTOM_FILL):
-			SetWidth(static_cast<uint32_t>(Dims.x - ScreenPosition.x - m_RightOffset * ScreenScale.x));
+			SetWidth(static_cast<uint32_t>(Dims.x - m_RightOffset * ScreenScale.x));
 			break;
 		case(E_ANCH_LEFT_FILL):
 		case(E_ANCH_CENTER_FILL_VERTICAL):
 		case(E_ANCH_RIGHT_FILL):
-			SetHeight(static_cast<uint32_t>(Dims.y - ScreenPosition.y - m_BottomOffset * ScreenScale.y));
+			SetHeight(static_cast<uint32_t>(Dims.y - m_BottomOffset * ScreenScale.y));
 			break;
 		case(E_ANCH_FULL_FILL):
 			SetSize(
-				static_cast<uint32_t>(Dims.x - ScreenPosition.x - m_RightOffset * ScreenScale.x),
-				static_cast<uint32_t>(Dims.y - ScreenPosition.y - m_BottomOffset * ScreenScale.y)
+				static_cast<uint32_t>(Dims.x - m_RightOffset * ScreenScale.x),
+				static_cast<uint32_t>(Dims.y - m_BottomOffset * ScreenScale.y)
 			);
 			break;
 		default:
@@ -253,21 +255,24 @@ namespace Engine
 				{ 0, 0 }
 			};
 
+			AABB Bounds = GetUnscaledBounds();
+
 			switch (m_Gradient.GetType())
 			{
 			case Gradient::E_HORIZONTAL:
 				Points[1] = {
-				static_cast<SkScalar>(m_Width), 0.f
+				Bounds.width(), 0.f
 				};
 				break;
 			case Gradient::E_VERTICAL:
 				Points[1] = {
-				0.f, static_cast<SkScalar>(m_Height)
+				0.f, Bounds.height()
 				};
 				break;
 			case Gradient::E_DIAGONAL:
 				Points[1] = {
-				static_cast<SkScalar>(m_Width), static_cast<SkScalar>(m_Height)
+				Bounds.width(),
+				Bounds.height()
 				};
 				break;
 			case Gradient::E_NONE:
@@ -295,11 +300,10 @@ namespace Engine
 
 		// Stroke logic
 		const bool HasIdenticalStroke = m_PaintStyle != SkPaint::Style::kFill_Style &&
-		(
 			m_Gradient.HasColors() ?
-			m_Gradient == m_BorderGradient :
-			m_Color == m_BorderColor
-		);
+				m_Gradient == m_BorderGradient :
+				m_Color == m_BorderColor
+		;
 		
 		m_Paint.setStroke(HasIdenticalStroke);
 
@@ -425,20 +429,23 @@ namespace Engine
 		const float ScreenRotation = GetRotation();
 		Vector2 ScreenScale = GetScale();
 
-		const Vector2 Offset = ApplyAlignment(Vector2(1.f / ScreenScale.x, 1.f / ScreenScale.y));
-
 		if (m_ScaleWithDPI)
 		{
 			ScreenScale *= m_Window.GetScale();
 		}
-
-		const Vector2 Anchor = ApplyAnchor(ScreenPosition, ScreenScale);
-
+		
+		// Apply screen anchor
+		const Vector2 Anchor = CalcAnchor(Vector2(1.f));
 		m_Matrix = SkMatrix::Translate(Anchor.x, Anchor.y);
 
 		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Scale(ScreenScale.x, ScreenScale.y));
 		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::RotateDeg(ScreenRotation));
-		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Translate(ScreenPosition.x + Offset.x, ScreenPosition.y + Offset.y));
+
+		// Apply object pivot
+		const Vector2 Pivot = CalcPivot(Vector2(1.f));
+		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Translate(Pivot.x, Pivot.y));
+
+		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Translate(ScreenPosition.x, ScreenPosition.y));
 
 		return m_Matrix;
 	}
@@ -472,17 +479,17 @@ namespace Engine
 		m_UseAntialiasing = AA;
 	}
 
-	void UIElement::SetAlignment(const Vector2& Alignment)
+	void UIElement::SetPivot(const Vector2& Pivot)
 	{
-		Vector2 CheckedAlignment;
+		Vector2 CheckedPivot;
 		
-		CheckedAlignment.x = glm::clamp(Alignment.x, 0.f, 1.f);
-		CheckedAlignment.y = glm::clamp(Alignment.y, 0.f, 1.f);
+		CheckedPivot.x = glm::clamp(Pivot.x, 0.f, 1.f);
+		CheckedPivot.y = glm::clamp(Pivot.y, 0.f, 1.f);
 
-		if (m_Alignment == CheckedAlignment)
+		if (m_Pivot == CheckedPivot)
 			return;
 
-		m_Alignment = CheckedAlignment;
+		m_Pivot = CheckedPivot;
 
 		MarkDirty();
 	}
@@ -530,7 +537,10 @@ namespace Engine
 
 	void UIElement::SetShader(const String& Source)
 	{
-		auto [Effect, Error] = SkRuntimeEffect::MakeForShader(SkString(Source.c_str()));
+		SkRuntimeEffect::Options Options;
+		SkRuntimeEffectPriv::EnableFragCoord(&Options);
+		
+		auto [Effect, Error] = SkRuntimeEffect::MakeForShader(SkString(Source.c_str()), Options);
 
 		if (!Effect)
 		{
@@ -563,10 +573,11 @@ namespace Engine
 		AABB Bounds;
 		Matrix.mapRect(&Bounds, m_Bounds);
 
-		Bounds.fBottom += m_Padding.y;
-		Bounds.fTop -= m_Padding.w;
-		Bounds.fLeft -= m_Padding.x;
-		Bounds.fRight += m_Padding.z;
+		const float Height = glm::max(Bounds.fBottom - Bounds.fTop, m_Padding.x + m_Padding.z);
+		const float Width = glm::max(Bounds.fRight - Bounds.fLeft, m_Padding.x + m_Padding.z);
+
+		Bounds.fBottom = Bounds.fTop + Height;
+		Bounds.fRight = Bounds.fLeft + Width;
 
 		return Bounds;
 	}
@@ -582,11 +593,12 @@ namespace Engine
 
 		if (m_ScaleWithDPI)
 			Scale = m_Window.GetScale();
-		
-		Bounds.fBottom += m_Padding.y * Scale;
-		Bounds.fTop -= m_Padding.w * Scale;
-		Bounds.fLeft -= m_Padding.x * Scale;
-		Bounds.fRight += m_Padding.z * Scale;
+
+		const float Height = glm::max(Bounds.fBottom - Bounds.fTop, (m_Padding.x + m_Padding.z) * Scale);
+		const float Width = glm::max(Bounds.fRight - Bounds.fLeft, (m_Padding.x + m_Padding.z) * Scale);
+
+		Bounds.fBottom = Bounds.fTop + Height;
+		Bounds.fRight = Bounds.fLeft + Width;
 		
 		return Bounds;
 	}

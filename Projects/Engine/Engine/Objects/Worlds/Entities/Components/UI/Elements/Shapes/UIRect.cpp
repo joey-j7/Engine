@@ -10,15 +10,10 @@ namespace Engine
 	{
 		SkRect Rect = SkRect::MakeXYWH(
 			0, 0,
-			static_cast<SkScalar>(m_Width),
-			static_cast<SkScalar>(m_Height)
+			glm::max(static_cast<SkScalar>(m_Width), m_Padding.x + m_Padding.z),
+			glm::max(static_cast<SkScalar>(m_Height), m_Padding.y + m_Padding.w)
 		);
-
-		Rect.fBottom += m_Padding.y;
-		Rect.fTop -= m_Padding.w;
-		Rect.fLeft -= m_Padding.x;
-		Rect.fRight += m_Padding.z;
-
+		
 		if (m_Type == E_ROUNDED)
 		{
 			SkRRect RRect;

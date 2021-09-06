@@ -51,8 +51,8 @@ namespace Engine
 				m_Font,
 				SkTextEncoding::kUTF8
 			),
-			(m_Width - m_TextWidth) * m_Alignment.x,
-			(m_Height - m_TextHeight) * m_Alignment.y + m_TextHeight,
+			(m_Width - m_TextWidth) * m_Pivot.x,
+			(m_Height - m_TextHeight) * m_Pivot.y + m_TextHeight,
 			m_Paint
 		);
 	}

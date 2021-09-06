@@ -49,9 +49,9 @@ namespace Engine
 			return GetDependency<R>()->GetPosition(Local);
 		}
 
-		void SetPosition(const T& Position)
+		void SetPosition(const T& Position, bool Local = true)
 		{
-			return GetDependency<R>()->SetPosition(Position);
+			return GetDependency<R>()->SetPosition(Position, Local);
 		}
 		
 		const S& GetRotation(bool Local = false) const
@@ -59,9 +59,9 @@ namespace Engine
 			return GetDependency<R>()->GetRotation(Local);
 		}
 
-		void SetRotation(const R& Rotation)
+		void SetRotation(const R& Rotation, bool Local = false)
 		{
-			return GetDependency<R>()->SetRotation(Rotation);
+			return GetDependency<R>()->SetRotation(Rotation, Local);
 		}
 		
 		const T& GetScale(bool Local = false) const
@@ -69,9 +69,9 @@ namespace Engine
 			return GetDependency<R>()->GetScale(false);
 		}
 
-		void SetScale(const T& Scale)
+		void SetScale(const T& Scale, bool Local = true)
 		{
-			return GetDependency<R>()->SetScale(Scale);
+			return GetDependency<R>()->SetScale(Scale, Local);
 		}
 
 		R* GetTransform() const

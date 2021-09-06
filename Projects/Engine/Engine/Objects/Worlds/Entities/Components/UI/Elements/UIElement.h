@@ -137,8 +137,8 @@ namespace Engine
 		bool GetAntialiasing() const { return m_UseAntialiasing; }
 		virtual void SetAntialiasing(bool AA);
 
-		const Vector2& GetAlignment() const { return m_Alignment; }
-		void SetAlignment(const Vector2& Alignment);
+		const Vector2& GetPivot() const { return m_Pivot; }
+		void SetPivot(const Vector2& Pivot);
 
 		Anchor GetAnchor() const { return m_Anchor; }
 		void SetAnchor(Anchor Anchor);
@@ -204,7 +204,7 @@ namespace Engine
 		AABB m_Bounds;
 		Window& m_Window;
 		
-		Vector2 m_Alignment = Vector2(0.f);
+		Vector2 m_Pivot = Vector2(0.f);
 		Anchor m_Anchor = E_ANCH_TOP_LEFT;
 		
 		bool m_ShowFill = true;
@@ -218,8 +218,8 @@ namespace Engine
 		virtual void EndDraw() override;
 
 	private:
-		Vector2 ApplyAnchor(const Vector2& ScreenPosition, const Vector2& ScreenScale);
-		Vector2 ApplyAlignment(const Vector2& ScreenScale) const;
+		Vector2 CalcAnchor(const Vector2& ScreenScale);
+		Vector2 CalcPivot(const Vector2& ScreenScale) const;
 
 		UILayout* CheckParentLayout(Entity& Origin) const;
 	};

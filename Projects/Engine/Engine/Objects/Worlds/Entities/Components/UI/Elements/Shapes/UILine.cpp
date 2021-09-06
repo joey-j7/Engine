@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "UILine.h"
 
+#include "Platform/Window.h"
+
 namespace Engine
 {
 	UILine::UILine(Entity& Entity, const String& sName) : UIShape(Entity, sName)
@@ -11,13 +13,12 @@ namespace Engine
 	void UILine::Draw()
 	{
 		const Vector2 End = GetEndPosition();
-		const float Offset = GetThickness() * 0.5f;
-		
+
 		m_Canvas->drawLine(
-			 -Offset,
-			Offset,
-			End.x - Offset,
-			End.y + Offset,
+			 0.f,
+			0.f,
+			End.x,
+			End.y,
 			m_Paint
 		);
 	}

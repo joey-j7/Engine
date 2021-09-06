@@ -27,11 +27,13 @@ namespace Engine
         XVector2(const XVector2<T>& Vector) : x(Vector.x), y(Vector.y) {}
         XVector2(const glm::vec2& Vector) : x(Vector.x), y(Vector.y) {}
         XVector2(const b2Vec2& Vector) : x(Vector.x), y(Vector.y) {}
+        XVector2(const SkVector& Vector) : x(Vector.fX), y(Vector.fY) {}
 
         template <typename T>
         operator XVector2<T>() const { return XVector2<T>(x, y); }
         operator glm::vec2() const { return glm::vec2(x, y); }
         operator b2Vec2() const { return b2Vec2(x, y); }
+        operator SkVector() const { return SkVector::Make(x, y); }
         
         template<typename T>
         XVector2<F>& operator=(const T& Other)

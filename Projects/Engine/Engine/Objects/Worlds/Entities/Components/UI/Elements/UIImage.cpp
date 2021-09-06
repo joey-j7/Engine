@@ -67,6 +67,9 @@ namespace Engine
 			);
 			
 			m_Loaded = true;
+
+			// Event callback
+			OnImageDataReceived();
 		}
 		
 		MarkDirty();
@@ -90,18 +93,7 @@ namespace Engine
 		
 		MarkDirty();
 	}
-
-	void UIImage::BeginDraw()
-	{
-		if (m_ImageDimensions != Vector2(0.f) &&
-			m_ImageDimensions != Vector2(m_Width, m_Height))
-		{
-			GetTransform()->SetScale(m_Width / m_ImageDimensions.x, m_Height / m_ImageDimensions.y);
-		}
-		
-		UIElement::BeginDraw();
-	}
-
+	
 	void UIImage::Draw()
 	{
 		if (!m_Loaded)
@@ -113,6 +105,17 @@ namespace Engine
 		{
 			m_Mutex.unlock();
 			return;
+		}
+
+		if (m_ImageDimensions != Vector2(0.f) &&
+			m_ImageDimensions != Vector2(m_Width, m_Height))
+		{
+			const float Width = m_Width / m_ImageDimensions.x;
+			const float Height = m_Height / m_ImageDimensions.y;
+			const float Scale = glm::min(Width, Height);
+
+			// m_Canvas->scale(Scale, Scale);
+			m_Canvas->scale(m_Width / m_ImageDimensions.x, m_Height / m_ImageDimensions.y);
 		}
 
 		if (!m_RuntimeShaderInfo.m_Shader.get())
@@ -137,7 +140,7 @@ namespace Engine
 			m_Image->height()
 		);
 		
-		// SetWidth(static_cast<uint32_t>(m_ImageDimensions.x));
-		// SetHeight(static_cast<uint32_t>(m_ImageDimensions.y));
+		SetWidth(static_cast<uint32_t>(m_ImageDimensions.x));
+		SetHeight(static_cast<uint32_t>(m_ImageDimensions.y));
 	}
 }

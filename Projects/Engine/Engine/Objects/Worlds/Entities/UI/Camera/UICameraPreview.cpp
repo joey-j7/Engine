@@ -15,7 +15,7 @@ namespace Engine
 		m_Image = AddComponent<UIImage>();
 
 		m_Image->ScaleWithDPI(false);
-		m_Image->SetAlignment(Vector2(0.5f));
+		m_Image->SetPivot(Vector2(0.5f));
 		m_Image->SetAnchor(E_ANCH_CENTER);
 
 		Camera.OnStartCallback.Bind(this, &UICameraPreview::OnCameraStarted);
@@ -36,8 +36,8 @@ namespace Engine
 
 		Window& Window = Application::Get().GetRenderContext().GetWindow();
 		
-		m_Image->SetWidth(Camera.GetOrientation() == 90 || Camera.GetOrientation() == 270 ? Window.GetHeight() : Window.GetWidth());
-		m_Image->SetHeight(Camera.GetOrientation() == 90 || Camera.GetOrientation() == 270 ? Window.GetWidth() : Window.GetHeight());
+		// m_Image->SetWidth(Camera.GetOrientation() == 90 || Camera.GetOrientation() == 270 ? Height : Width);
+		// m_Image->SetHeight(Camera.GetOrientation() == 90 || Camera.GetOrientation() == 270 ? Width : Height);
 
 		Camera.SetPreviewImage(*m_Image);
 	}

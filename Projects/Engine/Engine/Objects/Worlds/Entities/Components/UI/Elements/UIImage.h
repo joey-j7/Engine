@@ -16,12 +16,15 @@ namespace Engine
 		void SetImage(const String& Path);
 		void SetImageData(char* Data, size_t Length);
 
+		const Vector2& GetDimensions() const { return m_ImageDimensions; }
+
 		bool GetLinearFiltering() const { return m_UseLinearFiltering; }
 		void SetLinearFiltering(bool Filter);
-
-		virtual void BeginDraw() override;
-		virtual void Draw() override;
 		
+		virtual void Draw() override;
+
+		Event<void> OnImageDataReceived;
+
 	private:
 		void MeasureSize();
 		

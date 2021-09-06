@@ -26,7 +26,7 @@ namespace Engine
 		m_ClickableComponent->OnDraggedEvent.Bind(this, &UIButton::OnDragged);
 
 		m_BackgroundComponent = AddComponent<UIRect>();
-		m_BackgroundComponent->SetAlignment(Vector2(0.5f, 0.5f));
+		m_BackgroundComponent->SetPivot(Vector2(0.5f, 0.5f));
 
 		m_ForegroundEntity = std::make_unique<StaticEntity>("Button Foreground");
 		m_ForegroundEntity->SetParent(this);
@@ -90,7 +90,7 @@ namespace Engine
 		{
 			m_TextComponent = AddComponent<UIText>();
 			
-			m_TextComponent->SetAlignment(Vector2(0.5f, 0.5f));
+			m_TextComponent->SetPivot(Vector2(0.5f, 0.5f));
 			m_TextComponent->SetAnchor(m_Anchor);
 		}
 		
@@ -194,7 +194,7 @@ namespace Engine
 		}
 
 		m_BackgroundComponent->SetPadding(NewStyle.m_Padding);
-		m_BackgroundComponent->SetRadius(NewStyle.m_Color);
+		m_BackgroundComponent->SetRadius(NewStyle.m_Radius);
 		
 		SetText(NewStyle.m_Text);
 	}
