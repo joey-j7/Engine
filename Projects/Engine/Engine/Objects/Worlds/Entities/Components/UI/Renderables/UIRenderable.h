@@ -2,6 +2,7 @@
 
 #include <map>
 
+#include "Engine/Objects/Worlds/Entities/Components/UI/UIElement.h"
 #include "Engine/Objects/Worlds/Entities/Components/RenderComponent.h"
 
 #include <include/core/SkCanvas.h>
@@ -34,7 +35,7 @@ namespace Engine
 		E_ANCH_FULL_FILL = 15
 	};
 	
-	class Engine_API UIElement : public Render2DComponent
+	class Engine_API UIRenderable : public Render2DComponent, UIElement
 	{
 		friend class UILayout;
 		
@@ -104,8 +105,8 @@ namespace Engine
 			std::vector<SkScalar> m_Positions;
 		};
 		
-		UIElement(Entity& Entity, const String& sName = "UI Component");
-		virtual ~UIElement();
+		UIRenderable(Entity& Entity, const String& sName = "UI Component");
+		virtual ~UIRenderable();
 
 		const Color& GetColor() const { return m_Color; }
 		void SetColor(const Color& Color);
@@ -161,15 +162,21 @@ namespace Engine
 			MarkDirty();
 		}
 
-		const Vector4& GetPadding() const { return m_Padding; }
-		void SetPadding(const Vector4& Pad);
+		const Vector2& GetMinSize() const { return m_MinSize; }
+		float GetMinWidth() const { return m_MinSize.x; }
+		float GetMinHeight() const { return m_MinSize.y; }
+		void SetMinSize(const Vector2& Min);
 
 		virtual const AABB GetUnscaledBounds();
 		virtual const AABB GetBounds() override;
 
 	protected:
 		void SetElementShader(sk_sp<SkShader> Shader);
-		
+
+		void OnParentChanged(Entity& Origin, Entity* Old, Entity* New);
+
+		uint32_t m_ParentChangedID = UINT_MAX;
+
 		SkCanvas* m_Canvas = nullptr;
 		SkPaint m_Paint;
 
@@ -195,23 +202,20 @@ namespace Engine
 		SkPaint::Style m_PaintStyle = SkPaint::Style::kFill_Style;
 		uint32_t m_BorderWidth = 5;
 
-		uint32_t m_Width = 50;
-		uint32_t m_Height = 50;
-		
-		uint32_t m_BottomOffset = 0;
-		uint32_t m_RightOffset = 0;
+		uint32_t m_Width = 0;
+		uint32_t m_Height = 0;
 		
 		AABB m_Bounds;
 		Window& m_Window;
 		
 		Vector2 m_Pivot = Vector2(0.f);
 		Anchor m_Anchor = E_ANCH_TOP_LEFT;
-		
+
 		bool m_ShowFill = true;
 		bool m_UseAntialiasing = true;
 		bool m_ScaleWithDPI = true;
 		
-		Vector4 m_Padding;
+		Vector2 m_MinSize;
 
 		virtual void BeginDraw() override;
 		virtual void Draw() override = 0;
@@ -220,7 +224,5 @@ namespace Engine
 	private:
 		Vector2 CalcAnchor(const Vector2& ScreenScale);
 		Vector2 CalcPivot(const Vector2& ScreenScale) const;
-
-		UILayout* CheckParentLayout(Entity& Origin) const;
 	};
 }

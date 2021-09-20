@@ -13,7 +13,9 @@ namespace Engine
 
 	public:
 		Buffer(const String& sName = "Buffer");
-		virtual ~Buffer() { delete[] m_pData; };
+		virtual ~Buffer() {
+			// TODO: Remove actual data
+		};
 
 		virtual void Create(Data* pBuffer, const Strides& uiStrides) = 0;
 

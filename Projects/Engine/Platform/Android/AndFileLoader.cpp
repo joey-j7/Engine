@@ -9,6 +9,8 @@
 #include "Platform/Window.h"
 
 #include <android/asset_manager.h>
+#include <dirent.h>
+#include <cstdio>
 
 namespace Engine
 {
@@ -35,13 +37,51 @@ namespace Engine
 		) + "/";
 
 		m_WorkingDirectory[E_CONTENT] = "Content/";
+		m_WorkingDirectory[E_ROOT] = "";
+	}
+
+	std::vector<String> FileLoader::GetFilenames(const String& folderPath, const std::vector<String>& extensions, Type type)
+	{
+		std::vector<String> Filenames;
+
+		// Retrieve full absolute path
+		String path = GetPath(folderPath, type);
+
+		DIR* dir = opendir(path.c_str());
+
+		if (!dir)
+			return Filenames;
+
+		uint32_t Num = 0;
+
+		dirent* ent = nullptr;
+		while ((ent = readdir(dir)) != NULL)
+		{
+			String Extension = GetExtension(ent->d_name);
+			Num++;
+
+			if (extensions.empty() ||
+				std::find(
+					extensions.begin(),
+					extensions.end(),
+					Extension
+				) != extensions.end())
+			{
+				Filenames.push_back(
+					ent->d_name
+				);
+			}
+		}
+
+		closedir(dir);
+		return Filenames;
 	}
 
 	char* FileLoader::Read(const String& filePath, uint32_t& fileLength, Type type, bool addNull)
 	{
 		// Read apk asset
-		//if (type == E_CONTENT)
-		//{
+		if (type == E_CONTENT)
+		{
 			AAsset* asset = AAssetManager_open(m_AssetManager, (m_WorkingDirectory[type] + filePath).c_str(), AASSET_MODE_STREAMING);
 
 			if (!asset)
@@ -63,9 +103,9 @@ namespace Engine
 			CB_CORE_INFO("Loaded file at path \"{0}\"", filePath);
 
 			return fileContent;
-		//}
+		}
 
-		// return ReadStream(filePath, fileLength, type, addNull);
+		return ReadStream(filePath, fileLength, type, addNull);
 	}
 	
 	bool FileLoader::Exists(const String& filePath, Type type /*= E_CONTENT*/)

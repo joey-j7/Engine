@@ -57,9 +57,6 @@ namespace Engine
 
 	VkRenderAPI::~VkRenderAPI()
 	{
-		VkResult err = vk(DeviceWaitIdle, Device);
-		Verify(err);
-
 		Deinit();
 
 		m_pRenderer2D.reset();
@@ -266,14 +263,27 @@ namespace Engine
 			throw std::runtime_error("validation layers requested, but not available!");
 		}
 #endif
+		uint32_t instanceVersion = VK_MAKE_VERSION(1, 0, 0);
+		
+		auto res = vk(EnumerateInstanceVersion, &instanceVersion);
+		Verify(res);
+
+		uint32_t apiVersion = VK_MAKE_VERSION(1, 0, 0);
+		if (instanceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+			// If the instance version is 1.0 we must have the apiVersion also be 1.0. However, if the
+			// instance version is 1.1 or higher, we can set the apiVersion to be whatever the highest
+			// api we may use in skia (technically it can be arbitrary). So for now we set it to 1.1
+			// since that is the highest vulkan version.
+			apiVersion = VK_MAKE_VERSION(1, 1, 0);
+		}
 
 		VkApplicationInfo appInfo{};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "App";
-		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "The Nest";
-		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.apiVersion = VK_API_VERSION_1_0;
+		appInfo.pApplicationName = "Engine";
+		appInfo.applicationVersion = 0;
+		appInfo.pEngineName = "Engine";
+		appInfo.engineVersion = 0;
+		appInfo.apiVersion = apiVersion;
 
 		VkInstanceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -296,7 +306,7 @@ namespace Engine
 			createInfo.pNext = nullptr;
 #endif
 
-		const auto res = vk(CreateInstance, &createInfo, nullptr, &Instance);
+		res = vk(CreateInstance, &createInfo, nullptr, &Instance);
 		Verify(res);
 	}
 	
@@ -418,6 +428,7 @@ namespace Engine
 		}
 
 		VkPhysicalDeviceFeatures deviceFeatures{};
+		vk(GetPhysicalDeviceFeatures, PhysicalDevice, &deviceFeatures);
 
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

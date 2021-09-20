@@ -14,6 +14,8 @@ namespace Engine
 		void Add(World* pWorld);
 		void Remove(World* pWorld);
 
+		World* GetActive() const { return m_Worlds.empty() ? nullptr : m_Worlds.back(); };
+
 	private:
 		virtual void OnAttach(const LayerStack& stack) override;
 		virtual bool OnDetach(const LayerStack& stack) override;

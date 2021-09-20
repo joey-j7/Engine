@@ -1,6 +1,6 @@
 [submodule "Libraries/skia"]
 	path = Libraries/skia
-	url = https://github.com/google/skia.git
+url=https://skia.googlesource.com/skia
 
 [submodule "Libraries/glm"]
 	path = Libraries/glm

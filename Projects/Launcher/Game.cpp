@@ -1,5 +1,7 @@
 #include <Engine.h>
-#include "DebugWorld.h"
+
+#include "ListView.h"
+#include "CameraView.h"
 
 class ExampleLayer : public Engine::Layer
 {
@@ -22,14 +24,13 @@ public:
 	Game() : Application("The Nest")
 	{
 		PushLayer(new ExampleLayer());
-		GetWorldManager().Add(new DebugWorld());
+		ListView* View = new ListView();
 	}
 
 	~Game()
 	{
 
 	}
-
 };
 
 Engine::Application* Engine::CreateApplication()

@@ -483,15 +483,18 @@ namespace Engine
 			{
 				auto Components = OldEntity->GetComponentsOfType<TransformComponent<T, R>>();
 
-				for (TransformComponent<T, R>* Component : Components)
+				if (!m_ChildTransforms.empty())
 				{
-					m_ChildTransforms.erase(
-						std::find(
-							m_ChildTransforms.begin(),
-							m_ChildTransforms.end(),
-							Component
-						)
-					);
+					for (TransformComponent<T, R>* Component : Components)
+					{
+						m_ChildTransforms.erase(
+							std::find(
+								m_ChildTransforms.begin(),
+								m_ChildTransforms.end(),
+								Component
+							)
+						);
+					}
 				}
 			}
 

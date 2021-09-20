@@ -102,16 +102,19 @@ namespace Engine
 		if (m_bPaused)
 		{
 			m_HardwareContext->Pause();
+
+#ifdef CB_PLATFORM_ANDROID
 			m_RenderContext->GetAPI().Deinit();
+#endif
 		}
 		else
 		{
 			m_DeltaTime->Reset();
 
-// #ifdef CB_PLATFORM_ANDROID
+#ifdef CB_PLATFORM_ANDROID
 			m_RenderContext->Deinit();
 			m_RenderContext->Init();
-// #endif
+#endif
 
 			m_HardwareContext->Resume();
 		}

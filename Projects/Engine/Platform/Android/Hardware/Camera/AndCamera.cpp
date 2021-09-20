@@ -9,7 +9,7 @@
 #include "GLFW/glfw3native.h"
 #include "Engine/Application.h"
 
-#include "Engine/Objects/Worlds/Entities/Components/UI/Elements/UIImage.h"
+#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
 
 #include <include/core/SkYUVAPixmaps.h>
 #include <include/core/SkYUVAInfo.h>
@@ -43,6 +43,10 @@ extern "C"
 
 namespace Engine
 {
+    bool AndCamera::m_bStoppingCapture = false;
+    bool AndCamera::m_bActivatingCapture = false;
+    bool AndCamera::m_bReadyingCapture = false;
+
 	AndCamera::AndCamera()
 	{
         m_DeviceStateCallbacks = {
@@ -87,19 +91,31 @@ namespace Engine
 
     bool AndCamera::Start(CameraType Type)
     {
+        if (m_bStarting)
+            return true;
+
+        m_bStarting = true;
+
         if (m_bStarted)
         {
             if (Type != m_Type)
                 Stop();
             else
+            {
+                m_bStarting = false;
                 return false;
+            }
         }
 		
 		// Permission thread will call once it has received the permission status
         if (!RequestPermission())
+        {
+            m_bStarting = false;
             return false;
+        }
 
         m_Type = Type;
+        while (IsStarting()) {}
         
         return true;
     }
@@ -123,10 +139,18 @@ namespace Engine
 		
         StartPreview();
         OnStartCallback();
+
+        m_bStarting = false;
 	}
 
     void AndCamera::StartPreview()
     {
+        if (m_bActivatingCapture || m_bReadyingCapture)
+            return;
+
+        m_bActivatingCapture = true;
+        m_bReadyingCapture = true;
+
         Window& Window = Application::Get().GetRenderContext().GetWindow();
 
         // Create Image Reader
@@ -141,6 +165,8 @@ namespace Engine
         if (Status != AMEDIA_OK)
         {
             CB_CORE_ERROR("Could not create ImageReader for camera preview");
+            m_bActivatingCapture = false;
+            m_bReadyingCapture = false;
             return;
         }
         
@@ -149,6 +175,8 @@ namespace Engine
         if (Status != AMEDIA_OK)
         {
             CB_CORE_INFO("Failed to acquire and attach ImageReader window for camera preview");
+            m_bActivatingCapture = false;
+            m_bReadyingCapture = false;
             return;
         }
 
@@ -183,10 +211,17 @@ namespace Engine
             &m_CaptureRequest,
             nullptr
         );
+
+        while (m_bActivatingCapture) {}
     }
 
     void AndCamera::StopCapture()
-    {   
+    {
+        if (m_bStoppingCapture)
+            return;
+
+        m_bStoppingCapture = true;
+
         ACameraCaptureSession_stopRepeating(m_CaptureSession);
         ACameraCaptureSession_close(m_CaptureSession);
 
@@ -202,6 +237,8 @@ namespace Engine
 
         if (m_PreviewImage)
             m_PreviewImage->SetImageData(nullptr, 0);
+
+        while (m_bStoppingCapture) {}
     }
 
 	void AndCamera::OnPhotoProcessed()
@@ -363,16 +400,19 @@ namespace Engine
 	void AndCamera::OnReady(void* Context, ACameraCaptureSession* Session)
 	{
         CB_CORE_TRACE("Camera capture session is ready");
+        AndCamera::m_bReadyingCapture = false;
 	}
 	
     void AndCamera::OnActive(void* Context, ACameraCaptureSession* Session)
     {
         CB_CORE_TRACE("Camera capture session is active");
+        AndCamera::m_bActivatingCapture = false;
     }
 
     void AndCamera::OnClosed(void* Context, ACameraCaptureSession* Session)
     {
         CB_CORE_TRACE("Camera capture session is closed");
+        AndCamera::m_bStoppingCapture = false;
     }
     
     void AndCamera::OnCaptureBufferLost(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraWindowType* window, int64_t frameNumber)
@@ -452,11 +492,12 @@ namespace Engine
 
         if (m_HasPermission)
         {
-            Application::Get().ThreadedCallback.Bind(this, &AndCamera::DelayedStart);
+            DelayedStart();
             return;
         }
         
         CB_CORE_WARN("Permissions to access the camera denied!");
+        m_bStarting = false;
 	}
 
     void AndCamera::TakePhoto()
@@ -466,8 +507,19 @@ namespace Engine
             CB_CORE_WARN("Cannot take photo if camera has not been started yet");
             return;
         }
+
+        if (m_bTakingPhoto)
+        {
+            CB_CORE_WARN("Already taking photo, cancelling new request");
+            return;
+        }
         
+        m_bTakingPhoto = true;
+
         StopCapture();
+
+        m_bActivatingCapture = true;
+        m_bReadyingCapture = true;
 
         Window& Window = Application::Get().GetRenderContext().GetWindow();
 		
@@ -483,6 +535,10 @@ namespace Engine
         if (Status != AMEDIA_OK)
         {
             CB_CORE_ERROR("Could not create ImageReader for camera preview");
+            m_bTakingPhoto = false;
+            m_bActivatingCapture = false;
+            m_bReadyingCapture = false;
+
             return;
         }
 
@@ -491,6 +547,10 @@ namespace Engine
         if (Status != AMEDIA_OK)
         {
             CB_CORE_INFO("Failed to acquire and attach ImageReader window for camera preview");
+            m_bTakingPhoto = false;
+            m_bActivatingCapture = false;
+            m_bReadyingCapture = false;
+
             return;
         }
 
@@ -531,6 +591,8 @@ namespace Engine
             nullptr
         );
 
+        while (m_bActivatingCapture) {}
+
         CB_CORE_INFO("Taking photo capture");
 	}
 
@@ -549,25 +611,19 @@ namespace Engine
             CB_CORE_ERROR("Could not retrieve image");
             return;
         }
-        
-        // Try to process data without blocking the callback
-        std::thread processor([=]()
-        {
-            uint8_t* Data = nullptr;
-            int Length = 0;
-            AImage_getPlaneData(Image, 0, &Data, &Length);
 
-            int32_t Width, Height;
-            AImage_getWidth(Image, &Width);
-            AImage_getHeight(Image, &Height);
+        uint8_t* Data = nullptr;
+        int Length = 0;
+        AImage_getPlaneData(Image, 0, &Data, &Length);
 
-            UIImage& CamImage = **CameraImage;
-            CamImage.SetImageData((char*)Data, Length);
+        int32_t Width, Height;
+        AImage_getWidth(Image, &Width);
+        AImage_getHeight(Image, &Height);
+
+        UIImage& CamImage = **CameraImage;
+        CamImage.SetImageData((char*)Data, Length);
         	
-            AImage_delete(Image);
-        });
-		
-        processor.detach();
+        AImage_delete(Image);
 	}
 	
     void AndCamera::OnPhotoRetrieved(void* Context, AImageReader* Reader)
@@ -578,36 +634,37 @@ namespace Engine
         if (Status != AMEDIA_OK)
         {
             CB_CORE_ERROR("Could not retrieve photo");
-            return;
-        }
-
-        std::thread processor([=]()
-        {
-            uint8_t* Data = nullptr;
-            int Length = 0;
-            AImage_getPlaneData(Image, 0, &Data, &Length);
-
-            String Path = "/storage/emulated/0/DCIM/Appuil/" + Application::Get().GetName() + "/";
-            String Filename = Time::GetFormattedString("%d_%m_%Y_%H_%M_%S") + ".jpg";
 
             AndCamera* Camera = static_cast<AndCamera*>(Context);
 
-            if (!FileLoader::Write(Path, Filename, (char*)Data, Length, FileLoader::E_ROOT))
-            {
-                CB_CORE_ERROR("Photo could not be written to disk");
-            }
-            else
-            {
-                CB_CORE_INFO("Photo has successfully been taken");
-                Camera->m_LastPhotoPath = Path;
-            }
-
-        	AImage_delete(Image);
-
             Application::Get().ThreadedCallback.Bind(Camera, &AndCamera::OnPhotoProcessed);
-        });
+            Camera::m_bTakingPhoto = false;
+            return;
+        }
 
-        processor.detach();
+        uint8_t* Data = nullptr;
+        int Length = 0;
+        AImage_getPlaneData(Image, 0, &Data, &Length);
+
+        String Path = "Photos/";
+        String Filename = Time::GetFormattedString("%d_%m_%Y_%H_%M_%S") + ".jpg";
+
+        AndCamera* Camera = static_cast<AndCamera*>(Context);
+
+        if (!FileLoader::Write(Path, Filename, (char*)Data, Length, FileLoader::E_INTERNAL))
+        {
+            CB_CORE_ERROR("Photo could not be written to disk");
+        }
+        else
+        {
+            CB_CORE_INFO("Photo has successfully been taken");
+            Camera->m_LastPhotoPath = Path;
+        }
+
+        AImage_delete(Image);
+
+        Application::Get().ThreadedCallback.Bind(Camera, &AndCamera::OnPhotoProcessed);
+        Camera::m_bTakingPhoto = false;
     }
 }
 

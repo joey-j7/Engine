@@ -4,8 +4,7 @@
 #include "Engine/Application.h"
 
 #include "Engine/Objects/Worlds/Entities/Components/Transform/Transform2DComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Elements/UIElement.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Elements/UIImage.h"
+#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
 
 namespace Engine
 {
@@ -18,14 +17,17 @@ namespace Engine
 		m_Image->SetPivot(Vector2(0.5f));
 		m_Image->SetAnchor(E_ANCH_CENTER);
 
-		Camera.OnStartCallback.Bind(this, &UICameraPreview::OnCameraStarted);
+		m_CameraStartID = Camera.OnStartCallback.Bind(this, &UICameraPreview::OnCameraStarted);
 
 		Camera.Start();
 	}
 
 	UICameraPreview::~UICameraPreview()
 	{
+		Camera.OnStartCallback.Unbind(m_CameraStartID);
 		Camera.Stop();
+
+		m_Image = nullptr;
 	}
 
 	void UICameraPreview::OnCameraStarted()
@@ -40,5 +42,6 @@ namespace Engine
 		// m_Image->SetHeight(Camera.GetOrientation() == 90 || Camera.GetOrientation() == 270 ? Width : Height);
 
 		Camera.SetPreviewImage(*m_Image);
+		Camera.OnStartCallback.Unbind(m_CameraStartID);
 	}
 }

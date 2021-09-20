@@ -14,6 +14,7 @@ namespace Engine
 
 	public:
 		Renderable();
+		~Renderable();
 
 		virtual const AABB GetBounds() = 0;
 

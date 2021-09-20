@@ -2,8 +2,8 @@
 #include "UIButton.h"
 
 #include "Engine/Objects/Worlds/Entities/Components/ClickableComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Elements/UIImage.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Elements/Shapes/UIRect.h"
+#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
+#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UIRect.h"
 
 namespace Engine
 {
@@ -26,13 +26,26 @@ namespace Engine
 		m_ClickableComponent->OnDraggedEvent.Bind(this, &UIButton::OnDragged);
 
 		m_BackgroundComponent = AddComponent<UIRect>();
-		m_BackgroundComponent->SetPivot(Vector2(0.5f, 0.5f));
 
 		m_ForegroundEntity = std::make_unique<StaticEntity>("Button Foreground");
 		m_ForegroundEntity->SetParent(this);
 
+		SetPivot(m_Pivot);
 		SetAnchor(m_Anchor);
 		ApplyStyle(m_DefaultStyle);
+	}
+
+	void UIButton::SetPivot(const Vector2& Pivot)
+	{
+		m_Pivot = Pivot;
+
+		m_BackgroundComponent->SetPivot(m_Pivot);
+
+		if (m_BackgroundImageComponent)
+			m_BackgroundImageComponent->SetPivot(m_Pivot);
+
+		if (m_ForegroundImageComponent)
+			m_ForegroundImageComponent->SetPivot(m_Pivot);
 	}
 
 	void UIButton::SetAnchor(Anchor NewAnchor)
@@ -46,9 +59,6 @@ namespace Engine
 		
 		if (m_ForegroundImageComponent)
 			m_ForegroundImageComponent->SetAnchor(m_Anchor);
-		
-		if (m_TextComponent)
-			m_TextComponent->SetAnchor(m_Anchor);
 	}
 
 	void UIButton::SetOnEnterCallback(const std::function<void()>& Enter)
@@ -88,10 +98,10 @@ namespace Engine
 
 		if (!m_TextComponent)
 		{
-			m_TextComponent = AddComponent<UIText>();
+			m_TextComponent = m_ForegroundEntity->AddComponent<UIText>();
 			
 			m_TextComponent->SetPivot(Vector2(0.5f, 0.5f));
-			m_TextComponent->SetAnchor(m_Anchor);
+			m_TextComponent->SetAnchor(E_ANCH_CENTER);
 		}
 		
 		if (m_TextComponent->GetText() == Text)
@@ -100,14 +110,10 @@ namespace Engine
 		m_TextComponent->SetText(Text);
 
 		const AABB Bounds = m_TextComponent->GetUnscaledBounds();
-		const Vector2 Size = Vector2(
-			Bounds.fRight - Bounds.fLeft,
-			Bounds.fBottom - Bounds.fTop
-		);
 
 		m_BackgroundComponent->SetSize(
-			static_cast<uint32_t>(Size.x),
-			static_cast<uint32_t>(Size.y)
+			static_cast<uint32_t>(Bounds.width()),
+			static_cast<uint32_t>(Bounds.height())
 		);
 	}
 
@@ -167,6 +173,7 @@ namespace Engine
 			if (!m_BackgroundImageComponent)
 			{
 				m_BackgroundImageComponent = AddComponent<UIImage>();
+				m_BackgroundImageComponent->SetPivot(m_Pivot);
 				m_BackgroundImageComponent->SetAnchor(m_Anchor);
 			}
 			
@@ -178,6 +185,7 @@ namespace Engine
 			if (!m_ForegroundImageComponent)
 			{
 				m_ForegroundImageComponent = m_ForegroundEntity->AddComponent<UIImage>();
+				m_BackgroundImageComponent->SetPivot(m_Pivot);
 				m_ForegroundImageComponent->SetAnchor(m_Anchor);
 			}
 			
@@ -193,7 +201,7 @@ namespace Engine
 			m_BackgroundComponent->SetColor(NewStyle.m_Color);
 		}
 
-		m_BackgroundComponent->SetPadding(NewStyle.m_Padding);
+		m_BackgroundComponent->SetMinSize(NewStyle.m_MinSize);
 		m_BackgroundComponent->SetRadius(NewStyle.m_Radius);
 		
 		SetText(NewStyle.m_Text);

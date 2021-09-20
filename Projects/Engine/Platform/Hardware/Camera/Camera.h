@@ -43,6 +43,7 @@ namespace Engine
 			m_PreviewImage = &Image;
 		}
 
+		bool IsStarting() const { return m_bStarting; }
 		bool IsStarted() const { return m_bStarted; }
 		bool IsOpened() const { return m_bOpened; }
 		
@@ -52,6 +53,9 @@ namespace Engine
 	protected:
 		virtual bool Open();
 		virtual bool Close();
+
+		bool m_bStarting = false;
+		static bool m_bTakingPhoto;
 
 		bool m_bStarted = false;
 		bool m_bOpened = false;

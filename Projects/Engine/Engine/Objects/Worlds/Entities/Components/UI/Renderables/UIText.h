@@ -1,11 +1,11 @@
 #pragma once
 
-#include "UIElement.h"
+#include "UIRenderable.h"
 #include "include/utils/SkTextUtils.h"
 
 namespace Engine
 {
-	class Engine_API UIText : public UIElement
+	class Engine_API UIText : public UIRenderable
 	{
 	public:
 		UIText(Entity& Entity, const String& Text = "", const String& sName = "Text");

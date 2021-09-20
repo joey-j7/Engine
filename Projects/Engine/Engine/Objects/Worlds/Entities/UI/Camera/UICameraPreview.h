@@ -22,5 +22,7 @@ namespace Engine
 		
 		Transform2DComponent* m_Transform2D = nullptr;
 		UIImage* m_Image = nullptr;
+
+		uint32_t m_CameraStartID = UINT_MAX;
 	};
 }

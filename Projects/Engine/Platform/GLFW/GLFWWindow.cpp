@@ -80,9 +80,11 @@ namespace Engine {
 		if (RenderContext::GetAPIType() == RenderAPI::E_OPENGL)
 		{
 			glfwMakeContextCurrent(m_Window);
-
-			int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-			CB_CORE_ASSERT(status, "Failed to initialize Glad!");
+			
+			CB_CORE_ASSERT(
+				gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
+				"Failed to initialize Glad!"
+			);
 		}
 
 		glfwSetWindowUserPointer(m_Window, this);

@@ -26,7 +26,8 @@ public class MainActivity extends NativeActivity
     public void RequestCamera() {
         String[] accessPermissions = new String[] {
             Manifest.permission.CAMERA,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
         };
         boolean needRequire  = false;
         for(String access : accessPermissions) {

@@ -13,6 +13,7 @@ namespace Engine
 	class Engine_API World : public LayeredObject
 	{
 		friend class WorldManagerLayer;
+		friend class Entity;
 
 	public:
 		World(const String& sName = "World");

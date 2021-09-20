@@ -26,7 +26,12 @@ namespace Engine {
 	String FileLoader::GetPath(const String& filePath, Type type)
 	{
 		String path = filePath;
-		return m_WorkingDirectory[type] + ReplaceAll(path, "/", m_DefaultSeperator);
+		ReplaceAll(path, "/", m_DefaultSeperator);
+
+		if (!m_WorkingDirectory[type].empty())
+			path = m_WorkingDirectory[type] + path;
+
+		return path;
 	}
 
 	String FileLoader::GetExtension(const String& filePath)
@@ -46,8 +51,8 @@ namespace Engine {
 		// Retrieve full absolute path
 		String path = GetPath(filePath, type);
 
-		std::ifstream ifs(path.c_str(), std::ios::binary | std::ios::ate);
-
+		auto ifs = std::ifstream(filePath.c_str(), std::ios::in | std::ios::binary);
+		
 		if (ifs.is_open())
 		{
 			std::ifstream::pos_type pos = ifs.tellg();

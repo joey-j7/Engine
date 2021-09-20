@@ -10,19 +10,29 @@ namespace Engine
 	
 	Clickable::Clickable() : m_Window(Application::Get().GetRenderContext().GetWindow())
 	{
-		m_Window.OnCursorPosition.Bind(this, &Clickable::OnCursorPosition);
-		m_Window.OnMousePressed.Bind(this, &Clickable::OnMousePressed);
-		m_Window.OnMouseReleased.Bind(this, &Clickable::OnMouseReleased);
+		m_CursorPositionEventID = m_Window.OnCursorPosition.Bind(this, &Clickable::OnCursorPosition);
+		m_MousePressedEventID = m_Window.OnMousePressed.Bind(this, &Clickable::OnMousePressed);
+		m_MouseReleasedEventID = m_Window.OnMouseReleased.Bind(this, &Clickable::OnMouseReleased);
+		m_ScrollEventID = m_Window.OnScroll.Bind(this, &Clickable::OnScroll);
 	}
 
 	Clickable::~Clickable()
 	{
+		if (FocussedClickable == this)
+			FocussedClickable = nullptr;
+
+		m_Window.OnCursorPosition.Unbind(m_CursorPositionEventID);
+		m_Window.OnMousePressed.Unbind(m_MousePressedEventID);
+		m_Window.OnMouseReleased.Unbind(m_MouseReleasedEventID);
+		m_Window.OnScroll.Unbind(m_ScrollEventID);
 	}
 
 	void Clickable::OnEnter(const DVector2& Position)
 	{
 		m_IsHovered = true;
-		FocussedClickable = this;
+
+		if (!m_AlwaysFocussable)
+			FocussedClickable = this;
 
 		OnEnterEvent(Position);
 	}
@@ -47,6 +57,11 @@ namespace Engine
 		OnDraggedEvent(Position, Delta);
 	}
 
+	void Clickable::OnScroll(const DVector2& Delta)
+	{
+		OnScrolledEvent(Delta);
+	}
+
 	bool Clickable::OnPressed()
 	{
 		m_IsPressed = true;
@@ -57,7 +72,13 @@ namespace Engine
 
 	void Clickable::OnReleased()
 	{
-		if (m_IsHovered)
+		const DVector2 Mouse = m_Window.GetMousePosition();
+		bool Close = glm::distance(
+			glm::vec2(m_PressPosition.x, m_PressPosition.y),
+			glm::vec2(Mouse.x, Mouse.y)
+		) <= 10.f * m_Window.GetScale();
+
+		if (m_IsHovered && Close)
 		{
 			OnClicked();
 		}
@@ -101,6 +122,7 @@ namespace Engine
 		
 		if (m_IsHovered && !m_IsPressed)
 		{
+			m_PressPosition = Mouse;
 			OnPressed();
 		}
 	}

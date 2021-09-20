@@ -72,7 +72,9 @@ cd ../Libraries/skia
 %cd%/bin/gn gen ../../Builds/skia/Windows/Win32/Debug --args=^
 "target_cpu=\"x86\"^
  is_debug=true^
- extra_cflags=[\"/MDd\"]^
+ extra_cflags=[\"/MTd\"]^
+ win_vc=\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview\\VC\"^
+ clang_win=\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview\\VC\\Tools\\Llvm\\x64\"^
  skia_use_system_libjpeg_turbo=false^
  skia_use_system_libpng=false^
  skia_use_system_libwebp=false^
@@ -86,7 +88,9 @@ cd ../Libraries/skia
 %cd%/bin/gn gen ../../Builds/skia/Windows/Win32/Release --args=^
 "is_debug=false^
  target_cpu=\"x86\"^
- extra_cflags=[\"/MD\"]^
+ extra_cflags=[\"/MT\"]^
+ win_vc=\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview\\VC\"^
+ clang_win=\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview\\VC\\Tools\\Llvm\\x64\"^
  skia_use_system_libjpeg_turbo=false^
  skia_use_system_libpng=false^
  skia_use_system_libwebp=false^
@@ -101,7 +105,9 @@ cd ../Libraries/skia
 %cd%/bin/gn gen ../../Builds/skia/Windows/x64/Debug --args=^
 "target_cpu=\"x64\"^
  is_debug=true^
- extra_cflags=[\"/MDd\"]^
+ extra_cflags=[\"/MTd\"]^
+ win_vc=\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview\\VC\"^
+ clang_win=\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview\\VC\\Tools\\Llvm\\x64\"^
  skia_use_system_libjpeg_turbo=false^
  skia_use_system_libpng=false^
  skia_use_system_libwebp=false^
@@ -115,7 +121,9 @@ cd ../Libraries/skia
 %cd%/bin/gn gen ../../Builds/skia/Windows/x64/Release --args=^
 "is_debug=false^
  target_cpu=\"x64\"^
- extra_cflags=[\"/MD\"]^
+ extra_cflags=[\"/MT\"]^
+ win_vc=\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview\\VC\"^
+ clang_win=\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Preview\\VC\\Tools\\Llvm\\x64\"^
  is_official_build=true^
  skia_use_system_libjpeg_turbo=false^
  skia_use_system_libpng=false^

@@ -4,6 +4,7 @@
 namespace Engine
 {
 	int32_t Camera::m_Orientation = 0.f;
+	bool Camera::m_bTakingPhoto = false;
 
 	Camera::~Camera()
 	{
@@ -23,8 +24,9 @@ namespace Engine
 		m_Type = Type;
 
 		Open();
-		m_bStarted = true;
 
+		m_bStarted = true;
+		
 		return true;
 	}
 

@@ -231,6 +231,11 @@ namespace Engine
                 this->y / Other.y
             );
         }
+
+        virtual F Length() const
+        {
+            return glm::sqrt(this->x * this->x + this->y * this->y);
+        }
     };
 
 	template <typename F = float>
@@ -473,6 +478,11 @@ namespace Engine
                 this->y / Other.y,
                 this->z / Other.z
             );
+        }
+
+        virtual F Length() const override
+        {
+            return glm::sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
         }
     };
 
@@ -747,6 +757,11 @@ namespace Engine
                 this->z / Other.z,
                 this->w / Other.w
             );
+        }
+
+        virtual F Length() const override
+        {
+            return glm::sqrt(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
         }
     };
 

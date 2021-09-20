@@ -32,7 +32,10 @@ namespace Engine
 		void OnPermission(jboolean Granted);
 
 		void TakePhoto() override;
-		
+
+		// TODO: Move to platform context
+		static bool RequestPermission();
+
 	protected:
 		void DelayedStart();
 
@@ -64,9 +67,6 @@ namespace Engine
 		static void OnPreviewRetrieved(void* context, AImageReader* reader);
 		static void OnPhotoRetrieved(void* context, AImageReader*);
 		
-		// TODO: Move to platform context
-		static bool RequestPermission();
-
 		ANativeWindow* m_PreviewWindow = nullptr;
 		
 		ACameraManager* m_Manager = nullptr;
@@ -88,7 +88,11 @@ namespace Engine
 		AImageReader_ImageListener m_PhotoImageCallbacks;
 		
 		String m_ID = "";
-		
+
+		static bool m_bStoppingCapture;
+		static bool m_bActivatingCapture;
+		static bool m_bReadyingCapture;
+
 		bool m_HasPermission = false;
 		bool m_DelayedStart = false;
 	};

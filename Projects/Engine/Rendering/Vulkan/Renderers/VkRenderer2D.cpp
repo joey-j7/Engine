@@ -198,22 +198,43 @@ namespace Engine
 		m_Context.reset();
 	}
 
-	bool VkRenderer2D::CreateSkiaBackendContext(GrVkBackendContext& context) {
+	bool VkRenderer2D::CreateSkiaBackendContext(GrVkBackendContext& context)
+	{
 		GrVkGetProc getProc = [](const char* proc_name, VkInstance instance, VkDevice device) {
 			if (device) return vk(GetDeviceProcAddr, device, proc_name);
 			return vk(GetInstanceProcAddr, instance, proc_name);
 		};
 
+		if (!getProc)
+		{
+			return false;
+		}
+
+		// Poll features
+		uint32_t skia_features = 0;
+
+		VkPhysicalDeviceFeatures deviceFeatures{};
+		vk(GetPhysicalDeviceFeatures, m_pAPI->PhysicalDevice, &deviceFeatures);
+
+		uint32_t flags = 0;
+		if (deviceFeatures.geometryShader) {
+			flags |= kGeometryShader_GrVkFeatureFlag;
+		}
+		if (deviceFeatures.dualSrcBlend) {
+			flags |= kDualSrcBlend_GrVkFeatureFlag;
+		}
+		if (deviceFeatures.sampleRateShading) {
+			flags |= kSampleRateShading_GrVkFeatureFlag;
+		}
+		skia_features = flags;
+
+		// Init context
 		context.fInstance = m_pAPI->Instance;
 		context.fPhysicalDevice = m_pAPI->PhysicalDevice;
 		context.fDevice = m_pAPI->Device;
 		context.fQueue = m_pAPI->GetGraphicsQueue();
-
-		context.fDeviceFeatures = &m_pAPI->Features;
 		context.fGraphicsQueueIndex = 0;
 		context.fMinAPIVersion = VK_API_VERSION_1_0;
-		context.fMaxAPIVersion = VK_MAKE_VERSION(1, 1, 0);
-		
 		context.fExtensions = kKHR_surface_GrVkExtensionFlag |
 			kKHR_swapchain_GrVkExtensionFlag |
 #ifdef CB_PLATFORM_WINDOWS
@@ -223,23 +244,56 @@ namespace Engine
 			kKHR_android_surface_GrVkExtensionFlag
 #endif
 		;
-		
+
+		context.fFeatures = skia_features;
 		context.fGetProc = std::move(getProc);
 		context.fOwnsInstanceAndDevice = false;
 
-		// The memory_requirements_2 extension is required on Fuchsia as the AMD
-		// memory allocator used by Skia benefit from it.
-		const char* device_extensions[] = {
-			VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-		};
-		
-		Extensions.init(context.fGetProc, context.fInstance,
-			context.fPhysicalDevice, 0, nullptr,
-			static_cast<uint32_t>(glm::countof(device_extensions)), device_extensions
-		);
-		
-		context.fVkExtensions = &Extensions;
-		
 		return true;
+		
+		
+		
+//		GrVkGetProc getProc = [](const char* proc_name, VkInstance instance, VkDevice device) {
+//			if (device) return vk(GetDeviceProcAddr, device, proc_name);
+//			return vk(GetInstanceProcAddr, instance, proc_name);
+//		};
+//
+//		context.fInstance = m_pAPI->Instance;
+//		context.fPhysicalDevice = m_pAPI->PhysicalDevice;
+//		context.fDevice = m_pAPI->Device;
+//		context.fQueue = m_pAPI->GetGraphicsQueue();
+//
+//		context.fDeviceFeatures = &m_pAPI->Features;
+//		context.fGraphicsQueueIndex = 0;
+//		context.fMinAPIVersion = VK_API_VERSION_1_0;
+//		context.fMaxAPIVersion = VK_MAKE_VERSION(1, 1, 0);
+//		
+//		context.fExtensions = kKHR_surface_GrVkExtensionFlag |
+//			kKHR_swapchain_GrVkExtensionFlag |
+//#ifdef CB_PLATFORM_WINDOWS
+//			kKHR_win32_surface_GrVkExtensionFlag
+//#endif
+//#ifdef CB_PLATFORM_ANDROID
+//			kKHR_android_surface_GrVkExtensionFlag
+//#endif
+//		;
+//		
+//		context.fGetProc = std::move(getProc);
+//		context.fOwnsInstanceAndDevice = false;
+//
+//		// The memory_requirements_2 extension is required on Fuchsia as the AMD
+//		// memory allocator used by Skia benefit from it.
+//		const char* device_extensions[] = {
+//			VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+//		};
+//		
+//		Extensions.init(context.fGetProc, context.fInstance,
+//			context.fPhysicalDevice, 0, nullptr,
+//			static_cast<uint32_t>(glm::countof(device_extensions)), device_extensions
+//		);
+//		
+//		context.fVkExtensions = &Extensions;
+//		
+//		return true;
 	}
 }

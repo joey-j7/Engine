@@ -3,7 +3,7 @@
 #include "Engine/Objects/Worlds/Entities/StaticEntity.h"
 
 #include "Engine/Objects/Worlds/Entities/Components/ClickableComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Elements/UIText.h"
+#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIText.h"
 
 namespace Engine
 {
@@ -14,13 +14,13 @@ namespace Engine
 		String m_Text = "";
 		
 		float m_Radius = 20.f;
-		Vector4 m_Padding = Vector4(20.f);
+		Vector4 m_MinSize = Vector4(20.f);
 
 		String m_BackgroundImagePath = "";
 		String m_ForegroundImagePath = "";
 		
 		Color m_Color = SK_ColorWHITE;
-		UIElement::Gradient m_Gradient;
+		UIRenderable::Gradient m_Gradient;
 	};
 	
 	class Engine_API UIButton : public StaticEntity
@@ -33,6 +33,7 @@ namespace Engine
 			const String& sName = "Button"
 		);
 
+		void SetPivot(const Vector2& Pivot);
 		void SetAnchor(Anchor NewAnchor);
 
 		void SetOnEnterCallback(const std::function<void()>& Enter);
@@ -41,6 +42,10 @@ namespace Engine
 		void SetOnReleasedCallback(const std::function<void()>& Released);
 		void SetOnClickedCallback(const std::function<void()>& Clicked);
 		void SetOnDraggedCallback(const std::function<void(const DVector2&)>& Dragged);
+
+		const ButtonStyle& GetDefaultStyle() const { return m_DefaultStyle; };
+		const ButtonStyle& GetHoverStyle() const { return m_HoverStyle; };
+		const ButtonStyle& GetPressStyle() const { return m_PressStyle; };
 
 	protected:
 		virtual void OnEnter(const DVector2& Position);
@@ -68,7 +73,8 @@ namespace Engine
 		UIImage* m_ForegroundImageComponent = nullptr;
 		UIText* m_TextComponent = nullptr;
 
-		Anchor m_Anchor = E_ANCH_CENTER;
+		Anchor m_Anchor = E_ANCH_TOP_LEFT;
+		Vector2 m_Pivot = Vector2(0.f, 0.f);
 
 		std::unique_ptr<StaticEntity> m_ForegroundEntity = nullptr;
 

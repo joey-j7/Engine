@@ -32,7 +32,13 @@ namespace Engine
 		
 		static bool Exists(const String& filePath, Type type = E_CONTENT);
 
-		static String GetPath(const String& filePath, Type type);
+		static std::vector<String> GetFilenames(
+			const String& folderPath,
+			const std::vector<String>& extensions = {},
+			Type type = E_CONTENT
+		);
+
+		static String GetPath(const String& filePath, Type type = E_CONTENT);
 		static String GetExtension(const String& filePath);
 
 		static String GetDefaultSeperator() { return m_DefaultSeperator; }

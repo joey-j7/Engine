@@ -4,8 +4,6 @@
 #include "Transform/Transform2DComponent.h"
 #include "Transform/Transform3DComponent.h"
 
-#include "UI/Elements/UIText.h"
-
 namespace Engine
 {
 	ClickableComponent::ClickableComponent(Entity& Entity, const String& sName) : Component(Entity, sName), Clickable()

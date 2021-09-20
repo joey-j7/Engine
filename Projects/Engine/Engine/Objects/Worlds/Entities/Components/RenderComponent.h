@@ -37,7 +37,8 @@ namespace Engine
 				m_RenderDimension = E_3D;
 			}
 			
-			GetDependency<R>()->OnTransformation.Bind(
+			m_Transform = GetEntity().template GetComponent<R>();
+			m_Transform->OnTransformation.Bind(
 				this, &RenderComponent<T, R, S>::OnTransformation
 			);
 
@@ -46,37 +47,37 @@ namespace Engine
 
 		const T& GetPosition(bool Local = false) const
 		{
-			return GetDependency<R>()->GetPosition(Local);
+			return m_Transform->GetPosition(Local);
 		}
 
 		void SetPosition(const T& Position, bool Local = true)
 		{
-			return GetDependency<R>()->SetPosition(Position, Local);
+			return m_Transform->SetPosition(Position, Local);
 		}
 		
 		const S& GetRotation(bool Local = false) const
 		{
-			return GetDependency<R>()->GetRotation(Local);
+			return m_Transform->GetRotation(Local);
 		}
 
 		void SetRotation(const R& Rotation, bool Local = false)
 		{
-			return GetDependency<R>()->SetRotation(Rotation, Local);
+			return m_Transform->SetRotation(Rotation, Local);
 		}
 		
 		const T& GetScale(bool Local = false) const
 		{
-			return GetDependency<R>()->GetScale(false);
+			return m_Transform->GetScale(false);
 		}
 
 		void SetScale(const T& Scale, bool Local = true)
 		{
-			return GetDependency<R>()->SetScale(Scale, Local);
+			return m_Transform->SetScale(Scale, Local);
 		}
 
 		R* GetTransform() const
 		{
-			return GetDependency<R>();
+			return m_Transform;
 		}
 
 	private:
@@ -84,6 +85,8 @@ namespace Engine
 		{
 			MarkDirty();
 		}
+
+		R* m_Transform = nullptr;
 	};
 
 	typedef RenderComponent<Vector3, Transform3DComponent, Vector3> Render3DComponent;

@@ -6,10 +6,13 @@
 
 namespace Engine
 {
-	UIText::UIText(Entity& Entity, const String& Text, const String& sName) : UIElement(Entity, sName)
+	UIText::UIText(Entity& Entity, const String& Text, const String& sName) : UIRenderable(Entity, sName)
 	{
 		m_Font.setSize(static_cast<SkScalar>(m_FontSize));
 		m_Font.setSubpixel(m_UseAntialiasing);
+
+		sk_sp<SkTypeface> Typeface = SkTypeface::MakeFromName(nullptr, SkFontStyle::Normal());
+		m_Font.setTypeface(Typeface);
 		
 		SetText(Text);
 		MeasureSize();
@@ -51,15 +54,15 @@ namespace Engine
 				m_Font,
 				SkTextEncoding::kUTF8
 			),
-			(m_Width - m_TextWidth) * m_Pivot.x,
-			(m_Height - m_TextHeight) * m_Pivot.y + m_TextHeight,
+			0.f,
+			m_TextHeight,
 			m_Paint
 		);
 	}
 
 	void UIText::SetAntialiasing(bool AA)
 	{
-		UIElement::SetAntialiasing(AA);
+		UIRenderable::SetAntialiasing(AA);
 		m_Font.setSubpixel(AA);
 	}
 
@@ -68,7 +71,7 @@ namespace Engine
 		AABB Bounds;
 		
 		SetWidth(m_Font.measureText(m_Text.c_str(), m_Text.size(), SkTextEncoding::kUTF8, &Bounds));
-		SetHeight(Bounds.fBottom - Bounds.fTop);
+		SetHeight(Bounds.height());
 
 		m_TextWidth = m_Width;
 		m_TextHeight = m_Height;

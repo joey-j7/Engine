@@ -21,12 +21,12 @@ namespace Engine
 		void SetThickness(uint32_t Thickness) { SetBorderWidth(Thickness); };
 
 	private:
-		using UIElement::SetWidth;
-		using UIElement::SetHeight;
-		using UIElement::SetSize;
+		using UIRenderable::SetWidth;
+		using UIRenderable::SetHeight;
+		using UIRenderable::SetSize;
 
-		using UIElement::GetBorderWidth;
-		using UIElement::SetBorderWidth;
+		using UIRenderable::GetBorderWidth;
+		using UIRenderable::SetBorderWidth;
 		
 		Vector2 m_End = Vector2(30.f, 0.f);
 	};

@@ -2,24 +2,39 @@
 #include "EntityComponent.h"
 
 #include "Components/RenderComponent.h"
+#include "Components/UI/Layouts/UILayout.h"
 
 namespace Engine
 {
+	Entity::Entity()
+	{
+		m_pWorld = Application::Get().GetWorldManager().GetActive();
+		m_pWorld->m_pWorldObjects.push_back(this);
+	}
+
 	Entity::~Entity()
 	{
 		// Pass along parent to children
-		for (auto Child : m_Children)
+		while (!m_Children.empty())
 		{
-			Child->SetParent(GetParent());
+			m_Children.front()->SetParent(GetParent());
 		}
 		
 		SetParent(nullptr);
+
+		m_pWorld->m_pWorldObjects.erase(
+			std::find(
+				m_pWorld->m_pWorldObjects.begin(),
+				m_pWorld->m_pWorldObjects.end(),
+				this
+			)
+		);
 	}
 
 	const AABB Entity::GetBounds() const
 	{
 		AABB Bounds;
-		
+
 		Bounds.fLeft = FLT_MAX;
 		Bounds.fTop = FLT_MAX;
 		Bounds.fRight = FLT_MIN;
@@ -28,7 +43,7 @@ namespace Engine
 		bool Found = false;
 
 		auto Render3DComponents = GetComponentsOfType<Render3DComponent>();
-		
+
 		for (auto& Component : Render3DComponents)
 		{
 			const AABB Bounds2 = Component->GetBounds();
@@ -55,11 +70,25 @@ namespace Engine
 			Found = true;
 		}
 
+		auto LayoutComponents = GetComponentsOfType<UILayout>();
+
+		for (auto& Component : LayoutComponents)
+		{
+			const AABB Bounds2 = Component->GetBounds();
+
+			Bounds.fLeft = glm::min(Bounds.fLeft, Bounds2.fLeft);
+			Bounds.fTop = glm::min(Bounds.fTop, Bounds2.fTop);
+			Bounds.fRight = glm::max(Bounds.fRight, Bounds2.fRight);
+			Bounds.fBottom = glm::max(Bounds.fBottom, Bounds2.fBottom);
+
+			Found = true;
+		}
+
 		if (!Found)
 		{
 			Bounds.fLeft = Bounds.fTop = Bounds.fRight = Bounds.fBottom = 0.f;
 		}
-		
+
 		return Bounds;
 	}
 
@@ -107,12 +136,15 @@ namespace Engine
 		OnParentChanged(*this, OldEntity, NewEntity);
 		NotifyChildrenOnParentChanged(*this, OldEntity, NewEntity);
 
+		/*const String OldName = (OldEntity ? OldEntity->GetName() : "nullptr");
+		const String NewName = (NewEntity ? NewEntity->GetName() : "nullptr");
+
 		CB_CORE_TRACE(
 			"Parent for {0} changed from {1} to {2}",
 			GetName(),
-			OldEntity ? OldEntity->GetName() : "nullptr",
-			NewEntity ? NewEntity->GetName() : "nullptr"
-		);
+			OldName,
+			NewName
+		);*/
 
 		if (!m_Parent)
 			return;

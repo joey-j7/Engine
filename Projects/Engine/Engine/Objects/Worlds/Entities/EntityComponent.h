@@ -46,7 +46,7 @@ namespace Engine
 
 		/* Components */
 		template <class T>
-		T* GetComponent();
+		T* GetComponent(bool SearchPending = true);
 		
 		template <class T>
 		std::vector<T*> GetComponentsOfType() const;
@@ -73,7 +73,7 @@ namespace Engine
 		Event<void, Entity&, Entity*, Entity*> OnParentChanged = Event<void, Entity&, Entity*, Entity*>("Entity::OnParentChanged");
 
 	protected:
-		Entity() {}
+		Entity();
 		
 		virtual void Awake() = 0;
 		virtual bool OnDestroy() { return true; }
@@ -92,13 +92,26 @@ namespace Engine
 		Type m_Type = E_STATIC;
 
 		/* Components */
-		Component* GetComponentByID(size_t ID)
+		Component* GetComponentByID(size_t ID, bool SearchPending = true)
 		{
-			const auto find = m_Components.find(ID);
-			return (find != m_Components.end() ? find->second.get() : nullptr);
+			auto find = m_Components.find(ID);
+
+			if (find != m_Components.end())
+				return find->second.get();
+
+			if (SearchPending)
+			{
+				find = m_PendingComponentsToAdd.find(ID);
+
+				if (find != m_PendingComponentsToAdd.end())
+					return find->second.get();
+			}
+
+			return nullptr;
 		}
 		
 		std::unordered_map<size_t, std::unique_ptr<Component>> m_Components = {};
+		std::unordered_map<size_t, std::unique_ptr<Component>> m_PendingComponentsToAdd = {};
 	};
 
 	class Engine_API Component : public Object
@@ -133,22 +146,6 @@ namespace Engine
 			) != m_DependencyTypes.end();
 		}
 
-		template <typename D>
-		D* GetDependency() const
-		{
-			D* Comp = GetEntity().template GetComponent<D>();
-
-			// Not added yet
-			if (!Comp)
-				Comp = static_cast<D*>(
-					m_PendingComponentsToAdd.at(
-						Component::GetClassID<D>()
-					).get()
-					);
-
-			return Comp;
-		}
-
 		template <class T>
 		static size_t GetClassID();
 
@@ -170,8 +167,6 @@ namespace Engine
 	private:
 		std::vector<size_t> m_DependencyTypes;
 		std::vector<size_t> m_ProhibitedTypes;
-
-		std::unordered_map<size_t, std::unique_ptr<Component>> m_PendingComponentsToAdd;
 
 		size_t m_ID = 0;
 	};
@@ -197,6 +192,8 @@ namespace Engine
 				return nullptr;
 			}() ...
 		};
+
+		(void)Add;
 	}
 
 	template <typename ... DependencyTypes>
@@ -213,7 +210,7 @@ namespace Engine
 
 				size_t ID = GetClassID<DependencyTypes>();
 
-				if (m_PendingComponentsToAdd.find(ID) != m_PendingComponentsToAdd.end())
+				if (GetEntity().m_PendingComponentsToAdd.find(ID) != GetEntity().m_PendingComponentsToAdd.end())
 					return nullptr;
 
 				m_DependencyTypes.push_back(ID);
@@ -221,7 +218,7 @@ namespace Engine
 				if (GetEntity().template GetComponent<DependencyTypes>())
 					return nullptr;
 
-				m_PendingComponentsToAdd.emplace(
+				GetEntity().m_PendingComponentsToAdd.emplace(
 					std::pair<size_t, std::unique_ptr<Component>>(
 						ID,
 						nullptr
@@ -230,11 +227,13 @@ namespace Engine
 
 				std::unique_ptr<DependencyTypes> Comp = std::make_unique<DependencyTypes>(m_Entity);
 				Comp->m_ID = ID;
-				m_PendingComponentsToAdd[ID] = std::move(Comp);
+				GetEntity().m_PendingComponentsToAdd[ID] = std::move(Comp);
 
 				return nullptr;
 			}() ...
 		};
+
+		(void)Add;
 	}
 
 	template <class T>
@@ -243,13 +242,13 @@ namespace Engine
 		static_assert(
 			std::is_base_of<Component, T>::value,
 			"Type is not a Component"
-			);
+		);
 
 		return typeid(T).hash_code();
 	}
 	
 	template <class T>
-	T* Entity::GetComponent()
+	T* Entity::GetComponent(bool SearchPending)
 	{
 		static_assert(
 			std::is_base_of<Component, T>::value,
@@ -257,7 +256,7 @@ namespace Engine
 		);
 		
 		return static_cast<T*>(GetComponentByID(
-			Component::GetClassID<T>()
+			Component::GetClassID<T>(), SearchPending
 		));
 	}
 
@@ -315,9 +314,9 @@ namespace Engine
 		bool Prohibited = false;
 
 		// Check for prohibited components for dependency components
-		for (auto& Pair : Comp->m_PendingComponentsToAdd)
+		for (auto& Pair : m_PendingComponentsToAdd)
 		{
-			if (!Pair.second || GetComponentByID(Pair.second->GetID()))
+			if (!Pair.second || GetComponentByID(Pair.second->GetID(), false))
 				continue;
 		
 			if (!Pair.second->IsCompatible(Comp->GetID()) || !Comp->IsCompatible(Pair.second->GetID()))
@@ -361,16 +360,16 @@ namespace Engine
 
 		if (Prohibited)
 		{
-			Comp->m_PendingComponentsToAdd.clear();
+			m_PendingComponentsToAdd.clear();
 			return nullptr;
 		}
 		
-		for (auto& Pair : Comp->m_PendingComponentsToAdd)
+		for (auto& Pair : m_PendingComponentsToAdd)
 		{
 			if (!Pair.second)
 				continue;
 		
-			if (!GetComponentByID(Pair.second->GetID()))
+			if (!GetComponentByID(Pair.second->GetID(), false))
 			{
 				CB_CORE_INFO(
 					"Added component {0} to entity {1} as a dependency for component {2}",
@@ -386,7 +385,7 @@ namespace Engine
 			}
 		}
 		
-		Comp->m_PendingComponentsToAdd.clear();
+		m_PendingComponentsToAdd.clear();
 		OnComponentAdded(*this, *Comp);
 
 		Comp->OnInitialized();

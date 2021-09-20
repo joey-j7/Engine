@@ -2,9 +2,9 @@
 
 #ifdef CB_PLATFORM_WINDOWS
 	#ifdef CB_BUILD_DLL
-		#define Engine_API __declspec(dllexport)
+		#define Engine_API //__declspec(dllexport)
 	#else
-		#define Engine_API __declspec(dllimport)
+		#define Engine_API //__declspec(dllimport)
 	#endif
 #elif CB_PLATFORM_ANDROID
 	#ifdef CB_BUILD_DLL

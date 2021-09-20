@@ -13,12 +13,15 @@
 #include <functional>
 #include <cstdio>
 #include <chrono>
+#include <filesystem>
 
 #include <string>
 #include <sstream>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <map>
+#include <set>
 
 #include "Engine/General/Common.h"
 #include "Engine/General/Math.h"

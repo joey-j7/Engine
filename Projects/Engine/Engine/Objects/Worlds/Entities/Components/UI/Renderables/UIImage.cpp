@@ -5,9 +5,14 @@
 
 namespace Engine
 {
-	UIImage::UIImage(Entity& Entity, const String& Text, const String& sName) : UIElement(Entity, sName)
+	UIImage::UIImage(Entity& Entity, const String& Text, const String& sName) : UIRenderable(Entity, sName)
 	{
 		SetImage(Text);
+	}
+
+	UIImage::~UIImage()
+	{
+
 	}
 	
 	void UIImage::SetImage(const String& Path)

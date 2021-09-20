@@ -1,15 +1,16 @@
 #pragma once
 
-#include "UIElement.h"
+#include "UIRenderable.h"
 
 #include <include/core/SkImage.h>
 
 namespace Engine
 {
-	class Engine_API UIImage : public UIElement
+	class Engine_API UIImage : public UIRenderable
 	{
 	public:
 		UIImage(Entity& Entity, const String& ImagePath = "", const String& sName = "Image");
+		~UIImage();
 		
 		const String& GetPath() const { return m_Path; }
 

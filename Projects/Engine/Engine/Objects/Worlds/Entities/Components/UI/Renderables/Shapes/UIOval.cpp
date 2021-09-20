@@ -5,7 +5,7 @@ namespace Engine
 {
 	void UIOval::SetWidth(uint32_t Width)
 	{
-		UIElement::SetWidth(Width);
+		UIRenderable::SetWidth(Width);
 
 		uint32_t Max = glm::max(GetWidth(), GetHeight());
 		SetRadius(Max);
@@ -13,7 +13,7 @@ namespace Engine
 	
 	void UIOval::SetHeight(uint32_t Height)
 	{
-		UIElement::SetHeight(Height);
+		UIRenderable::SetHeight(Height);
 
 		uint32_t Max = glm::max(GetWidth(), GetHeight());
 		SetRadius(Max);

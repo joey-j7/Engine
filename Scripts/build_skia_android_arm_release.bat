@@ -17,6 +17,7 @@ REM Android ARM Release
  skia_use_system_harfbuzz=false^
  skia_use_system_expat=false^
  skia_use_system_freetype2=false^
+ skia_enable_svg=true^
  skia_use_gl=true^
  skia_use_vulkan=true"
 )

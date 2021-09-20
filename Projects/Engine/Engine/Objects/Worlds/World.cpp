@@ -1,25 +1,27 @@
 #include "pch.h"
 #include "World.h"
 
+#include "Engine/Application.h"
 #include "Entities/DynamicEntity.h"
 
 namespace Engine
 {
 	World::World(const String& sName) : LayeredObject(sName)
 	{
-
+		Application::Get().GetWorldManager().Add(this);
 	}
 
 	World::~World()
 	{
-		for (Entity* pObject : m_pObjectsToRemove)
+		while (!m_pObjectsToRemove.empty())
 		{
-			delete pObject;
+			delete m_pObjectsToRemove.back();
+			m_pObjectsToRemove.pop_back();
 		}
 
-		for (Entity* pObject : m_pWorldObjects)
+		while (!m_pWorldObjects.empty())
 		{
-			delete pObject;
+			delete m_pWorldObjects.front();
 		}
 	}
 

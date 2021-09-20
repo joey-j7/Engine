@@ -30,28 +30,28 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <!-- Windows -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>ClangCL</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -184,6 +184,7 @@
 	  </PreprocessorDefinitions>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -229,6 +230,7 @@
 	  </PreprocessorDefinitions>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -274,6 +276,7 @@
 	  </PreprocessorDefinitions>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -319,6 +322,7 @@
 	  </PreprocessorDefinitions>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -508,7 +512,7 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Engine\Application.h" />
     <ClInclude Include="Engine\Events\Event.h" />
-    <ClInclude Include="Engine\General\Animations\Animation.h" />
+    <ClInclude Include="Engine\Animations\Animation.h" />
     <ClInclude Include="Engine\General\Collision.h" />
     <ClInclude Include="Engine\General\Time.h" />
     <ClInclude Include="Engine\Objects\Clickable.h" />
@@ -529,12 +533,17 @@
     <ClInclude Include="Engine\Objects\Object.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UILine.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIOval.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UIGridPanel.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UIScrollablePanel.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\UILayout.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIRect.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIShape.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIImage.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\Shapes\UILine.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\Shapes\UIOval.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\Shapes\UIRect.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\Shapes\UIShape.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIImage.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIRenderable.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIText.h" />
+    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\UIElement.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\DynamicEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\StaticEntity.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\UI\Camera\UICameraPreview.h" />
@@ -556,7 +565,6 @@
     <ClInclude Include="Engine\Managers\IDManager.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UICanvasPanel.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\ClickableComponent.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIElement.h" />
     <ClInclude Include="Engine\Physics\2D\Box2DEngine.h" />
     <ClInclude Include="Engine\Physics\3D\PhysXEngine.h" />
     <ClInclude Include="Engine\Physics\PhysicsContext.h" />
@@ -604,7 +612,6 @@
     <ClInclude Include="Rendering\Vulkan\VkRenderAPI.h" />
     <ClInclude Include="Rendering\Vulkan\VkScreenCommandEngine.h" />
     <ClInclude Include="Rendering\Vulkan\VkSwapchainContext.h" />
-    <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIText.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Application.cpp" />
@@ -623,13 +630,18 @@
     <ClCompile Include="Engine\Objects\DynamicObject.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform2DComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\Transform\Transform3DComponent.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UILine.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIOval.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UICanvasPanel.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UIGridPanel.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\Canvas\UIScrollablePanel.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Layouts\UILayout.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIRect.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\Shapes\UIShape.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIImage.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\Shapes\UILine.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\Shapes\UIOval.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\Shapes\UIRect.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\Shapes\UIShape.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIImage.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIRenderable.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIText.cpp" />
+    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\UIElement.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\DynamicEntity.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\EntityComponent.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\StaticEntity.cpp" />
@@ -643,7 +655,6 @@
     <ClCompile Include="Engine\Files\FileReference.cpp" />
     <ClCompile Include="Engine\Managers\IDManager.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\ClickableComponent.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIElement.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -684,7 +695,6 @@
     <ClCompile Include="Rendering\Vulkan\VkRenderAPI.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkScreenCommandEngine.cpp" />
     <ClCompile Include="Rendering\Vulkan\VkSwapchainContext.cpp" />
-    <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Elements\UIText.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Libraries\box2d\box2d.vcxproj">

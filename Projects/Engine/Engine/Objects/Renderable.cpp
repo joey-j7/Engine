@@ -10,6 +10,14 @@ namespace Engine
 
 	}
 
+	Renderable::~Renderable()
+	{
+		auto Find = std::find(m_Renderer->m_Components.begin(), m_Renderer->m_Components.end(), this);
+
+		if (Find != m_Renderer->m_Components.end())
+			m_Renderer->m_Components.erase(Find);
+	}
+
 	void Renderable::MarkDirty()
 	{
 		if (m_RenderState == E_MODIFIED)

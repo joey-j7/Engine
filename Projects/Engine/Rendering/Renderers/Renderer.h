@@ -9,7 +9,8 @@ namespace Engine
 {
 	class Engine_API Renderer : public Object
 	{
-		friend class UIElement;
+		friend class UIRenderable;
+		friend class Renderable;
 
 	public:
 		Renderer();
