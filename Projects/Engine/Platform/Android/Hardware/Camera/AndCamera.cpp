@@ -43,9 +43,8 @@ extern "C"
 
 namespace Engine
 {
-    bool AndCamera::m_bStoppingCapture = false;
-    bool AndCamera::m_bActivatingCapture = false;
-    bool AndCamera::m_bReadyingCapture = false;
+    AndCamera::CaptureState AndCamera::m_CaptureState = E_CLOSED;
+    std::mutex AndCamera::m_Mutex;
 
 	AndCamera::AndCamera()
 	{
@@ -94,19 +93,17 @@ namespace Engine
         if (m_bStarting)
             return true;
 
-        m_bStarting = true;
-
         if (m_bStarted)
         {
             if (Type != m_Type)
                 Stop();
             else
-            {
-                m_bStarting = false;
                 return false;
-            }
         }
-		
+
+        std::lock_guard<std::mutex> Guard(m_Mutex);
+        m_bStarting = true;
+
 		// Permission thread will call once it has received the permission status
         if (!RequestPermission())
         {
@@ -115,7 +112,7 @@ namespace Engine
         }
 
         m_Type = Type;
-        while (IsStarting()) {}
+        // while (IsStarting()) {}
         
         return true;
     }
@@ -135,21 +132,58 @@ namespace Engine
         if (!Camera::Start(m_Type) || m_DelayedStart)
             return;
 
-        m_DelayedStart = true;
-		
         StartPreview();
+
+        std::lock_guard<std::mutex> Guard(m_Mutex);
+        m_DelayedStart = true;
+
         OnStartCallback();
 
         m_bStarting = false;
 	}
 
+    void AndCamera::TakePhoto()
+    {
+        if (!m_bStarted || !m_HasPermission)
+        {
+            CB_CORE_WARN("Cannot take photo if camera has not been started yet");
+            return;
+        }
+
+        if (m_CaptureState == E_CLOSED)
+        {
+            CB_CORE_WARN("Cannot take photo if capture session preview has not been started yet");
+            return;
+        }
+
+        ACameraCaptureSession_stopRepeating(m_CaptureSession);
+        AImageReader_setImageListener(m_Reader, &m_PhotoImageCallbacks);
+
+        // Start capturing
+        ACameraCaptureSession_capture(
+            m_CaptureSession,
+            &m_CaptureSessionCaptureCallbacks,
+            1,
+            &m_CaptureRequest,
+            nullptr
+        );
+
+        CB_CORE_INFO("Taking photo capture");
+    }
+
     void AndCamera::StartPreview()
     {
-        if (m_bActivatingCapture || m_bReadyingCapture)
+        if (m_CaptureState == E_INITIALIZING ||
+            m_CaptureState == E_ACTIVE ||
+            m_CaptureState == E_READY
+        )
+        {
+            CB_CORE_WARN("Could not start preview because there's another active capture");
             return;
+        }
 
-        m_bActivatingCapture = true;
-        m_bReadyingCapture = true;
+        std::lock_guard<std::mutex> Guard(m_Mutex);
+        m_CaptureState = E_INITIALIZING;
 
         Window& Window = Application::Get().GetRenderContext().GetWindow();
 
@@ -165,8 +199,7 @@ namespace Engine
         if (Status != AMEDIA_OK)
         {
             CB_CORE_ERROR("Could not create ImageReader for camera preview");
-            m_bActivatingCapture = false;
-            m_bReadyingCapture = false;
+            m_CaptureState = E_CLOSED;
             return;
         }
         
@@ -175,8 +208,7 @@ namespace Engine
         if (Status != AMEDIA_OK)
         {
             CB_CORE_INFO("Failed to acquire and attach ImageReader window for camera preview");
-            m_bActivatingCapture = false;
-            m_bReadyingCapture = false;
+            m_CaptureState = E_CLOSED;
             return;
         }
 
@@ -212,39 +244,88 @@ namespace Engine
             nullptr
         );
 
-        while (m_bActivatingCapture) {}
+        CB_CORE_INFO("Starting photo preview capture");
+        //while (m_bActivatingCapture) {}
     }
 
     void AndCamera::StopCapture()
     {
-        if (m_bStoppingCapture)
-            return;
+        std::lock_guard<std::mutex> Guard(m_Mutex);
 
-        m_bStoppingCapture = true;
+        if (m_CaptureSession)
+        {
+            ACameraCaptureSession_stopRepeating(m_CaptureSession);
+            ACameraCaptureSession_abortCaptures(m_CaptureSession);
+            ACameraCaptureSession_close(m_CaptureSession);
 
-        ACameraCaptureSession_stopRepeating(m_CaptureSession);
-        ACameraCaptureSession_close(m_CaptureSession);
+            m_CaptureSession = nullptr;
+        }
 
-        ACaptureSessionOutputContainer_free(m_CaptureSessionOutputContainer);
-        ACaptureSessionOutput_free(m_SessionOutput);
-        ACaptureSessionOutput_free(m_TextureOutput);
-        ACameraOutputTarget_free(m_OutputTarget);
+        if (m_CaptureSessionOutputContainer)
+        {
+            ACaptureSessionOutputContainer_free(m_CaptureSessionOutputContainer);
+            m_CaptureSessionOutputContainer = nullptr;
+        }
 
-		ACaptureRequest_free(m_CaptureRequest);
-        AImageReader_delete(m_Reader);
+        if (m_SessionOutput)
+        {
+            ACaptureSessionOutput_free(m_SessionOutput);
+            m_SessionOutput = nullptr;
+        }
+
+        if (m_TextureOutput)
+        {
+            ACaptureSessionOutput_free(m_TextureOutput);
+            m_TextureOutput = nullptr;
+        }
+
+        if (m_OutputTarget)
+        {
+            ACameraOutputTarget_free(m_OutputTarget);
+            m_OutputTarget = nullptr;
+        }
+
+        if (m_CaptureRequest)
+        {
+            ACaptureRequest_free(m_CaptureRequest);
+            m_CaptureRequest = nullptr;
+        }
+
+        if (m_Reader)
+        {
+            AImageReader_delete(m_Reader);
+            m_Reader = nullptr;
+        }
 		
-        ANativeWindow_release(m_PreviewWindow);
+        if (m_PreviewWindow)
+        {
+            ANativeWindow_release(m_PreviewWindow);
+            m_PreviewWindow = nullptr;
+        }
 
         if (m_PreviewImage)
+        {
             m_PreviewImage->SetImageData(nullptr, 0);
+            // m_PreviewImage = nullptr;
+        }
 
-        while (m_bStoppingCapture) {}
+        while (m_CaptureState != E_CLOSED) {}
+        // m_CaptureState = E_CLOSED;
     }
 
 	void AndCamera::OnPhotoProcessed()
 	{
-        StopCapture();
-        StartPreview();
+        // Set listener back to preview
+        AImageReader_setImageListener(m_Reader, &m_PreviewImageCallbacks);
+
+        // Start capturing continuously
+        ACameraCaptureSession_setRepeatingRequest(
+            m_CaptureSession,
+            &m_CaptureSessionCaptureCallbacks,
+            1,
+            &m_CaptureRequest,
+            nullptr
+        );
 		
         OnPhotoTakenCallback(m_LastPhotoPath);
 	}
@@ -289,10 +370,13 @@ namespace Engine
 
         camera_status_t Status = ACAMERA_OK;
 
+        StopCapture();
+
         if (m_Manager)
         {
-            StopCapture();
-        	
+            // Lock
+            std::lock_guard<std::mutex> Guard(m_Mutex);
+
             ACameraMetadata_free(m_Metadata);
 
             Status = ACameraDevice_close(m_Device);
@@ -305,7 +389,12 @@ namespace Engine
             ACameraManager_delete(m_Manager);
             m_Manager = nullptr;
         }
-		
+
+        // Cancel any pending requests
+        m_DelayedStart = false;
+        m_bStarting = false;
+        m_bStarted = false;
+
         return Status == ACAMERA_OK;
 	}
 
@@ -400,19 +489,19 @@ namespace Engine
 	void AndCamera::OnReady(void* Context, ACameraCaptureSession* Session)
 	{
         CB_CORE_TRACE("Camera capture session is ready");
-        AndCamera::m_bReadyingCapture = false;
+        AndCamera::m_CaptureState = E_READY;
 	}
 	
     void AndCamera::OnActive(void* Context, ACameraCaptureSession* Session)
     {
         CB_CORE_TRACE("Camera capture session is active");
-        AndCamera::m_bActivatingCapture = false;
+        AndCamera::m_CaptureState = E_ACTIVE;
     }
 
     void AndCamera::OnClosed(void* Context, ACameraCaptureSession* Session)
     {
         CB_CORE_TRACE("Camera capture session is closed");
-        AndCamera::m_bStoppingCapture = false;
+        AndCamera::m_CaptureState = E_CLOSED;
     }
     
     void AndCamera::OnCaptureBufferLost(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraWindowType* window, int64_t frameNumber)
@@ -427,7 +516,7 @@ namespace Engine
 	
     void AndCamera::OnCaptureFailed(void* context, ACameraCaptureSession* session, ACaptureRequest* request, ACameraCaptureFailure* failure)
 	{
-        CB_CORE_ERROR("Camera capture has failed");
+        CB_CORE_ERROR("Camera capture has failed, reason: {0}", failure->reason);
 	}
 	
     void AndCamera::OnCaptureProgressed(void* context, ACameraCaptureSession* session, ACaptureRequest* request, const ACameraMetadata* result)
@@ -495,107 +584,12 @@ namespace Engine
             DelayedStart();
             return;
         }
-        
+
+        std::lock_guard<std::mutex> Guard(m_Mutex);
+
         CB_CORE_WARN("Permissions to access the camera denied!");
         m_bStarting = false;
 	}
-
-    void AndCamera::TakePhoto()
-	{
-        if (!m_bStarted || !m_HasPermission)
-        {
-            CB_CORE_WARN("Cannot take photo if camera has not been started yet");
-            return;
-        }
-
-        if (m_bTakingPhoto)
-        {
-            CB_CORE_WARN("Already taking photo, cancelling new request");
-            return;
-        }
-        
-        m_bTakingPhoto = true;
-
-        StopCapture();
-
-        m_bActivatingCapture = true;
-        m_bReadyingCapture = true;
-
-        Window& Window = Application::Get().GetRenderContext().GetWindow();
-		
-        // Create Image Reader
-        media_status_t Status = AImageReader_new(
-            m_Orientation == 90.f || m_Orientation == 270.f ? Window.GetHeight() : Window.GetWidth(),
-            m_Orientation == 90.f || m_Orientation == 270.f ? Window.GetWidth() : Window.GetHeight(),
-            AIMAGE_FORMAT_JPEG,
-            4,
-            &m_Reader
-        );
-
-        if (Status != AMEDIA_OK)
-        {
-            CB_CORE_ERROR("Could not create ImageReader for camera preview");
-            m_bTakingPhoto = false;
-            m_bActivatingCapture = false;
-            m_bReadyingCapture = false;
-
-            return;
-        }
-
-        Status = AImageReader_getWindow(m_Reader, &m_PreviewWindow);
-
-        if (Status != AMEDIA_OK)
-        {
-            CB_CORE_INFO("Failed to acquire and attach ImageReader window for camera preview");
-            m_bTakingPhoto = false;
-            m_bActivatingCapture = false;
-            m_bReadyingCapture = false;
-
-            return;
-        }
-
-        AImageReader_setImageListener(m_Reader, &m_PhotoImageCallbacks);
-
-        // Prepare surface
-        android_app* App = glfwGetAndroidApp(
-            ((GLFWwindow*)Application::Get().GetRenderContext().GetWindow().GetWindow())
-        );
-
-        // Prepare request for texture target
-        const camera_status_t CamStatus = ACameraDevice_createCaptureRequest(m_Device, TEMPLATE_STILL_CAPTURE, &m_CaptureRequest);
-
-        if (CamStatus != ACAMERA_OK)
-        {
-            CB_CORE_ERROR("Failed to create preview capture request (id: {0}, code: {1})", m_ID, CamStatus);
-        }
-
-        // Prepare outputs for session
-        ACaptureSessionOutput_create(m_PreviewWindow, &m_TextureOutput);
-        ACaptureSessionOutputContainer_create(&m_CaptureSessionOutputContainer);
-        ACaptureSessionOutputContainer_add(m_CaptureSessionOutputContainer, m_TextureOutput);
-
-        // Prepare target surface
-        ANativeWindow_acquire(m_PreviewWindow);
-        ACameraOutputTarget_create(m_PreviewWindow, &m_OutputTarget);
-        ACaptureRequest_addTarget(m_CaptureRequest, m_OutputTarget);
-
-        // Create the session
-        ACameraDevice_createCaptureSession(m_Device, m_CaptureSessionOutputContainer, &m_CaptureSessionStateCallbacks, &m_CaptureSession);
-
-        // Start capturing
-        ACameraCaptureSession_capture(
-            m_CaptureSession,
-            &m_CaptureSessionCaptureCallbacks,
-            1,
-            &m_CaptureRequest,
-            nullptr
-        );
-
-        while (m_bActivatingCapture) {}
-
-        CB_CORE_INFO("Taking photo capture");
-	}
-
 	void AndCamera::OnPreviewRetrieved(void* Context, AImageReader* Reader)
 	{
         UIImage** CameraImage = static_cast<UIImage**>(Context);
@@ -636,9 +630,8 @@ namespace Engine
             CB_CORE_ERROR("Could not retrieve photo");
 
             AndCamera* Camera = static_cast<AndCamera*>(Context);
-
             Application::Get().ThreadedCallback.Bind(Camera, &AndCamera::OnPhotoProcessed);
-            Camera::m_bTakingPhoto = false;
+
             return;
         }
 
@@ -646,12 +639,12 @@ namespace Engine
         int Length = 0;
         AImage_getPlaneData(Image, 0, &Data, &Length);
 
-        String Path = "Photos/";
+        String Path = "/storage/emulated/0/DCIM/Appuil/" + Application::Get().GetName() + "/";
         String Filename = Time::GetFormattedString("%d_%m_%Y_%H_%M_%S") + ".jpg";
 
         AndCamera* Camera = static_cast<AndCamera*>(Context);
 
-        if (!FileLoader::Write(Path, Filename, (char*)Data, Length, FileLoader::E_INTERNAL))
+        if (!FileLoader::Write(Path, Filename, (char*)Data, Length, true, FileLoader::E_ROOT))
         {
             CB_CORE_ERROR("Photo could not be written to disk");
         }
@@ -664,7 +657,6 @@ namespace Engine
         AImage_delete(Image);
 
         Application::Get().ThreadedCallback.Bind(Camera, &AndCamera::OnPhotoProcessed);
-        Camera::m_bTakingPhoto = false;
     }
 }
 

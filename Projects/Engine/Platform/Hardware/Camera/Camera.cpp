@@ -4,7 +4,7 @@
 namespace Engine
 {
 	int32_t Camera::m_Orientation = 0.f;
-	bool Camera::m_bTakingPhoto = false;
+	bool Camera::m_bStarting = false;
 
 	Camera::~Camera()
 	{

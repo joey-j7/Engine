@@ -27,6 +27,8 @@ namespace Engine
 		Camera.OnStartCallback.Unbind(m_CameraStartID);
 		Camera.Stop();
 
+		Camera.SetPreviewImage(nullptr);
+
 		m_Image = nullptr;
 	}
 
@@ -41,7 +43,7 @@ namespace Engine
 		// m_Image->SetWidth(Camera.GetOrientation() == 90 || Camera.GetOrientation() == 270 ? Height : Width);
 		// m_Image->SetHeight(Camera.GetOrientation() == 90 || Camera.GetOrientation() == 270 ? Width : Height);
 
-		Camera.SetPreviewImage(*m_Image);
+		Camera.SetPreviewImage(m_Image);
 		Camera.OnStartCallback.Unbind(m_CameraStartID);
 	}
 }

@@ -38,9 +38,9 @@ namespace Engine
 			return m_PreviewImage;
 		}
 
-		void SetPreviewImage(UIImage& Image)
+		void SetPreviewImage(UIImage* Image)
 		{
-			m_PreviewImage = &Image;
+			m_PreviewImage = Image;
 		}
 
 		bool IsStarting() const { return m_bStarting; }
@@ -54,8 +54,7 @@ namespace Engine
 		virtual bool Open();
 		virtual bool Close();
 
-		bool m_bStarting = false;
-		static bool m_bTakingPhoto;
+		static bool m_bStarting;
 
 		bool m_bStarted = false;
 		bool m_bOpened = false;

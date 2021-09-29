@@ -33,7 +33,7 @@ ListView::ListView()
 	float Height = 100.f;// (Bounds.fBottom - Bounds.fTop) * 0.2f / Window.GetScale();
 
 	std::vector<String> Filenames;
-	m_FolderPath = "Photos/";
+	m_FolderPath = "/storage/emulated/0/DCIM/Appuil/" + Application::Get().GetName() + "/";
 
 #ifdef CB_PLATFORM_WINDOWS
 	Filenames = {
@@ -41,7 +41,7 @@ ListView::ListView()
 		"Item 0.jpg", "Item 1.jpg", "Item 2.jpg", "Item 3.jpg", "Item 4.jpg"
 	};
 #else
-	Filenames = FileLoader::GetFilenames(m_FolderPath, { "jpg" }, FileLoader::E_INTERNAL);
+	Filenames = FileLoader::GetFilenames(m_FolderPath, { "jpg" }, FileLoader::E_ROOT);
 #endif
 
 	// Take photo item

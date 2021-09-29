@@ -34,6 +34,18 @@ namespace Engine {
 		return path;
 	}
 
+	String FileLoader::GetName(const String& filePath)
+	{
+		size_t i = filePath.rfind('.', filePath.length());
+
+		if (i != String::npos)
+		{
+			return(filePath.substr(0, i));
+		}
+
+		return("");
+	}
+
 	String FileLoader::GetExtension(const String& filePath)
 	{
 		size_t i = filePath.rfind('.', filePath.length());
@@ -76,7 +88,7 @@ namespace Engine {
 		return nullptr;
 	}
 	
-	bool FileLoader::Write(const String& filePath, const String& fileName, char* buffer, uint32_t length, Type type)
+	bool FileLoader::Write(const String& filePath, const String& fileName, char* buffer, uint32_t length, bool overwrite, Type type)
 	{
 		String FullPath = m_WorkingDirectory[type] + filePath;
 		String FullFilePath = FullPath + fileName;
@@ -90,7 +102,36 @@ namespace Engine {
 		}
 		
 		// mkdir(FullPath.c_str(), 0700);
-		
+
+		if (!overwrite)
+		{
+			int32_t i = 0;
+			String fileNameNoExt = GetName(fileName);
+			String extension = GetExtension(fileName);
+
+			while (true)
+			{
+				String P = i == 0 ?
+					(FullPath + fileName).c_str() :
+					(FullPath + fileNameNoExt + "_" + std::to_string(i) + "." + extension)
+				;
+
+				std::ifstream f(P);
+
+				// If it already exists, change Full filepath
+				if (f.good())
+				{
+					i++;
+					continue;
+				}
+
+				if (i > 0)
+					FullFilePath = P;
+
+				break;
+			}
+		}
+
 		auto file = std::ofstream(FullFilePath, std::ios::out | std::ios::trunc | std::ios::binary);
 		file.write(buffer, length);
 		file.close();

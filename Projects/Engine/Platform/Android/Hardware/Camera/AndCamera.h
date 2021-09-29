@@ -16,6 +16,7 @@
 #include <media/NdkImage.h>
 
 #include <memory.h>
+#include <mutex>
 
 namespace Engine
 {
@@ -23,6 +24,14 @@ namespace Engine
 	class Engine_API AndCamera : public Camera
 	{
 	public:
+		enum CaptureState
+		{
+			E_CLOSED = 0,
+			E_INITIALIZING = 1,
+			E_READY = 2,
+			E_ACTIVE = 3
+		};
+
 		AndCamera();
 		virtual ~AndCamera();
 
@@ -89,9 +98,8 @@ namespace Engine
 		
 		String m_ID = "";
 
-		static bool m_bStoppingCapture;
-		static bool m_bActivatingCapture;
-		static bool m_bReadyingCapture;
+		static CaptureState m_CaptureState;
+		static std::mutex m_Mutex;
 
 		bool m_HasPermission = false;
 		bool m_DelayedStart = false;
