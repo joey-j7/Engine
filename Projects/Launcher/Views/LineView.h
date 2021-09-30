@@ -19,8 +19,8 @@ public:
 	void UpdateCameraUniforms();
 
 private:
-	void SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval);
-	void SetEndPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval);
+	void SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval);
+	void SetEndPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval);
 	void OnCameraImageData();
 
 	void OnCameraView();

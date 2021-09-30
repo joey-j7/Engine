@@ -50,13 +50,14 @@ ListView::ListView()
 	);
 
 	UIButton* Item = new UIButton(
-		{ "Take new Photo", 0.f, Vector4(80.f), "", "", BgColor },
-		{ "Take new Photo", 0.f, Vector4(80.f), "", "", Color(1.f, 1.f, 0.f) },
-		{ "Take new Photo", 0.f, Vector4(80.f), "", "", Color(1.f, 0.f, 0.f) },
+		{ "Nieuwe foto maken", 0.f, Vector4(80.f), "", "", BgColor },
+		{ "Nieuwe foto maken", 0.f, Vector4(80.f), "", "", Color(1.f, 1.f, 0.f) },
+		{ "Nieuwe foto maken", 0.f, Vector4(80.f), "", "", Color(1.f, 0.f, 0.f) },
 		"Item Header"
 	);
 
 	Item->SetAnchor(E_ANCH_TOP_FILL);
+	Item->SetPivot(Vector2(0.5f, 0.f));
 
 	Item->SetParent(Canvas);
 
@@ -83,7 +84,9 @@ ListView::ListView()
 		);
 
 		Item->SetParent(Canvas);
+
 		Item->SetAnchor(E_ANCH_TOP_FILL);
+		Item->SetPivot(Vector2(0.5f, 0.f));
 		
 		String Fullpath = m_FolderPath + Filenames[i];
 

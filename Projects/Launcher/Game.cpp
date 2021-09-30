@@ -1,7 +1,7 @@
 #include <Engine.h>
 
-#include "ListView.h"
-#include "CameraView.h"
+#include "Views/ListView.h"
+#include "Views/CameraView.h"
 
 class ExampleLayer : public Engine::Layer
 {

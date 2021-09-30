@@ -119,8 +119,19 @@ namespace Engine
 	{
 		Vector2 Offset;
 		
-		Offset.x = -m_Bounds.width() * m_Pivot.x * ScreenScale.x;
-		Offset.y = -m_Bounds.height() * m_Pivot.y * ScreenScale.y;
+		if (m_Anchor != E_ANCH_TOP_FILL &&
+			m_Anchor != E_ANCH_CENTER_FILL_HORIZONTAL &&
+			m_Anchor != E_ANCH_BOTTOM_FILL &&
+			m_Anchor != E_ANCH_FULL_FILL
+		)
+			Offset.x = -m_Bounds.width() * m_Pivot.x * ScreenScale.x;
+
+		if (m_Anchor != E_ANCH_LEFT_FILL &&
+			m_Anchor != E_ANCH_CENTER_FILL_VERTICAL &&
+			m_Anchor != E_ANCH_RIGHT_FILL &&
+			m_Anchor != E_ANCH_FULL_FILL
+		)
+			Offset.y = -m_Bounds.height() * m_Pivot.y * ScreenScale.y;
 
 		return Offset;
 	}
@@ -129,7 +140,7 @@ namespace Engine
 	{
 		AABB Canvas = GetCanvas(GetEntity());
 
-		Vector2 Offset = Vector2(Canvas.fLeft, Canvas.fTop);
+		Vector2 Offset(Canvas.fLeft, Canvas.fTop);
 		Vector2 Dims(0.f);
 
 		Dims.x = Canvas.width();
@@ -402,7 +413,7 @@ namespace Engine
 		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Translate(Pivot.x, Pivot.y));
 
 		// Apply position
-		const Vector2 ScreenPosition = GetPosition(false);
+		const Vector2 ScreenPosition = GetPosition(true);
 		m_Matrix = SkMatrix::Concat(m_Matrix, SkMatrix::Translate(ScreenPosition.x, ScreenPosition.y));
 
 		return m_Matrix;

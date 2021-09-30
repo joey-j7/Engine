@@ -2,18 +2,18 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="ListView.cpp" />
+    <ClCompile Include="Views\ListView.cpp" />
     <ClCompile Include="$(ANDROID_NDK)\sources\android\native_app_glue\android_native_app_glue.c" />
-    <ClCompile Include="LineView.cpp" />
-    <ClCompile Include="CameraView.cpp" />
-    <ClCompile Include="PhotoView.cpp" />
+    <ClCompile Include="Views\LineView.cpp" />
+    <ClCompile Include="Views\CameraView.cpp" />
+    <ClCompile Include="Views\PhotoView.cpp" />
     <ClCompile Include="PhotoEntity.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ListView.h" />
-    <ClInclude Include="LineView.h" />
-    <ClInclude Include="CameraView.h" />
-    <ClInclude Include="PhotoView.h" />
+    <ClInclude Include="Views\ListView.h" />
+    <ClInclude Include="Views\LineView.h" />
+    <ClInclude Include="Views\CameraView.h" />
+    <ClInclude Include="Views\PhotoView.h" />
     <ClInclude Include="PhotoEntity.h" />
   </ItemGroup>
 </Project>

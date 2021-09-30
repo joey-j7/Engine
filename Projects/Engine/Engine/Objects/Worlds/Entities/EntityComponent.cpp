@@ -4,6 +4,9 @@
 #include "Components/RenderComponent.h"
 #include "Components/UI/Layouts/UILayout.h"
 
+#include "Components/Transform/Transform3DComponent.h"
+#include "Components/Transform/Transform2DComponent.h"
+
 namespace Engine
 {
 	Entity::Entity()
@@ -90,6 +93,45 @@ namespace Engine
 		}
 
 		return Bounds;
+	}
+
+	const SkMatrix Entity::GetMatrix() const
+	{
+		SkMatrix Mat = SkMatrix();
+		
+		auto Component3D = GetComponentsOfType<Transform3DComponent>();
+
+		if (!Component3D.empty())
+		{
+			const Vector3& Position = Component3D[0]->GetPosition(false);
+			const Vector3& Rotation = Component3D[0]->GetRotation(false);
+			const Vector3& Scale = Component3D[0]->GetScale(false);
+
+			// TODO: Create 3D matrix
+			Mat = SkMatrix::Concat(Mat, SkMatrix::Scale(Scale.x, Scale.y));
+			//Mat = SkMatrix::Concat(Mat, SkMatrix::RotateDeg(Rotation));
+			Mat = SkMatrix::Concat(Mat, SkMatrix::Translate(Position.x, Position.y));
+		}
+		
+		auto Component2D = GetComponentsOfType<Transform2DComponent>();
+
+		if (!Component2D.empty())
+		{
+			const Vector2& Position = Component2D[0]->GetPosition(false);
+			float Rotation = Component2D[0]->GetRotation(false);
+			const Vector2& Scale = Component2D[0]->GetScale(false);
+
+			Mat = SkMatrix::Concat(Mat, SkMatrix::Scale(Scale.x, Scale.y));
+			Mat = SkMatrix::Concat(Mat, SkMatrix::RotateDeg(Rotation));
+			Mat = SkMatrix::Concat(Mat, SkMatrix::Translate(Position.x, Position.y));
+		}
+
+		if (GetParent())
+		{
+			Mat = SkMatrix::Concat(Mat, GetParent()->GetMatrix());
+		}
+		
+		return Mat;
 	}
 
 	bool Entity::RemoveComponent(Component* Comp)

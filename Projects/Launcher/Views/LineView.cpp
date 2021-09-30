@@ -15,7 +15,7 @@
 #include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
 #include "Engine/Objects/Worlds/Entities/UI/Camera/UICameraPreview.h"
 
-#include "PhotoEntity.h"
+#include "../PhotoEntity.h"
 
 #include "CameraView.h"
 #include "ListView.h"
@@ -68,9 +68,9 @@ LineView::LineView(const String& FilePath)
 	float BtnSize = 50.f;
 
 	UIButton* BackButton = new UIButton(
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+		{ "<", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		{ "<", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
+		{ "<", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
 		"Back Button"
 	);
 
@@ -85,10 +85,10 @@ LineView::LineView(const String& FilePath)
 
 	// Next Button
 	UIButton* NextButton = new UIButton(
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
-		"Back Button"
+		{ ">", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		{ ">", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
+		{ ">", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+		"Next Button"
 	);
 
 	NextButton->SetAnchor(E_ANCH_TOP_RIGHT);
@@ -126,6 +126,11 @@ LineView::LineView(const String& FilePath)
 	StartOval1->SetAnchor(E_ANCH_TOP_LEFT);
 	StartOval1->SetPivot(Vector2(0.5f, 0.5f));
 
+	StartOval1->GetComponent<Transform2DComponent>()->SetPosition(
+		Line1->GetStartPosition(),
+		false
+	);
+
 	EndOval1 = new UIButton(
 		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
@@ -148,12 +153,12 @@ LineView::LineView(const String& FilePath)
 
 	StartOval1->SetOnDraggedCallback([&](const DVector2& Delta)
 	{
-		SetStartPosition(Delta, *Line1, *EndOval1);
+		SetStartPosition(Delta, *Line1, *StartOval1, *EndOval1);
 	});
 
 	EndOval1->SetOnDraggedCallback([&](const DVector2& Delta)
 	{
-		SetEndPosition(Delta, *Line1, *EndOval1);
+		SetEndPosition(Delta, *Line1, *StartOval1, *EndOval1);
 	});
 
 	// Line 2
@@ -175,6 +180,11 @@ LineView::LineView(const String& FilePath)
 	StartOval2->SetParent(LineEntity2);
 	StartOval2->SetAnchor(E_ANCH_TOP_LEFT);
 	StartOval2->SetPivot(Vector2(0.5f, 0.5f));
+
+	StartOval2->GetComponent<Transform2DComponent>()->SetPosition(
+		Line2->GetStartPosition(),
+		false
+	);
 
 	EndOval2 = new UIButton(
 		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
@@ -198,12 +208,12 @@ LineView::LineView(const String& FilePath)
 
 	StartOval2->SetOnDraggedCallback([&](const DVector2& Delta)
 	{
-		SetStartPosition(Delta, *Line2, *EndOval2);
+		SetStartPosition(Delta, *Line2, *StartOval2, *EndOval2);
 	});
 
 	EndOval2->SetOnDraggedCallback([&](const DVector2& Delta)
 	{
-		SetEndPosition(Delta, *Line2, *EndOval2);
+		SetEndPosition(Delta, *Line2, *StartOval2, *EndOval2);
 	});
 
 	UpdateCameraUniforms();
@@ -241,7 +251,7 @@ void LineView::UpdateCameraUniforms()
 	CameraImage->SetShaderUniform("screenSize", SkV2{ Width, Height });
 }
 
-void LineView::SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval)
+void LineView::SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval)
 {
 	if (!Window::IsMouseInView())
 		return;
@@ -287,7 +297,7 @@ void LineView::SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& L
 	UpdateCameraUniforms();
 }
 
-void LineView::SetEndPosition(const DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval)
+void LineView::SetEndPosition(const DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval)
 {
 	if (!Window::IsMouseInView())
 		return;

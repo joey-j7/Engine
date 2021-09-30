@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "PhotoView.h"
+#include "Views/PhotoView.h"
 #include "PhotoEntity.h"
 
 #include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"

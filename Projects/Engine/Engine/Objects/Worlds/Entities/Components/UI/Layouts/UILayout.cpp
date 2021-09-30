@@ -228,7 +228,7 @@ namespace Engine
 		// Fit to bounds
 		if (m_FitElementsX)
 		{
-			Offset.x = (Bounds.fRight - Bounds.fLeft) / glm::max((uint32_t)1, m_ElementCount.x) * Index.x;
+			Offset.x = (Bounds.width()) / glm::max((uint32_t)1, m_ElementCount.x) * Index.x;
 		}
 		// Fit to previous element
 		else if (Index.x > 0)
@@ -243,7 +243,7 @@ namespace Engine
 		// Fit to bounds
 		if (m_FitElementsY)
 		{
-			Offset.y = (Bounds.fBottom - Bounds.fTop) / glm::max((uint32_t)1, m_ElementCount.y) * Index.y;
+			Offset.y = (Bounds.height()) / glm::max((uint32_t)1, m_ElementCount.y) * Index.y;
 		}
 		// Fit to previous element
 		else if (Index.y > 0)
@@ -254,7 +254,7 @@ namespace Engine
 			Offset.y = PrevElement->Offset.y + glm::floor(PrevBounds.height());
 			Offset.y = std::max(m_Spacing.y, Offset.y);
 		}
-
+		
 		return Offset;
 	}
 	

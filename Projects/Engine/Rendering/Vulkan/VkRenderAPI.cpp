@@ -250,7 +250,7 @@ namespace Engine
 		if (Surface)
 		{
 			vk(DestroySurfaceKHR, Instance, Surface, nullptr);
-			Surface = nullptr;
+			Surface = VK_NULL_HANDLE;
 		}
 
 		return RenderAPI::Deinit();

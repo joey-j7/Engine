@@ -12,6 +12,8 @@
 
 #include "Engine/Logger/Log.h"
 
+#include <include/core/SkMatrix.h>
+
 namespace Engine
 {
 	class World;
@@ -40,6 +42,9 @@ namespace Engine
 
 		virtual const String& GetName() const = 0;
 		const AABB GetBounds() const;
+
+		// TODO: Change to default Matrix class
+		const SkMatrix GetMatrix() const;
 		
 		World* GetWorld() const { return m_pWorld; }
 		Type GetType() const { return m_Type; }

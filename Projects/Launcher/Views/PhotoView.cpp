@@ -7,7 +7,7 @@
 #include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
 #include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
 
-#include "PhotoEntity.h"
+#include "../PhotoEntity.h"
 
 using namespace Engine;
 
@@ -179,16 +179,16 @@ PhotoView::PhotoView(const String& FilePath)
 	constexpr float BtnSize = 80.f * 0.66f;
 
 	UIButton* BackButton = new UIButton(
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+		{ "<", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		{ "<", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
+		{ "<", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
 		"Back Button"
 	);
 
 	BackButton->SetAnchor(E_ANCH_TOP_LEFT);
 	BackButton->SetPivot(Vector2(0.0f, 0.0f));
 
-	BackButton->GetComponent<Transform2DComponent>()->Translate(Vector2(25.f, 25.f));
+	BackButton->GetComponent<Transform2DComponent>()->Translate(Vector2(20.f, 20.f));
 
 	BackButton->SetOnClickedCallback([&]() {
 		Application::Get().ThreadedCallback.Bind(this, &PhotoView::OnListView);

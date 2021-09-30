@@ -412,12 +412,12 @@
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="CameraView.cpp" />
-    <ClCompile Include="ListView.cpp" />
-    <ClCompile Include="LineView.cpp" />
+    <ClCompile Include="Views\CameraView.cpp" />
+    <ClCompile Include="Views\ListView.cpp" />
+    <ClCompile Include="Views\LineView.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="PhotoEntity.cpp" />
-    <ClCompile Include="PhotoView.cpp" />
+    <ClCompile Include="Views\PhotoView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
@@ -425,11 +425,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CameraView.h" />
-    <ClInclude Include="ListView.h" />
-    <ClInclude Include="LineView.h" />
+    <ClInclude Include="Views\CameraView.h" />
+    <ClInclude Include="Views\ListView.h" />
+    <ClInclude Include="Views\LineView.h" />
     <ClInclude Include="PhotoEntity.h" />
-    <ClInclude Include="PhotoView.h" />
+    <ClInclude Include="Views\PhotoView.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

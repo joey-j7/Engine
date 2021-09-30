@@ -318,7 +318,6 @@
       <AdditionalIncludeDirectories>
 		$(CB_INCLUDE_PATHS_DEFAULT);
 		$(CB_INCLUDE_PATHS_ANDROID);
-		$(StlIncludeDirectories);
 		
 	  </AdditionalIncludeDirectories>
       <ISystem>
@@ -351,8 +350,8 @@
     <ClCompile>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <AdditionalIncludeDirectories>
-	    $(CB_INCLUDE_PATHS_ANDROID);
 		$(CB_INCLUDE_PATHS_DEFAULT);
+	    $(CB_INCLUDE_PATHS_ANDROID);
 		
 	  </AdditionalIncludeDirectories>
       <ISystem>

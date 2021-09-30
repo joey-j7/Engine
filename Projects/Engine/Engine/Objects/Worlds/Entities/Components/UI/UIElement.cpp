@@ -15,12 +15,6 @@ namespace Engine
 		if (Entity* Parent = Origin.GetParent())
 		{
 			Bounds = Parent->GetBounds();
-
-			// Make local
-			Bounds.fRight -= Bounds.fLeft;
-			Bounds.fLeft = 0.f;
-			Bounds.fBottom -= Bounds.fTop;
-			Bounds.fTop = 0.f;
 		}
 		else
 		{
@@ -38,6 +32,12 @@ namespace Engine
 
 		Vector2 Offset = Search.Layout->GetElement(*Search.Entity).Offset;
 		Offset += Search.Layout->GetScrollPosition();
+
+		// Make local
+		Bounds.fRight -= Bounds.fLeft;
+		Bounds.fLeft = 0.f;
+		Bounds.fBottom -= Bounds.fTop;
+		Bounds.fTop = 0.f;
 
 		Bounds.fLeft += Offset.x;
 		Bounds.fBottom += Offset.y;

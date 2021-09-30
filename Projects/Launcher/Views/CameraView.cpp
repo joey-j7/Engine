@@ -25,9 +25,9 @@ CameraView::CameraView()
 	float BtnSize = 80.f;
 
 	UIButton* Button = new UIButton(
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+		{ "Foto", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		{ "Foto", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
+		{ "Foto", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
 		"Camera Button"
 	);
 
@@ -43,9 +43,9 @@ CameraView::CameraView()
 	BtnSize = 50.f;
 
 	UIButton* BackButton = new UIButton(
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+		{ "<", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		{ "<", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
+		{ "<", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
 		"Back Button"
 	);
 
