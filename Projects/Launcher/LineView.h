@@ -11,23 +11,24 @@ namespace Engine
 	class StaticEntity;
 }
 
-class EditorView : public Engine::World
+class LineView : public Engine::World
 {
 public:
-	EditorView();
+	LineView(const String& FilePath);
 
 	void UpdateCameraUniforms();
-
-protected:
-	virtual void Draw(float fDeltaTime) override;
 
 private:
 	void SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval);
 	void SetEndPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval);
 	void OnCameraImageData();
 
+	void OnCameraView();
+	void OnStretchView();
+
 	Engine::DrawPass* m_pPass = nullptr;
 
+	String m_Path = "";
 	Engine::UIImage* CameraImage = nullptr;
 
 	Engine::StaticEntity* LineEntity1 = nullptr;

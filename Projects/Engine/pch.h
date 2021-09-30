@@ -23,6 +23,14 @@
 #include <map>
 #include <set>
 
+// JSON
+#include "json.hpp"
+
+namespace Engine
+{
+	using namespace nlohmann;
+}
+
 #include "Engine/General/Common.h"
 #include "Engine/General/Math.h"
 #include "Engine/General/Collision.h"

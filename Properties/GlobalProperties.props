@@ -68,7 +68,7 @@
   
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <CB_NAME>The Nest</CB_NAME>
+    <CB_NAME>Fineer</CB_NAME>
     <CB_PLATFORM>Undefined</CB_PLATFORM>
     <CB_BUILD_MODE>Release</CB_BUILD_MODE>
     <CB_MAX_LOG_MESSAGES>25</CB_MAX_LOG_MESSAGES>
@@ -84,6 +84,7 @@
 		$(SolutionDir)Libraries\imgui;
 		$(SolutionDir)Libraries\box2d\include;
 		$(SolutionDir)Libraries\box2d\src;
+		$(SolutionDir)Libraries\json\single_include\nlohmann;
 	</CB_INCLUDE_PATHS_DEFAULT>
 	
 	<CB_INCLUDE_PATHS_WINDOWS>

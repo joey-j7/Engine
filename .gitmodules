@@ -16,3 +16,6 @@ url=https://skia.googlesource.com/skia
 [submodule "Libraries/box2d"]
 	path = Libraries/box2d
 	url = https://github.com/erincatto/box2d.git
+[submodule "Libraries/json"]
+	path = Libraries/json
+	url = https://github.com/nlohmann/json

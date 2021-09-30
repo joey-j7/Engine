@@ -28,6 +28,8 @@ namespace Engine
 		// Reads the entire file to memory
 		static char* Read(const String& filePath, uint32_t& length, Type type = E_CONTENT, bool addNull = false);
 		static bool Write(const String& filePath, const String& fileName, char* buffer, uint32_t length, bool overwrite = true, Type type = E_CONTENT);
+		static bool Delete(const String& filePath, const String& fileName, Type type = E_CONTENT);
+
 		static bool CreateRecursivePath(const String& Path, Type type = E_CONTENT, mode_t Mode = 0700);
 		
 		static bool Exists(const String& filePath, Type type = E_CONTENT);
@@ -38,7 +40,8 @@ namespace Engine
 			Type type = E_CONTENT
 		);
 
-		static String GetPath(const String& filePath, Type type = E_CONTENT);
+		static String GetAbsolutePath(const String& filePath, Type type = E_CONTENT);
+		static String GetPath(const String& filePath);
 		static String GetName(const String& filePath);
 		static String GetExtension(const String& filePath);
 

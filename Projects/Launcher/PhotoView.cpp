@@ -1,26 +1,23 @@
 #include "pch.h"
 #include "PhotoView.h"
 
-#include "EditorView.h"
+#include "LineView.h"
 #include "ListView.h"
 
 #include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
 #include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
 
+#include "PhotoEntity.h"
+
 using namespace Engine;
 
 PhotoView::PhotoView(const String& FilePath)
 {
-	StaticEntity* CameraPreview = new StaticEntity();
-	CameraImage = CameraPreview->AddComponent<UIImage>();
+	m_Path = FilePath;
 
-	uint32_t Length = 0;
-	char* File = FileLoader::Read(FilePath, Length, FileLoader::E_INTERNAL);
+	PhotoEntity* Photo = new PhotoEntity(FilePath);
 
-	CameraImage->SetImageData(File, Length);
-	delete[] File;
-
-	CameraImage->SetShader(
+	/* CameraImage->SetShader(
 		"uniform shader Element;"
 		"uniform float2 screenSize;"
 
@@ -52,7 +49,7 @@ PhotoView::PhotoView(const String& FilePath)
 		"  half4 col = sample(Element, ImgCoords.xy).rgba;"
 		"  return col;"
 		"}"
-	);
+	); */
 
 	//constexpr float BtnSize = 40.f;
 
@@ -179,12 +176,12 @@ PhotoView::PhotoView(const String& FilePath)
 	//});
 
 	// Back button
-	constexpr float BtnSize = 40.f;
+	constexpr float BtnSize = 80.f * 0.66f;
 
 	UIButton* BackButton = new UIButton(
-		{ "", BtnSize * 2.f, Vector4(BtnSize * 0.66f), "", "", Color(1.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize * 0.66f), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", BtnSize * 2.f, Vector4(BtnSize * 0.66f), "", "", Color(1.f, 0.f, 0.f) },
+		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
+		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
 		"Back Button"
 	);
 
@@ -198,13 +195,16 @@ PhotoView::PhotoView(const String& FilePath)
 	});
 }
 
-void PhotoView::OnEditorView()
+void PhotoView::OnLineView()
 {
+	// Store because this will be deleted
+	String Path = m_Path;
+
 	Application::Get().GetWorldManager().Remove(
 		Application::Get().GetWorldManager().GetActive()
 	);
 
-	EditorView* View = new EditorView();
+	LineView* View = new LineView(Path);
 }
 
 void PhotoView::OnListView()

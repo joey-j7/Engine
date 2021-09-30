@@ -56,7 +56,7 @@ namespace Engine
 		{
 			String s = String(data, length);
 
-			String fileDir = FileLoader::GetPath(filePath, FileLoader::E_ROOT);
+			String fileDir = FileLoader::GetAbsolutePath(filePath, FileLoader::E_ROOT);
 			fileDir = fileDir.substr(0, fileDir.find_last_of(FileLoader::GetDefaultSeperator()) + 1);
 
 			static const String inc = "#include \"";

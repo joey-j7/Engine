@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ListView.h"
 
-#include "EditorView.h"
+#include "LineView.h"
 #include "CameraView.h"
 
 #include "Engine/Application.h"
@@ -105,11 +105,14 @@ void ListView::OnCameraClick()
 
 void ListView::OnPhotoView()
 {
+	// Store because this object will soon be destroyed
+	String Path = m_ImagePath;
+
 	Application::Get().GetWorldManager().Remove(
 		Application::Get().GetWorldManager().GetActive()
 	);
 
-	PhotoView* View = new PhotoView(m_ImagePath);
+	PhotoView* View = new PhotoView(Path);
 }
 
 void ListView::Draw(float fDeltaTime)

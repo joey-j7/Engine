@@ -28,6 +28,8 @@ namespace Engine
 		virtual bool Pause();
 		virtual bool Resume();
 
+		virtual bool IsReady() { return true; };
+
 		virtual void TakePhoto() = 0;
 		const String& GetLastPhotoPath() const { return m_LastPhotoPath; }
 

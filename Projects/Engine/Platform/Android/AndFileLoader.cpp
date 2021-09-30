@@ -45,7 +45,7 @@ namespace Engine
 		std::vector<String> Filenames;
 
 		// Retrieve full absolute path
-		String path = GetPath(folderPath, type);
+		String path = GetAbsolutePath(folderPath, type);
 
 		DIR* dir = opendir(path.c_str());
 
@@ -111,7 +111,7 @@ namespace Engine
 	bool FileLoader::Exists(const String& filePath, Type type /*= E_CONTENT*/)
 	{
 		// Retrieve full absolute path
-		String path = GetPath(filePath, type);
+		String path = GetAbsolutePath(filePath, type);
 		
 		// Read apk asset
 		if (type == E_CONTENT)

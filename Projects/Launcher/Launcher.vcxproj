@@ -414,8 +414,9 @@
     </ClCompile>
     <ClCompile Include="CameraView.cpp" />
     <ClCompile Include="ListView.cpp" />
-    <ClCompile Include="EditorView.cpp" />
+    <ClCompile Include="LineView.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="PhotoEntity.cpp" />
     <ClCompile Include="PhotoView.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -426,7 +427,8 @@
   <ItemGroup>
     <ClInclude Include="CameraView.h" />
     <ClInclude Include="ListView.h" />
-    <ClInclude Include="EditorView.h" />
+    <ClInclude Include="LineView.h" />
+    <ClInclude Include="PhotoEntity.h" />
     <ClInclude Include="PhotoView.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

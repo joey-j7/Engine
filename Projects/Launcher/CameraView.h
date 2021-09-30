@@ -19,7 +19,7 @@ public:
 
 private:
 	void OnCameraImageData();
-	void OnEditorView();
+	void OnLineView(const String& Path);
 	void OnListView();
 
 	void SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval);

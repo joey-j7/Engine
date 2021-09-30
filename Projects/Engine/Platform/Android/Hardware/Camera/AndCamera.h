@@ -38,12 +38,19 @@ namespace Engine
 		virtual bool Start(CameraType Type) override;
 		virtual bool Stop() override;
 
+		virtual bool IsReady() override;
+
 		void OnPermission(jboolean Granted);
 
 		void TakePhoto() override;
 
 		// TODO: Move to platform context
 		static bool RequestPermission();
+		static void ResetReader();
+
+		static bool IsCapturing() {
+			return m_IsCapturing;
+		}
 
 	protected:
 		void DelayedStart();
@@ -87,18 +94,22 @@ namespace Engine
 		ACaptureSessionOutput* m_TextureOutput = nullptr;
 		ACaptureSessionOutputContainer* m_CaptureSessionOutputContainer = nullptr;
 		ACameraMetadata* m_Metadata = nullptr;
-		AImageReader* m_Reader = nullptr;
+		static AImageReader* m_Reader;
 		
 		ACameraDevice_StateCallbacks m_DeviceStateCallbacks;
 		ACameraCaptureSession_stateCallbacks m_CaptureSessionStateCallbacks;
 		ACameraCaptureSession_captureCallbacks m_CaptureSessionCaptureCallbacks;
 
-		AImageReader_ImageListener m_PreviewImageCallbacks;
-		AImageReader_ImageListener m_PhotoImageCallbacks;
+		static AImageReader_ImageListener m_PreviewImageCallbacks;
+		static AImageReader_ImageListener m_PhotoImageCallbacks;
 		
 		String m_ID = "";
 
 		static CaptureState m_CaptureState;
+
+		static bool m_IsCapturing;
+		static bool m_IsTakingPhoto;
+
 		static std::mutex m_Mutex;
 
 		bool m_HasPermission = false;

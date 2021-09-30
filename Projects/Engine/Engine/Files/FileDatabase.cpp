@@ -39,7 +39,7 @@ namespace Engine
 
 			if (resourceManager->Supports(extension))
 			{
-				return resourceManager->Add(FileLoader::GetPath(filePath, pathType));
+				return resourceManager->Add(FileLoader::GetAbsolutePath(filePath, pathType));
 			}
 		}
 

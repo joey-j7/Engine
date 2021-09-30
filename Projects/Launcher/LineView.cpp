@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "EditorView.h"
+#include "LineView.h"
 
 #include "Engine/Application.h"
 
@@ -15,19 +15,22 @@
 #include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
 #include "Engine/Objects/Worlds/Entities/UI/Camera/UICameraPreview.h"
 
+#include "PhotoEntity.h"
+
+#include "CameraView.h"
+#include "ListView.h"
+
 using namespace Engine;
 
-EditorView::EditorView()
+LineView::LineView(const String& FilePath)
 {
-	StaticEntity* CameraPreview = new StaticEntity();
-	CameraImage = CameraPreview->AddComponent<UIImage>();
+	m_Path = FilePath;
 
-	/*
-	
-	UICameraPreview* CameraPreview = new UICameraPreview();
+	PhotoEntity* Photo = new PhotoEntity(FilePath);
+	CameraImage = Photo->GetPhoto();
 
-	CameraImage = CameraPreview->GetComponent<UIImage>();
-	CameraImage->SetShader(
+	// Camera
+	/*CameraImage->SetShader(
 		"uniform shader Element;"
 		"uniform float2 screenSize;"
 
@@ -59,26 +62,42 @@ EditorView::EditorView()
 		"  half4 col = sample(Element, ImgCoords.xy).rgba;"
 		"  return col;"
 		"}"
-	);
+	);*/
 
-	*/
+	// Back Button
+	float BtnSize = 50.f;
 
-	constexpr float BtnSize = 40.f;
-
-	UIButton* Button = new UIButton(
+	UIButton* BackButton = new UIButton(
 		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
 		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
 		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
-		"Save Button"
+		"Back Button"
 	);
 
-	Button->SetAnchor(E_ANCH_BOTTOM);
-	Button->SetPivot(Vector2(0.5f, 0.5f));
+	BackButton->SetAnchor(E_ANCH_TOP_LEFT);
+	BackButton->SetPivot(Vector2(0.0f, 0.0f));
 
-	Button->GetComponent<Transform2DComponent>()->Translate(Vector2(0.f, -100.f));
+	BackButton->GetComponent<Transform2DComponent>()->Translate(Vector2(20.f, 20.f));
 
-	Button->SetOnClickedCallback([]() {
-		Application::Get().GetHardwareContext().GetCamera().TakePhoto();
+	BackButton->SetOnClickedCallback([&]() {
+		Application::Get().ThreadedCallback.Bind(this, &LineView::OnCameraView);
+	});
+
+	// Next Button
+	UIButton* NextButton = new UIButton(
+		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
+		{ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+		"Back Button"
+	);
+
+	NextButton->SetAnchor(E_ANCH_TOP_RIGHT);
+	NextButton->SetPivot(Vector2(1.0f, 0.0f));
+
+	NextButton->GetComponent<Transform2DComponent>()->Translate(Vector2(-20.f, 20.f));
+
+	NextButton->SetOnClickedCallback([&]() {
+		Application::Get().ThreadedCallback.Bind(this, &LineView::OnStretchView);
 	});
 
 	// Window
@@ -137,7 +156,6 @@ EditorView::EditorView()
 		SetEndPosition(Delta, *Line1, *EndOval1);
 	});
 
-
 	// Line 2
 	LineEntity2 = new StaticEntity("Line");
 	Line2 = LineEntity2->AddComponent<UILine>();
@@ -187,9 +205,11 @@ EditorView::EditorView()
 	{
 		SetEndPosition(Delta, *Line2, *EndOval2);
 	});
+
+	UpdateCameraUniforms();
 }
 
-void EditorView::UpdateCameraUniforms()
+void LineView::UpdateCameraUniforms()
 {
 	Window& Window = Application::Get().GetRenderContext().GetWindow();
 
@@ -221,13 +241,7 @@ void EditorView::UpdateCameraUniforms()
 	CameraImage->SetShaderUniform("screenSize", SkV2{ Width, Height });
 }
 
-void EditorView::Draw(float fDeltaTime)
-{
-	// Draw layers and objects
-	World::Draw(fDeltaTime);
-}
-
-void EditorView::SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval)
+void LineView::SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval)
 {
 	if (!Window::IsMouseInView())
 		return;
@@ -273,7 +287,7 @@ void EditorView::SetStartPosition(const Engine::DVector2& Delta, Engine::UILine&
 	UpdateCameraUniforms();
 }
 
-void EditorView::SetEndPosition(const DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval)
+void LineView::SetEndPosition(const DVector2& Delta, Engine::UILine& Line, Engine::UIButton& EndOval)
 {
 	if (!Window::IsMouseInView())
 		return;
@@ -314,7 +328,7 @@ void EditorView::SetEndPosition(const DVector2& Delta, Engine::UILine& Line, Eng
 	UpdateCameraUniforms();
 }
 
-void EditorView::OnCameraImageData()
+void LineView::OnCameraImageData()
 {
 	Window& Window = Application::Get().GetRenderContext().GetWindow();
 	Vector2 Dims = CameraImage->GetDimensions();
@@ -333,4 +347,51 @@ void EditorView::OnCameraImageData()
 	const float Height = Window.GetHeight() / Dims.y;
 
 	CameraImage->SetScale(Vector2(Width, Height));
+}
+
+void LineView::OnCameraView()
+{
+	const String Path = FileLoader::GetPath(m_Path);
+	const String Name = FileLoader::GetName(m_Path);
+	const String Extension = FileLoader::GetExtension(m_Path);
+
+	FileLoader::Delete(Path, Name + "." + Extension, FileLoader::Type::E_ROOT);
+
+	Application::Get().GetWorldManager().Remove(
+		Application::Get().GetWorldManager().GetActive()
+	);
+
+	CameraView* View = new CameraView();
+}
+
+void LineView::OnStretchView()
+{
+	// Create binary config
+	json JSON;
+	JSON["lineCount"] = 1;
+
+	JSON["x1_1"] = 0.0f;
+	JSON["y1_1"] = 0.0f;
+	JSON["x1_2"] = 0.0f;
+	JSON["y1_2"] = 1.0f;
+
+	JSON["x2_1"] = 1.0f;
+	JSON["y2_1"] = 0.0f;
+	JSON["x2_2"] = 1.0f;
+	JSON["y2_2"] = 1.0f;
+
+	std::vector<uint8_t> BSON = nlohmann::json::to_bson(JSON);
+
+	// Write to config file
+	// const String Path = FileLoader::GetPath(m_Path);
+	const String Name = FileLoader::GetName(m_Path);
+	
+	FileLoader::Write("Configs/", Name + ".cfg", (char*)BSON.data(), BSON.size(), true, FileLoader::E_EXTERNAL);
+
+	// Switch view
+	Application::Get().GetWorldManager().Remove(
+		Application::Get().GetWorldManager().GetActive()
+	);
+
+	ListView* View = new ListView();
 }

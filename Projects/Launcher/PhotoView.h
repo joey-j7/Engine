@@ -17,8 +17,9 @@ public:
 	PhotoView(const String& FilePath);
 
 private:
-	void OnEditorView();
+	void OnLineView();
 	void OnListView();
 
 	Engine::UIImage* CameraImage = nullptr;
+	String m_Path = "";
 };

@@ -23,7 +23,7 @@
 namespace Engine {
 	String FileLoader::m_DefaultSeperator = "/";
 
-	String FileLoader::GetPath(const String& filePath, Type type)
+	String FileLoader::GetAbsolutePath(const String& filePath, Type type)
 	{
 		String path = filePath;
 		ReplaceAll(path, "/", m_DefaultSeperator);
@@ -34,13 +34,30 @@ namespace Engine {
 		return path;
 	}
 
+	String FileLoader::GetPath(const String& filePath)
+	{
+		size_t i = filePath.rfind('/', filePath.length());
+
+		if (i != String::npos)
+		{
+			return(filePath.substr(0, i + 1));
+		}
+
+		return(filePath);
+	}
+
 	String FileLoader::GetName(const String& filePath)
 	{
 		size_t i = filePath.rfind('.', filePath.length());
 
 		if (i != String::npos)
 		{
-			return(filePath.substr(0, i));
+			size_t j = filePath.rfind('/', filePath.length()) + 1;
+
+			if (j == String::npos)
+				j = 0;
+
+			return(filePath.substr(j, i - j));
 		}
 
 		return("");
@@ -52,7 +69,7 @@ namespace Engine {
 		
 		if (i != String::npos)
 		{
-			return(filePath.substr(i + 1, filePath.length() - i));
+			return filePath.substr(i + 1);
 		}
 
 		return("");
@@ -61,7 +78,7 @@ namespace Engine {
 	char* FileLoader::ReadStream(const String& filePath, uint32_t& length, Type type, bool addNull)
 	{
 		// Retrieve full absolute path
-		String path = GetPath(filePath, type);
+		String path = GetAbsolutePath(filePath, type);
 
 		auto ifs = std::ifstream(filePath.c_str(), std::ios::in | std::ios::binary);
 		
@@ -74,7 +91,7 @@ namespace Engine {
 			char* result = new char[addNull ? length + 1 : length];
 
 			ifs.seekg(0, std::ios::beg);
-			ifs.read(result, pos);
+			ifs.read(result, length);
 			ifs.close();
 
 			if (addNull)
@@ -132,7 +149,7 @@ namespace Engine {
 			}
 		}
 
-		auto file = std::ofstream(FullFilePath, std::ios::out | std::ios::trunc | std::ios::binary);
+		auto file = std::ofstream(FullFilePath.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 		file.write(buffer, length);
 		file.close();
 
@@ -143,6 +160,20 @@ namespace Engine {
 		}
 
 		return true;
+	}
+
+	bool FileLoader::Delete(const String& filePath, const String& fileName, Type type)
+	{
+		// Retrieve full absolute path
+		String path = GetAbsolutePath(filePath + fileName, type);
+		bool Succeeded = std::remove(path.c_str()) == 0;
+
+		if (!Succeeded)
+		{
+			CB_CORE_ERROR("Could not delete file at path \"{0}\"!", path);
+		}
+
+		return Succeeded;
 	}
 
 	bool FileLoader::CreateRecursivePath(const String& Path, Type type, mode_t Mode)

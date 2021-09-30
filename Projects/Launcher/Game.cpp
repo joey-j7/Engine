@@ -21,7 +21,7 @@ public:
 class Game : public Engine::Application
 {
 public:
-	Game() : Application("The Nest")
+	Game() : Application(TOSTRING(CB_NAME))
 	{
 		PushLayer(new ExampleLayer());
 		ListView* View = new ListView();

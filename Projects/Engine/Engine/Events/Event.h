@@ -94,13 +94,14 @@ namespace Engine
 
 		IDType m_ID;
 		String m_sName;
+
 		static std::atomic_uint m_IDCounter;
 	};
 
-#ifdef CB_BUILD_DLL
+// #ifdef CB_BUILD_DLL
 	template <typename T, typename ... Args>
 	std::atomic_uint EventHandler<T, Args...>::m_IDCounter(0);
-#endif
+// #endif
 	
 	template <typename T, typename... Args>
 	class Engine_API Event : public Object
