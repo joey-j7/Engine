@@ -12,16 +12,18 @@
 #include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UIOval.h"
 #include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIText.h"
 
-#include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
 #include "PhotoView.h"
+
+#include "Platform/PermissionManager.h"
 
 using namespace Engine;
 
-ListView::ListView()
+ListView::ListView(const String& Name) : World(Name)
 {
-	StaticEntity* Canvas = new StaticEntity("Canvas");
+	// Generate list
+	m_Canvas = new StaticEntity("Canvas");
 	
-	UILayout* Layout = Canvas->AddComponent<UIGridPanel>();
+	UILayout* Layout = m_Canvas->AddComponent<UIGridPanel>();
 	Layout->SetElementCount(1, true);
 	Layout->SetFitElements(true, false);
 
@@ -32,23 +34,12 @@ ListView::ListView()
 	float Width = Bounds.width() / Window.GetScale();
 	float Height = 100.f;// (Bounds.fBottom - Bounds.fTop) * 0.2f / Window.GetScale();
 
-	std::vector<String> Filenames;
-	m_FolderPath = "/storage/emulated/0/DCIM/Appuil/" + Application::Get().GetName() + "/";
-
-#ifdef CB_PLATFORM_WINDOWS
-	Filenames = {
-		"Item 0.jpg", "Item 1.jpg", "Item 2.jpg", "Item 3.jpg", "Item 4.jpg",
-		"Item 0.jpg", "Item 1.jpg", "Item 2.jpg", "Item 3.jpg", "Item 4.jpg"
-	};
-#else
-	Filenames = FileLoader::GetFilenames(m_FolderPath, { "jpg" }, FileLoader::E_ROOT);
-#endif
-
 	// Take photo item
 	Color BgColor = (
 		Color(1.f, 1.f, 1.f)
 	);
 
+	// New photo button
 	UIButton* Item = new UIButton(
 		{ "Nieuwe foto maken", 0.f, Vector4(80.f), "", "", BgColor },
 		{ "Nieuwe foto maken", 0.f, Vector4(80.f), "", "", Color(1.f, 1.f, 0.f) },
@@ -59,11 +50,72 @@ ListView::ListView()
 	Item->SetAnchor(E_ANCH_TOP_FILL);
 	Item->SetPivot(Vector2(0.5f, 0.f));
 
-	Item->SetParent(Canvas);
+	Item->SetParent(m_Canvas);
 
 	Item->SetOnClickedCallback([&] {
 		Application::Get().ThreadedCallback.Bind(this, &ListView::OnCameraClick);
 	});
+
+	// Set default image path
+	m_FolderPath = "/storage/emulated/0/DCIM/Appuil/" + Application::Get().GetName() + "/";
+
+	// Gather permissions
+	bool Permission = PermissionManager::Get().HasPermission(PermissionManager::E_READ_EXTERNAL_STORAGE);
+
+	if (Permission)
+		Permission = PermissionManager::Get().HasPermission(PermissionManager::E_WRITE_EXTERNAL_STORAGE);
+
+	if (!Permission)
+	{
+		PermissionManager::Get().OnPermissionEvent.Bind(this, &ListView::OnPermission);
+		PermissionManager::Get().RequestPermissions(
+			{ PermissionManager::E_READ_EXTERNAL_STORAGE, PermissionManager::E_WRITE_EXTERNAL_STORAGE }
+		);
+	}
+	else
+	{
+		PopulateList();
+	}
+}
+
+void ListView::OnCameraClick()
+{
+	new CameraView();
+}
+
+void ListView::OnPhotoView()
+{
+	// Store because this object will soon be destroyed
+	String Path = m_ImagePath;
+	new PhotoView(Path);
+}
+
+void ListView::PopulateList()
+{
+	// Clear old items
+	for (auto ListItem : m_ListItems)
+	{
+		delete ListItem;
+	}
+
+	m_ListItems.clear();
+
+	// Populate new items
+	std::vector<String> Filenames;
+
+	Color BgColor = (
+		Color(1.f, 1.f, 1.f)
+	);
+
+
+#ifdef CB_PLATFORM_WINDOWS
+	Filenames = {
+		"Item 0.jpg", "Item 1.jpg", "Item 2.jpg", "Item 3.jpg", "Item 4.jpg",
+		"Item 0.jpg", "Item 1.jpg", "Item 2.jpg", "Item 3.jpg", "Item 4.jpg"
+	};
+#else
+	Filenames = FileLoader::GetFilenames(m_FolderPath, { "jpg" }, FileLoader::E_ROOT);
+#endif
 
 	// Items
 	uint32_t Num = Filenames.size();
@@ -76,46 +128,38 @@ ListView::ListView()
 			Color(1.f, 1.f, 1.f)
 		);
 
-		Item = new UIButton(
+		UIButton* Item = new UIButton(
 			{ Filenames[i], 0.f, Vector4(80.f), "", "", BgColor },
 			{ Filenames[i], 0.f, Vector4(80.f), "", "", Color(1.f, 1.f, 0.f) },
 			{ Filenames[i], 0.f, Vector4(80.f), "", "", Color(1.f, 0.f, 0.f) },
 			"Item " + std::to_string(i)
 		);
 
-		Item->SetParent(Canvas);
+		Item->SetParent(m_Canvas);
 
 		Item->SetAnchor(E_ANCH_TOP_FILL);
 		Item->SetPivot(Vector2(0.5f, 0.f));
-		
+
 		String Fullpath = m_FolderPath + Filenames[i];
 
 		Item->SetOnClickedCallback([this, Fullpath] {
 			m_ImagePath = Fullpath; // m_FolderPath + Item->GetDefaultStyle().m_Text;
 			Application::Get().ThreadedCallback.Bind(this, &ListView::OnPhotoView);
 		});
+
+		m_ListItems.push_back(Item);
 	}
 }
 
-void ListView::OnCameraClick()
+void ListView::OnPermission(const std::vector<String>& Permissions, const std::vector<int32_t>& Granted)
 {
-	Application::Get().GetWorldManager().Remove(
-		Application::Get().GetWorldManager().GetActive()
-	);
+	if (!PermissionManager::Get().HasPermissions({
+		PermissionManager::E_READ_EXTERNAL_STORAGE,
+		PermissionManager::E_WRITE_EXTERNAL_STORAGE
+	}))
+		return;
 
-	CameraView* View = new CameraView();
-}
-
-void ListView::OnPhotoView()
-{
-	// Store because this object will soon be destroyed
-	String Path = m_ImagePath;
-
-	Application::Get().GetWorldManager().Remove(
-		Application::Get().GetWorldManager().GetActive()
-	);
-
-	PhotoView* View = new PhotoView(Path);
+	Application::Get().ThreadedCallback.Bind(this, &ListView::PopulateList);
 }
 
 void ListView::Draw(float fDeltaTime)

@@ -40,12 +40,9 @@ namespace Engine
 
 		virtual bool IsReady() override;
 
-		void OnPermission(jboolean Granted);
-
 		void TakePhoto() override;
 
 		// TODO: Move to platform context
-		static bool RequestPermission();
 		static void ResetReader();
 
 		static bool IsCapturing() {
@@ -53,11 +50,10 @@ namespace Engine
 		}
 
 	protected:
-		void DelayedStart();
-
 		void StartPreview();
 		void StopCapture();
 		
+		void OnPermission(const std::vector<String>& Permissions, const std::vector<int32_t>& Granted);
 		void OnPhotoProcessed();
 		
 		virtual bool Open() override;
@@ -113,7 +109,6 @@ namespace Engine
 		static std::mutex m_Mutex;
 
 		bool m_HasPermission = false;
-		bool m_DelayedStart = false;
 	};
 }
 

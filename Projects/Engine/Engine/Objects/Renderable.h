@@ -17,6 +17,7 @@ namespace Engine
 		~Renderable();
 
 		virtual const AABB GetBounds() = 0;
+		virtual bool IsVisible() const = 0;
 
 	protected:
 		void MarkDirty();

@@ -13,11 +13,13 @@ namespace Engine
 
 using namespace Engine;
 
-class LineView : public SubView
+class StretchView : public SubView
 {
 public:
-	LineView(const String& FilePath, const String& Name = "Line View");
+	StretchView(const String& FilePath, const String& Name = "Line View");
 	
+	void UpdateCameraUniforms();
+
 private:
 	void SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval);
 	void SetEndPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval);
@@ -26,9 +28,8 @@ private:
 	Vector2 NormToAbs(Vector2 Normalized) const;
 	Vector2 AbsToNorm(Vector2 Absolute) const;
 
-	void OnLineToggle();
-	void OnCameraView();
-	void OnStretchView();
+	virtual void OnBack() override;
+	void OnMirrorView();
 
 	void RetrieveUserData();
 	void SaveUserData();
@@ -44,9 +45,6 @@ private:
 	Engine::UILine* Line2 = nullptr;
 	Engine::UIButton* StartOval2 = nullptr;
 	Engine::UIButton* EndOval2 = nullptr;
-
-	Engine::UIButton* LineToggle = nullptr;
-	bool m_LineToggled = false;
 
 	Engine::json m_ConfigFile;
 };

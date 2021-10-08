@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Objects/Worlds/World.h"
+#include "SubView.h"
 #include "Rendering/Passes/DrawPass.h"
 
 namespace Engine
@@ -11,15 +11,28 @@ namespace Engine
 	class StaticEntity;
 }
 
-class PhotoView : public Engine::World
+class PhotoEntity;
+
+class PhotoView : public SubView
 {
 public:
-	PhotoView(const String& FilePath);
+	PhotoView(const String& FilePath, const String& Name = "Photo View");
+	~PhotoView();
 
 private:
-	void OnLineView();
-	void OnListView();
+	void RetrieveUserData();
+	void UpdateCameraUniforms();
 
-	Engine::UIImage* CameraImage = nullptr;
-	String m_Path = "";
+	Engine::Vector2 NormToAbs(Engine::Vector2 Normalized) const;
+
+	void OnLineView();
+	void OnDelete();
+
+	void ToggleButtons();
+
+	Engine::json m_ConfigFile;
+	uint32_t MirrorCount = 0;
+
+	Engine::UIButton* m_EditButton = nullptr;
+	Engine::UIButton* m_DeleteButton = nullptr;
 };

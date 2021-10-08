@@ -104,6 +104,8 @@
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIImage.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIRenderable.h" />
     <ClInclude Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIText.h" />
+    <ClInclude Include="Platform\PermissionManager.h" />
+    <ClInclude Include="Platform\Android\AndPermissionManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -180,5 +182,7 @@
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIImage.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIRenderable.cpp" />
     <ClCompile Include="Engine\Objects\Worlds\Entities\Components\UI\Renderables\UIText.cpp" />
+    <ClCompile Include="Platform\PermissionManager.cpp" />
+    <ClCompile Include="Platform\Android\AndPermissionManager.cpp" />
   </ItemGroup>
 </Project>

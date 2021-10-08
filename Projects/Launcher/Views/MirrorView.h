@@ -13,25 +13,27 @@ namespace Engine
 
 using namespace Engine;
 
-class LineView : public SubView
+class MirrorView : public SubView
 {
 public:
-	LineView(const String& FilePath, const String& Name = "Line View");
+	MirrorView(const String& FilePath, const String& Name = "Line View");
 	
+	void UpdateCameraUniforms();
+
 private:
-	void SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval);
-	void SetEndPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval);
 	void OnCameraImageData();
 
 	Vector2 NormToAbs(Vector2 Normalized) const;
 	Vector2 AbsToNorm(Vector2 Absolute) const;
 
-	void OnLineToggle();
-	void OnCameraView();
-	void OnStretchView();
+	virtual void OnBack() override;
+	void OnListView();
+	void OnMirrorToggle();
 
 	void RetrieveUserData();
 	void SaveUserData();
+
+	void ToggleButtons();
 
 	Engine::DrawPass* m_pPass = nullptr;
 
@@ -44,9 +46,12 @@ private:
 	Engine::UILine* Line2 = nullptr;
 	Engine::UIButton* StartOval2 = nullptr;
 	Engine::UIButton* EndOval2 = nullptr;
+	
+	Engine::StaticEntity* TextEntity = nullptr;
+	Engine::UIButton* NextButton;
 
-	Engine::UIButton* LineToggle = nullptr;
-	bool m_LineToggled = false;
-
+	Engine::UIButton* MirrorToggle = nullptr;
+	uint32_t MirrorCount = 0;
+	
 	Engine::json m_ConfigFile;
 };

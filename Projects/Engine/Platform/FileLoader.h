@@ -30,7 +30,7 @@ namespace Engine
 		static bool Write(const String& filePath, const String& fileName, char* buffer, uint32_t length, bool overwrite = true, Type type = E_CONTENT);
 		static bool Delete(const String& filePath, const String& fileName, Type type = E_CONTENT);
 
-		static bool CreateRecursivePath(const String& Path, Type type = E_CONTENT, mode_t Mode = 0700);
+		static bool CreateRecursivePath(const String& Path, Type type = E_CONTENT, mode_t Mode = 0770);
 		
 		static bool Exists(const String& filePath, Type type = E_CONTENT);
 

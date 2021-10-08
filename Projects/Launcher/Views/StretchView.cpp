@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "LineView.h"
+#include "StretchView.h"
 
 #include "Engine/Application.h"
 
@@ -17,13 +17,48 @@
 
 #include "../PhotoEntity.h"
 
-#include "CameraView.h"
-#include "StretchView.h"
+#include "MirrorView.h"
+#include "ListView.h"
 
 using namespace Engine;
 
-LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePath, Name)
+StretchView::StretchView(const String& FilePath, const String& Name) : SubView(FilePath, Name)
 {
+	// Camera
+	/*CameraImage->SetShader(
+		"uniform shader Element;"
+		"uniform float2 screenSize;"
+
+		"uniform float2 top0;"
+		"uniform float2 btm0;"
+		"uniform float2 top1;"
+		"uniform float2 btm1;"
+
+		"half4 main(float2 Coord) {"
+		"  float2 Coords = sk_FragCoord.xy;"
+		"  float2 ImgCoords = Coord.xy;"
+
+		"  float m = (top0.y - btm0.y) / (top0.x - btm0.x);"
+		"  float c = top0.y - m * top0.x;"
+		"  float2 line1 = float2((Coords.y - c) / m, Coords.x * m + c);"
+
+		"  m = (top1.y - btm1.y) / (top1.x - btm1.x);"
+		"  c = top1.y - m * top1.x;"
+		"  float2 line2 = float2((Coords.y - c) / m, Coords.x * m + c);"
+
+		"  if ((Coords.x >= line1.x && top0.y >= btm0.y) || "
+		"      (Coords.x < line1.x && top0.y < btm0.y))"
+		"    ImgCoords.y += (Coords.x - line1.x) * 1.5;"
+
+		"  else if ((Coords.x < line2.x && top0.y >= btm0.y) || "
+		"      (Coords.x >= line2.x && top0.y < btm0.y))"
+		"    ImgCoords.y += (Coords.x - line2.x) * 1.5;"
+
+		"  half4 col = sample(Element, ImgCoords.xy).rgba;"
+		"  return col;"
+		"}"
+	);*/
+
 	constexpr float BtnSize = 50.f;
 
 	// Next Button
@@ -40,7 +75,7 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 	NextButton->GetComponent<Transform2DComponent>()->Translate(Vector2(-20.f, 20.f));
 
 	NextButton->SetOnClickedCallback([&]() {
-		Application::Get().ThreadedCallback.Bind(this, &LineView::OnStretchView);
+		Application::Get().ThreadedCallback.Bind(this, &StretchView::OnMirrorView);
 	});
 
 	// Window
@@ -161,26 +196,9 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 		SetEndPosition(Delta, *Line2, *StartOval2, *EndOval2);
 	});
 
-	// Line toggle button
-	LineToggle = new UIButton(
-		{ "2", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "2", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "2", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
-		"Line Toggle Button"
-	);
-	
-	LineToggle->SetAnchor(E_ANCH_TOP);
-	LineToggle->SetPivot(Vector2(0.5f, 0.0f));
-
-	LineToggle->GetComponent<Transform2DComponent>()->Translate(Vector2(0.f, 20.f));
-
-	LineToggle->SetOnClickedCallback([&]() {
-		Application::Get().ThreadedCallback.Bind(this, &LineView::OnLineToggle);
-	});
-
 	// Text
 	StaticEntity* TextEntity = new StaticEntity("Text");
-	UIText* Text = TextEntity->AddComponent<UIText>("Sleep de lijn(en) over de naden");
+	UIText* Text = TextEntity->AddComponent<UIText>("Uitrekken");
 	Text->SetColor(Color(1.f));
 
 	Text->SetAnchor(E_ANCH_BOTTOM);
@@ -191,18 +209,43 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 	// Retrieve potential user data
 	RetrieveUserData();
 
-	// Set back button to camera
-	auto Worlds = Application::Get().GetWorldManager().GetWorlds();
-	
-	if (Worlds.size() > 1 && dynamic_cast<CameraView*>(Worlds[Worlds.size() - 2]))
-	{
-		m_BackButton->SetOnClickedCallback([&]() {
-			Application::Get().ThreadedCallback.Bind(this, &LineView::OnCameraView);
-		});
-	}
+	// Update on first frame
+	UpdateCameraUniforms();
 }
 
-void LineView::SetStartPosition(const DVector2& Delta, UILine& Line, UIButton& StartOval, UIButton& EndOval)
+void StretchView::UpdateCameraUniforms()
+{
+	Window& Window = Application::Get().GetRenderContext().GetWindow();
+
+	const float Scale = Window.GetScale();
+
+	// Line 1
+	Vector3 Start = StartOval1->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
+	Vector3 End = EndOval1->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
+
+	SkV2 Top = SkV2{ Start.x, Start.y };
+	m_CameraImage->SetShaderUniform("top0", Top);
+
+	SkV2 Btm = SkV2{ End.x, End.y };
+	m_CameraImage->SetShaderUniform("btm0", Btm);
+
+	// Line 2
+	Vector3 Start1 = StartOval2->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
+	Vector3 End1 = EndOval2->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
+
+	SkV2 Top1 = SkV2{ Start1.x, Start1.y };
+	m_CameraImage->SetShaderUniform("top1", Top1);
+
+	SkV2 Btm1 = SkV2{ End1.x, End1.y };
+	m_CameraImage->SetShaderUniform("btm1", Btm1);
+
+	const float Width = m_CameraImage->GetWidth();
+	const float Height = m_CameraImage->GetHeight();
+
+	m_CameraImage->SetShaderUniform("screenSize", SkV2{ Width, Height });
+}
+
+void StretchView::SetStartPosition(const DVector2& Delta, UILine& Line, UIButton& StartOval, UIButton& EndOval)
 {
 	if (!Window::IsMouseInView())
 		return;
@@ -244,9 +287,11 @@ void LineView::SetStartPosition(const DVector2& Delta, UILine& Line, UIButton& S
 		Line.GetEndPosition(),
 		true
 	);
+
+	UpdateCameraUniforms();
 }
 
-void LineView::SetEndPosition(const DVector2& Delta, UILine& Line, UIButton& StartOval, UIButton& EndOval)
+void StretchView::SetEndPosition(const DVector2& Delta, UILine& Line, UIButton& StartOval, UIButton& EndOval)
 {
 	if (!Window::IsMouseInView())
 		return;
@@ -283,9 +328,11 @@ void LineView::SetEndPosition(const DVector2& Delta, UILine& Line, UIButton& Sta
 		Line.GetEndPosition(),
 		true
 	);
+
+	UpdateCameraUniforms();
 }
 
-void LineView::OnCameraImageData()
+void StretchView::OnCameraImageData()
 {
 	Window& Window = Application::Get().GetRenderContext().GetWindow();
 	Vector2 Dims = m_CameraImage->GetDimensions();
@@ -306,7 +353,7 @@ void LineView::OnCameraImageData()
 	m_CameraImage->SetScale(Vector2(Width, Height));
 }
 
-Vector2 LineView::NormToAbs(Vector2 Normalized) const
+Vector2 StretchView::NormToAbs(Vector2 Normalized) const
 {
 	AABB Bounds = m_CameraImage->GetBounds();
 	
@@ -324,7 +371,7 @@ Vector2 LineView::NormToAbs(Vector2 Normalized) const
 	return Normalized;
 }
 
-Vector2 LineView::AbsToNorm(Vector2 Absolute) const
+Vector2 StretchView::AbsToNorm(Vector2 Absolute) const
 {
 	AABB Bounds = m_CameraImage->GetBounds();
 
@@ -343,35 +390,19 @@ Vector2 LineView::AbsToNorm(Vector2 Absolute) const
 	return Absolute;
 }
 
-void LineView::OnLineToggle()
-{
-	m_LineToggled = !m_LineToggled;
-	LineToggle->SetText(m_LineToggled ? "2" : "1");
-	
-	LineEntity2->SetVisibility(
-		m_LineToggled ? Entity::E_VISIBLE : Entity::E_COLLAPSED
-	);
-}
-
-void LineView::OnCameraView()
-{
-	const String Path = FileLoader::GetPath(m_Path);
-	const String Name = FileLoader::GetName(m_Path);
-	const String Extension = FileLoader::GetExtension(m_Path);
-
-	FileLoader::Delete(Path, Name + "." + Extension, FileLoader::Type::E_ROOT);
-	FileLoader::Delete("Configs/", Name + ".cfg", FileLoader::Type::E_EXTERNAL);
-
-	delete this;
-}
-
-void LineView::OnStretchView()
+void StretchView::OnBack()
 {
 	SaveUserData();
-	new StretchView(m_Path);
+	SubView::OnBack();
 }
 
-void LineView::RetrieveUserData()
+void StretchView::OnMirrorView()
+{
+	SaveUserData();
+	new MirrorView(m_Path);
+}
+
+void StretchView::RetrieveUserData()
 {
 	const String Name = FileLoader::GetName(m_Path);
 
@@ -382,11 +413,19 @@ void LineView::RetrieveUserData()
 		return;
 
 	m_ConfigFile = json::from_bson(File);
-	m_LineToggled = m_ConfigFile["lineCount"] == 2;
+
+	bool HasStretch = m_ConfigFile.contains("tar_x1_1");
 
 	// First line
-	Vector2 Start1 = NormToAbs(Vector2(m_ConfigFile["orig_x1_1"], m_ConfigFile["orig_y1_1"]));
-	Vector2 End1 = NormToAbs(Vector2(m_ConfigFile["orig_x1_2"], m_ConfigFile["orig_y1_2"]));
+	Vector2 Start1 = NormToAbs(Vector2(
+		HasStretch ? m_ConfigFile["tar_x1_1"] : m_ConfigFile["orig_x1_1"],
+		HasStretch ? m_ConfigFile["tar_y1_1"] : m_ConfigFile["orig_y1_1"]
+	));
+
+	Vector2 End1 = NormToAbs(Vector2(
+		HasStretch ? m_ConfigFile["tar_x1_2"] : m_ConfigFile["orig_x1_2"],
+		HasStretch ? m_ConfigFile["tar_y1_2"] : m_ConfigFile["orig_y1_2"]
+	));
 
 	auto Transform = Line1->GetEntity().GetComponent<Transform2DComponent>();
 	Transform->SetPosition(Start1);
@@ -401,8 +440,15 @@ void LineView::RetrieveUserData()
 	);
 
 	// Second line
-	Vector2 Start2 = NormToAbs(Vector2(m_ConfigFile["orig_x2_1"], m_ConfigFile["orig_y2_1"]));
-	Vector2 End2 = NormToAbs(Vector2(m_ConfigFile["orig_x2_2"], m_ConfigFile["orig_y2_2"]));
+	Vector2 Start2 = NormToAbs(Vector2(
+		HasStretch ? m_ConfigFile["tar_x2_1"] : m_ConfigFile["orig_x2_1"],
+		HasStretch ? m_ConfigFile["tar_y2_1"] : m_ConfigFile["orig_y2_1"]
+	));
+
+	Vector2 End2 = NormToAbs(Vector2(
+		HasStretch ? m_ConfigFile["tar_x2_2"] : m_ConfigFile["orig_x2_2"],
+		HasStretch ? m_ConfigFile["tar_y2_2"] : m_ConfigFile["orig_y2_2"]
+	));
 	
 	Transform = Line2->GetEntity().GetComponent<Transform2DComponent>();
 	Transform->SetPosition(Start2);
@@ -417,38 +463,34 @@ void LineView::RetrieveUserData()
 	);
 
 	// Line toggle
-	LineToggle->SetText(m_LineToggled ? "2" : "1");
 	LineEntity2->SetVisibility(
-		m_LineToggled ? Entity::E_VISIBLE : Entity::E_COLLAPSED
+		m_ConfigFile["lineCount"] == 2 ? Entity::E_VISIBLE : Entity::E_COLLAPSED
 	);
 
 	fclose(File);
 }
 
-void LineView::SaveUserData()
+void StretchView::SaveUserData()
 {
-	// Create binary config
-	m_ConfigFile["lineCount"] = m_LineToggled ? 2 : 1;
-
 	// Line 1
 	auto Transform = Line1->GetEntity().GetComponent<Transform2DComponent>();
 	Vector2 Start1 = AbsToNorm(Transform->GetPosition());
 	Vector2 End1 = AbsToNorm(Transform->GetPosition() + Line1->GetEndPosition());
 	
-	m_ConfigFile["orig_x1_1"] = Start1.x;
-	m_ConfigFile["orig_y1_1"] = Start1.y;
-	m_ConfigFile["orig_x1_2"] = End1.x;
-	m_ConfigFile["orig_y1_2"] = End1.y;
+	m_ConfigFile["tar_x1_1"] = Start1.x;
+	m_ConfigFile["tar_y1_1"] = Start1.y;
+	m_ConfigFile["tar_x1_2"] = End1.x;
+	m_ConfigFile["tar_y1_2"] = End1.y;
 
 	// Line 2
 	Transform = Line2->GetEntity().GetComponent<Transform2DComponent>();
 	Vector2 Start2 = AbsToNorm(Transform->GetPosition());
 	Vector2 End2 = AbsToNorm(Transform->GetPosition() + Line2->GetEndPosition());
 
-	m_ConfigFile["orig_x2_1"] = Start2.x;
-	m_ConfigFile["orig_y2_1"] = Start2.y;
-	m_ConfigFile["orig_x2_2"] = End2.x;
-	m_ConfigFile["orig_y2_2"] = End2.y;
+	m_ConfigFile["tar_x2_1"] = Start2.x;
+	m_ConfigFile["tar_y2_1"] = Start2.y;
+	m_ConfigFile["tar_x2_2"] = End2.x;
+	m_ConfigFile["tar_y2_2"] = End2.y;
 
 	std::vector<uint8_t> BSON = nlohmann::json::to_bson(m_ConfigFile);
 

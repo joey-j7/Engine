@@ -12,6 +12,8 @@ namespace Engine
 
 		virtual const AABB GetBounds() const = 0;
 
+		void Click();
+
 		bool IsHovered() const { return m_IsHovered; }
 		bool IsPressed() const { return m_IsPressed; }
 
@@ -26,6 +28,7 @@ namespace Engine
 		Event<void> OnClickedEvent = Event<void>("Clickable::OnClicked");
 
 		bool CanFocus() const { return IsAlwaysFocussable() || !FocussedClickable || FocussedClickable == this; }
+		virtual bool IsClickable() const { return m_IsActive; }
 
 		void SetAlwaysFocussable(bool Focussable) { m_AlwaysFocussable = Focussable; }
 		bool IsAlwaysFocussable() const { return m_AlwaysFocussable; }
@@ -35,7 +38,6 @@ namespace Engine
 		virtual void OnHover(const DVector2& Position);
 		virtual void OnExit(const DVector2& Position);
 		virtual void OnDrag(const DVector2& Position, const DVector2& Delta);
-		virtual void OnScroll(const DVector2& Delta);
 
 		virtual bool OnPressed();
 		virtual void OnReleased();
@@ -45,6 +47,8 @@ namespace Engine
 
 		bool m_IsHovered = false;
 		bool m_IsPressed = false;
+
+		bool m_IsActive = true;
 
 		DVector2 m_PressPosition;
 
@@ -56,10 +60,10 @@ namespace Engine
 	protected:
 		static Clickable* FocussedClickable;
 
-	private:
 		void OnCursorPosition(const DVector2& Position, const DVector2& Delta);
 		void OnMousePressed(uint32_t MouseButton);
 		void OnMouseReleased(uint32_t MouseButton);
+		void OnMouseScroll(const DVector2& Delta);
 
 		Window& m_Window;
 	};

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.appuil.Launcher"
-          android:versionCode="3"
+          package="$(ApplicationName)"
+          android:versionCode="5"
           android:versionName="1.0">
 
   <!-- API 24 required for native camera access -->
@@ -21,7 +21,7 @@
 
       <!-- Tell NativeActivity the name of our .so -->
       <meta-data android:name="android.app.lib_name"
-                 android:value="$(AndroidAppLibName)" />
+                 android:value="Launcher" />
 
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />

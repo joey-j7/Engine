@@ -13,7 +13,7 @@ namespace Engine
 		m_CursorPositionEventID = m_Window.OnCursorPosition.Bind(this, &Clickable::OnCursorPosition);
 		m_MousePressedEventID = m_Window.OnMousePressed.Bind(this, &Clickable::OnMousePressed);
 		m_MouseReleasedEventID = m_Window.OnMouseReleased.Bind(this, &Clickable::OnMouseReleased);
-		m_ScrollEventID = m_Window.OnScroll.Bind(this, &Clickable::OnScroll);
+		m_ScrollEventID = m_Window.OnScroll.Bind(this, &Clickable::OnMouseScroll);
 	}
 
 	Clickable::~Clickable()
@@ -25,6 +25,11 @@ namespace Engine
 		m_Window.OnMousePressed.Unbind(m_MousePressedEventID);
 		m_Window.OnMouseReleased.Unbind(m_MouseReleasedEventID);
 		m_Window.OnScroll.Unbind(m_ScrollEventID);
+	}
+
+	void Clickable::Click()
+	{
+		OnClicked();
 	}
 
 	void Clickable::OnEnter(const DVector2& Position)
@@ -55,11 +60,6 @@ namespace Engine
 	void Clickable::OnDrag(const DVector2& Position, const DVector2& Delta)
 	{
 		OnDraggedEvent(Position, Delta);
-	}
-
-	void Clickable::OnScroll(const DVector2& Delta)
-	{
-		OnScrolledEvent(Delta);
 	}
 
 	bool Clickable::OnPressed()
@@ -96,6 +96,9 @@ namespace Engine
 
 	void Clickable::OnCursorPosition(const DVector2& Position, const DVector2& Delta)
 	{
+		if (!IsClickable())
+			return;
+
 		const AABB Bounds = GetBounds();
 		const bool Hover = CanFocus() && Bounds.contains(Position.x, Position.y);
 		
@@ -112,6 +115,9 @@ namespace Engine
 
 	void Clickable::OnMousePressed(uint32_t MouseButton)
 	{
+		if (!IsClickable())
+			return;
+
 		if (MouseButton != 0)
 			return;
 
@@ -129,6 +135,9 @@ namespace Engine
 
 	void Clickable::OnMouseReleased(uint32_t MouseButton)
 	{
+		if (!IsClickable())
+			return;
+
 		if (MouseButton != 0)
 			return;
 		
@@ -136,5 +145,13 @@ namespace Engine
 		{
 			OnReleased();
 		}
+	}
+
+	void Clickable::OnMouseScroll(const DVector2& Delta)
+	{
+		if (!IsClickable())
+			return;
+
+		OnScrolledEvent(Delta);
 	}
 }

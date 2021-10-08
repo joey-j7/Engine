@@ -20,7 +20,7 @@ android {
     buildToolsVersion "31.0.0"
     
     defaultConfig {
-        applicationId "com.appuil.Launcher"
+        applicationId "com.appuil.Fineer"
         minSdkVersion 19
         targetSdkVersion 30
     }

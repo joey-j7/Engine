@@ -22,6 +22,9 @@ namespace Engine
 	{
 		for (auto& Component : m_Components)
 		{
+			if (!Component->IsVisible())
+				continue;
+
 			Component->BeginDraw();
 			Component->Draw();
 			Component->EndDraw();

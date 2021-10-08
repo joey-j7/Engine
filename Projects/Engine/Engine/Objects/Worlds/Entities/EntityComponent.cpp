@@ -134,6 +134,39 @@ namespace Engine
 		return Mat;
 	}
 
+	Entity::Visibility Entity::GetVisibility() const
+	{
+		if (!GetWorld()->IsActive())
+			return E_COLLAPSED;
+
+		Visibility Vis = m_Visibility;
+
+		if (GetParent() && Vis != E_COLLAPSED)
+		{
+			Visibility V = GetParent()->GetVisibility();
+
+			if (V > Vis)
+				Vis = V;
+		}
+
+		return Vis;
+	}
+
+	void Entity::SetVisibility(Visibility Vis)
+	{
+		if (m_Visibility == Vis)
+			return;
+
+		m_Visibility = Vis;
+		Visibility V = Vis;
+
+		if (V != E_COLLAPSED)
+			V = GetVisibility();
+
+		OnVisibilityChanged(V);
+		NotifyChildrenOnVisibilityChanged(V);
+	}
+
 	bool Entity::RemoveComponent(Component* Comp)
 	{
 		uint32_t ID = Comp->GetID();
@@ -202,6 +235,16 @@ namespace Engine
 		{
 			Child->OnParentChanged(Origin, Old, New);
 			Child->NotifyChildrenOnParentChanged(Origin, Old, New);
+		}
+	}
+	
+	void Entity::NotifyChildrenOnVisibilityChanged(Visibility Vis)
+	{
+		// Notify all children that this entity's parent has changed, nested loop
+		for (Entity* Child : m_Children)
+		{
+			Child->OnVisibilityChanged(Vis);
+			Child->NotifyChildrenOnVisibilityChanged(Vis);
 		}
 	}
 }

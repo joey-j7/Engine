@@ -61,6 +61,11 @@ namespace Engine
 			m_ForegroundImageComponent->SetAnchor(m_Anchor);
 	}
 
+	void UIButton::Click()
+	{
+		m_ClickableComponent->Click();
+	}
+
 	void UIButton::SetOnEnterCallback(const std::function<void()>& Enter)
 	{
 		m_OnEnter = Enter;
@@ -91,7 +96,7 @@ namespace Engine
 		m_OnDragged = Dragged;
 	}
 
-	void UIButton::SetText(const String& Text)
+	void UIButton::ApplyText(const String& Text)
 	{
 		if (!m_TextComponent && Text.empty())
 			return;
@@ -115,6 +120,15 @@ namespace Engine
 			static_cast<uint32_t>(Bounds.width()),
 			static_cast<uint32_t>(Bounds.height())
 		);
+	}
+
+	void UIButton::SetText(const String& Text)
+	{
+		m_DefaultStyle.m_Text = Text;
+		m_HoverStyle.m_Text = Text;
+		m_PressStyle.m_Text = Text;
+
+		ApplyStyle(*m_CurrentStyle);
 	}
 
 	void UIButton::OnEnter(const DVector2& Position)
@@ -168,6 +182,8 @@ namespace Engine
 
 	void UIButton::ApplyStyle(const ButtonStyle& NewStyle)
 	{
+		m_CurrentStyle = &NewStyle;
+
 		if (!NewStyle.m_BackgroundImagePath.empty() || m_BackgroundImageComponent)
 		{
 			if (!m_BackgroundImageComponent)
@@ -204,6 +220,6 @@ namespace Engine
 		m_BackgroundComponent->SetMinSize(NewStyle.m_MinSize);
 		m_BackgroundComponent->SetRadius(NewStyle.m_Radius);
 		
-		SetText(NewStyle.m_Text);
+		ApplyText(NewStyle.m_Text);
 	}
 }

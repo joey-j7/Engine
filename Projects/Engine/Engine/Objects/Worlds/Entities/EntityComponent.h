@@ -29,11 +29,18 @@ namespace Engine
 		friend class World;
 		friend class Entity;
 		friend class Component;
-		
+
 		enum Type
 		{
-			E_STATIC,
-			E_DYNAMIC
+			E_STATIC = 0,
+			E_DYNAMIC = 1
+		};
+
+		enum Visibility
+		{
+			E_VISIBLE = 0,
+			E_HIDDEN = 1,
+			E_COLLAPSED = 2
 		};
 
 		Entity(const Entity&) = delete;
@@ -48,6 +55,9 @@ namespace Engine
 		
 		World* GetWorld() const { return m_pWorld; }
 		Type GetType() const { return m_Type; }
+
+		Visibility GetVisibility() const;
+		void SetVisibility(Visibility Visibility);
 
 		/* Components */
 		template <class T>
@@ -74,8 +84,10 @@ namespace Engine
 
 		Event<void, Entity&, Entity&> OnChildAdded = Event<void, Entity&, Entity&>("Entity::OnChildAdded");
 		Event<void, Entity&, Entity&> OnChildRemoved = Event<void, Entity&, Entity&>("Entity::OnChildRemoved");
-		
+
 		Event<void, Entity&, Entity*, Entity*> OnParentChanged = Event<void, Entity&, Entity*, Entity*>("Entity::OnParentChanged");
+
+		Event<void, Visibility> OnVisibilityChanged = Event<void, Visibility>("Entity::OnVisibilityChanged");
 
 	protected:
 		Entity();
@@ -87,6 +99,7 @@ namespace Engine
 		T* AddComponent(T* Comp);
 
 		void NotifyChildrenOnParentChanged(Entity& Origin, Entity* Old, Entity* New);
+		void NotifyChildrenOnVisibilityChanged(Visibility Vis);
 
 		Entity* m_Parent = nullptr;
 		std::vector<Entity*> m_Children;
@@ -95,6 +108,7 @@ namespace Engine
 		uint32_t m_uiID = 0;
 
 		Type m_Type = E_STATIC;
+		Visibility m_Visibility = E_VISIBLE;
 
 		/* Components */
 		Component* GetComponentByID(size_t ID, bool SearchPending = true)
@@ -150,9 +164,6 @@ namespace Engine
 				ComponentID
 			) != m_DependencyTypes.end();
 		}
-
-		template <class T>
-		static size_t GetClassID();
 
 		size_t GetID() const { return m_ID; }
 
@@ -239,17 +250,6 @@ namespace Engine
 		};
 
 		(void)Add;
-	}
-
-	template <class T>
-	size_t Component::GetClassID()
-	{
-		static_assert(
-			std::is_base_of<Component, T>::value,
-			"Type is not a Component"
-		);
-
-		return typeid(T).hash_code();
 	}
 	
 	template <class T>

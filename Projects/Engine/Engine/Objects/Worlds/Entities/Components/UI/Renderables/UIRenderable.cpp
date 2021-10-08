@@ -521,6 +521,13 @@ namespace Engine
 			delete m_RuntimeShaderInfo.m_Builder;
 
 		m_RuntimeShaderInfo.m_Builder = new SkRuntimeShaderBuilder(Effect);
+
+		// Set element
+		if (m_ElementShader)
+		{
+			m_RuntimeShaderInfo.m_Builder->child("Element") = m_ElementShader;
+		}
+
 		m_RuntimeShaderInfo.m_Dirty = true;
 	}
 	

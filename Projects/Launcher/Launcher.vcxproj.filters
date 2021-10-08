@@ -8,6 +8,9 @@
     <ClCompile Include="Views\CameraView.cpp" />
     <ClCompile Include="Views\PhotoView.cpp" />
     <ClCompile Include="PhotoEntity.cpp" />
+    <ClCompile Include="Views\SubView.cpp" />
+    <ClCompile Include="Views\StretchView.cpp" />
+    <ClCompile Include="Views\MirrorView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Views\ListView.h" />
@@ -15,5 +18,8 @@
     <ClInclude Include="Views\CameraView.h" />
     <ClInclude Include="Views\PhotoView.h" />
     <ClInclude Include="PhotoEntity.h" />
+    <ClInclude Include="Views\SubView.h" />
+    <ClInclude Include="Views\StretchView.h" />
+    <ClInclude Include="Views\MirrorView.h" />
   </ItemGroup>
 </Project>

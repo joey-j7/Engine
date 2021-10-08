@@ -36,6 +36,8 @@ namespace Engine
 		void SetPivot(const Vector2& Pivot);
 		void SetAnchor(Anchor NewAnchor);
 
+		void Click();
+
 		void SetOnEnterCallback(const std::function<void()>& Enter);
 		void SetOnExitCallback(const std::function<void()>& Exit);
 		void SetOnPressedCallback(const std::function<void()>& Pressed);
@@ -47,6 +49,8 @@ namespace Engine
 		const ButtonStyle& GetHoverStyle() const { return m_HoverStyle; };
 		const ButtonStyle& GetPressStyle() const { return m_PressStyle; };
 
+		void SetText(const String& Text);
+
 	protected:
 		virtual void OnEnter(const DVector2& Position);
 		virtual void OnExit(const DVector2& Position);
@@ -57,7 +61,7 @@ namespace Engine
 
 		virtual void OnClicked();
 
-		void SetText(const String& Text);
+		void ApplyText(const String& Text);
 		void ApplyStyle(const ButtonStyle& NewStyle);
 
 		std::function<void()> m_OnEnter;
@@ -81,5 +85,7 @@ namespace Engine
 		ButtonStyle m_DefaultStyle;
 		ButtonStyle m_HoverStyle;
 		ButtonStyle m_PressStyle;
+
+		const ButtonStyle* m_CurrentStyle = &m_DefaultStyle;
 	};
 }

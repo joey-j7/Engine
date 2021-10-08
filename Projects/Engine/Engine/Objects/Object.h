@@ -31,6 +31,17 @@ namespace Engine
 		void SetName(const String& sName) { m_sName = sName; }
 		virtual const String& GetName() const { return m_sName; }
 
+		template <class T>
+		static size_t GetClassID()
+		{
+			static_assert(
+				std::is_base_of<Object, T>::value,
+				"Type is not an Object"
+			);
+
+			return typeid(T).hash_code();
+		}
+
 		// Disable new keyword
 		// inline void* operator new (std::size_t) throw(std::bad_alloc) {
 		// 	extern void* bare_new_erroneously_called();

@@ -24,7 +24,11 @@ namespace Engine
 
 		if (it == m_Worlds.end())
 		{
+			if (GetActive())
+				GetActive()->Pause();
+
 			m_Worlds.push_back(pWorld);
+			CB_CORE_TRACE("Added world {0}, total world count: {1}", pWorld->GetName(), m_Worlds.size());
 		}
 	}
 
@@ -34,9 +38,12 @@ namespace Engine
 
 		if (it != m_Worlds.end())
 		{
+			CB_CORE_TRACE("Removing world {0}, total world count: {1}", pWorld->GetName(), m_Worlds.size() - 1);
 			m_Worlds.erase(it);
-			delete pWorld;
 		}
+
+		if (GetActive())
+			GetActive()->Play();
 	}
 
 	void WorldManagerLayer::OnAttach(const LayerStack& stack)

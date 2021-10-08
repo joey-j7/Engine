@@ -3,10 +3,6 @@
 
 #ifdef CB_PLATFORM_ANDROID
 
-#include <android_native_app_glue.h>
-#include <memory.h>
-
-#include "GLFW/glfw3native.h"
 #include "Engine/Application.h"
 
 #include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
@@ -14,33 +10,6 @@
 #include <include/core/SkYUVAPixmaps.h>
 #include <include/core/SkYUVAInfo.h>
 #include <include/core/SkImageEncoder.h>
-
-#include <jni.h>
-
-extern "C"
-{
-    JNIEXPORT void JNICALL Java_com_appuil_Launcher_NativeLibrary_notifyCameraPermission(
-        JNIEnv* env, jclass type, jboolean permission) {
-        std::thread permissionHandler(
-            &Engine::AndCamera::OnPermission,
-            (Engine::AndCamera*)&Engine::Application::Get().GetHardwareContext().GetCamera(),
-            permission
-        );
-        permissionHandler.detach();
-    }
-	
-    /*JNIEXPORT void JNICALL Java_com_appuil_Launcher_NativeLibrary_drawCameraFrame(
-        JNIEnv* env, jclass type, jbyteArray data, jint width, jint height, jint rotation) {
-    	
-        jbyte* bufferPtr = env->GetByteArrayElements(data, 0);
-		jsize arrayLength = env->GetArrayLength(data);
-
-        Engine::AndCamera* Camera = (Engine::AndCamera*)&Engine::Application::Get().GetHardwareContext().GetCamera();
-        if (Camera) Camera->OnFrame(bufferPtr, arrayLength, width, height, rotation);
-    	
-        env->ReleaseByteArrayElements(data, bufferPtr, 0);
-    }*/
-};
 
 namespace Engine
 {
@@ -98,9 +67,6 @@ namespace Engine
 
     bool AndCamera::Start(CameraType Type)
     {
-        if (m_bStarting)
-            return true;
-
         if (m_bStarted)
         {
             if (Type != m_Type)
@@ -109,18 +75,22 @@ namespace Engine
                 return false;
         }
 
-        std::lock_guard<std::mutex> Guard(m_Mutex);
-        m_bStarting = true;
+        m_Type = Type;
 
-		// Permission thread will call once it has received the permission status
-        if (!RequestPermission())
+        PermissionManager::Get().OnPermissionEvent.Bind(this, &AndCamera::OnPermission);
+
+        if (PermissionManager::Get().HasPermission(PermissionManager::E_CAMERA))
         {
-            m_bStarting = false;
+            OnPermission({}, {});
+        }
+        else if (!PermissionManager::Get().RequestPermission(PermissionManager::Type::E_CAMERA))
+        {
+            CB_CORE_WARN("Permissions to access the camera denied!");
+            m_HasPermission = false;
+
             return false;
         }
 
-        m_Type = Type;
-        
         return true;
     }
 
@@ -129,8 +99,6 @@ namespace Engine
         if (!Camera::Stop())
             return false;
 
-        m_DelayedStart = false;
-
         return true;
     }
 
@@ -138,21 +106,6 @@ namespace Engine
     {
         return m_CaptureState == E_READY || m_CaptureState == E_CLOSED;
     }
-
-	void AndCamera::DelayedStart()
-	{	
-        if (!Camera::Start(m_Type) || m_DelayedStart)
-            return;
-
-        StartPreview();
-
-        std::lock_guard<std::mutex> Guard(m_Mutex);
-        m_DelayedStart = true;
-
-        OnStartCallback();
-
-        m_bStarting = false;
-	}
 
     void AndCamera::TakePhoto()
     {
@@ -335,7 +288,21 @@ namespace Engine
         m_IsCapturing = false;
     }
 
-	void AndCamera::OnPhotoProcessed()
+    void AndCamera::OnPermission(const std::vector<String>& Permissions, const std::vector<int32_t>& Granted)
+    {
+        if (!PermissionManager::Get().HasPermission(PermissionManager::E_CAMERA))
+            return;
+
+        if (!Camera::Start(m_Type))
+            return;
+
+        m_HasPermission = true;
+        StartPreview();
+
+        OnStartCallback();
+    }
+
+    void AndCamera::OnPhotoProcessed()
 	{
         // Start capturing continuously
         ACameraCaptureSession_setRepeatingRequest(
@@ -410,8 +377,6 @@ namespace Engine
         }
 
         // Cancel any pending requests
-        m_DelayedStart = false;
-        m_bStarting = false;
         m_bStarted = false;
 
         return Status == ACAMERA_OK;
@@ -558,42 +523,6 @@ namespace Engine
         // CB_CORE_TRACE("Camera capture sequence has started");
 	}
 
-	bool AndCamera::RequestPermission()
-	{
-        GLFWwindow* Window = static_cast<GLFWwindow*>(
-            Application::Get().GetRenderContext().GetWindow().GetWindow()
-        );
-		
-        android_app* app = glfwGetAndroidApp(Window);
-        if (!app) return false;
-        
-        JNIEnv* env;
-        ANativeActivity* activity = app->activity;
-        activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-
-        if (!env)
-        {
-            activity->vm->AttachCurrentThread(&env, nullptr);
-        }
-
-        if (!env)
-            return false;
-
-        jobject activityObj = env->NewGlobalRef(activity->clazz);
-        jclass clz = env->GetObjectClass(activityObj);
-        auto method = env->GetMethodID(clz, "RequestCamera", "()V");
-
-        if (!method)
-            return false;
-		
-        env->CallVoidMethod(activityObj, method);
-        env->DeleteGlobalRef(activityObj);
-        
-        activity->vm->DetachCurrentThread();
-        
-        return true;
-	}
-
     void AndCamera::ResetReader()
     {
         if (!m_Reader)
@@ -602,22 +531,6 @@ namespace Engine
         // Reset reader to preview callback
         AImageReader_setImageListener(m_Reader, &m_PreviewImageCallbacks);
     }
-
-	void AndCamera::OnPermission(jboolean Granted)
-	{
-        m_HasPermission = (Granted != JNI_FALSE);
-
-        if (m_HasPermission)
-        {
-            DelayedStart();
-            return;
-        }
-
-        std::lock_guard<std::mutex> Guard(m_Mutex);
-
-        CB_CORE_WARN("Permissions to access the camera denied!");
-        m_bStarting = false;
-	}
 
 	void AndCamera::OnPreviewRetrieved(void* Context, AImageReader* Reader)
 	{

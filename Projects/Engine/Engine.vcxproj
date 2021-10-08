@@ -571,12 +571,24 @@
     <ClInclude Include="Engine\Physics\PhysicsEngine.h" />
     <ClInclude Include="Engine\Physics\2D\PhysicsEngine2D.h" />
     <ClInclude Include="Engine\Physics\3D\PhysicsEngine3D.h" />
-    <ClInclude Include="Platform\Android\Hardware\Camera\AndCamera.h" />
+    <ClInclude Include="Platform\Android\AndPermissionManager.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Platform\Android\Hardware\Camera\AndCamera.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Platform\Hardware\Camera\Camera.h" />
     <ClInclude Include="Platform\FileLoader.h" />
     <ClInclude Include="Platform\GLFW\GLFWInput.h" />
     <ClInclude Include="Platform\GLFW\GLFWWindow.h" />
     <ClInclude Include="Platform\Hardware\HardwareContext.h" />
+    <ClInclude Include="Platform\PermissionManager.h" />
     <ClInclude Include="Platform\Windows\Hardware\Camera\WinCamera.h" />
     <ClInclude Include="Rendering\CommandEngine.h" />
     <ClInclude Include="Rendering\Objects\Texture.h" />
@@ -663,13 +675,30 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Platform\Android\Hardware\Camera\AndCamera.cpp" />
-    <ClCompile Include="Platform\Android\AndFileLoader.cpp" />
+    <ClCompile Include="Platform\Android\AndPermissionManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Platform\Android\Hardware\Camera\AndCamera.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Platform\Android\AndFileLoader.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Platform\Hardware\Camera\Camera.cpp" />
     <ClCompile Include="Platform\FileLoader.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWInput.cpp" />
     <ClCompile Include="Platform\GLFW\GLFWWindow.cpp" />
     <ClCompile Include="Platform\Hardware\HardwareContext.cpp" />
+    <ClCompile Include="Platform\PermissionManager.cpp" />
     <ClCompile Include="Platform\Window.cpp" />
     <ClCompile Include="Platform\Windows\WinFileLoader.cpp" />
     <ClCompile Include="Rendering\OpenGL\Files\GLShaderFile.cpp" />

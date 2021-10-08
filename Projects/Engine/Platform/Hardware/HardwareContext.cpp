@@ -10,33 +10,46 @@
 
 namespace Engine
 {
+	HardwareContext::HardwareContext()
+	{
+#ifdef CB_PLATFORM_ANDROID
+		m_PermissionManager = std::unique_ptr<AndPermissionManager>(
+			new AndPermissionManager()
+		);
+#else
+		m_PermissionManager = std::unique_ptr<PermissionManager>(
+			new PermissionManager()
+		);
+#endif
+	}
+
 	Camera& HardwareContext::GetCamera()
 	{
-		if (!m_pCamera)
+		if (!m_Camera)
 		{
 #ifdef CB_PLATFORM_ANDROID
-			m_pCamera = std::unique_ptr<AndCamera>(
+			m_Camera = std::unique_ptr<AndCamera>(
 				new AndCamera()
-				);
+			);
 #else
-			m_pCamera = std::unique_ptr<WinCamera>(
+			m_Camera = std::unique_ptr<WinCamera>(
 				new WinCamera()
-				);
+			);
 #endif
 		}
 
-		return *m_pCamera.get();
+		return *m_Camera.get();
 	}
 
 	void HardwareContext::Pause()
 	{
-		if (m_pCamera.get())
-			m_pCamera->Pause();
+		if (m_Camera.get())
+			m_Camera->Pause();
 	}
 
 	void HardwareContext::Resume()
 	{
-		if (m_pCamera.get())
-			m_pCamera->Resume();
+		if (m_Camera.get())
+			m_Camera->Resume();
 	}
 }

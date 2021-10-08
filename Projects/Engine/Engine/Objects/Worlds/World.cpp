@@ -23,6 +23,8 @@ namespace Engine
 		{
 			delete m_pWorldObjects.front();
 		}
+
+		Application::Get().GetWorldManager().Remove(this);
 	}
 
 	void World::Update(float fDeltaTime)

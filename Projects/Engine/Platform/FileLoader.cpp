@@ -100,6 +100,27 @@ namespace Engine {
 			CB_CORE_INFO("Loaded file at path \"{0}\"", path);
 			return result;
 		}
+		else
+		{
+			FILE* File = std::fopen(path.c_str(), "r");
+
+			if (File)
+			{
+				fseek(File, 0L, SEEK_END);
+				long Length = ftell(File);
+				fseek(File, 0L, SEEK_SET);
+
+				char* Result = new char[addNull ? Length + 1 : Length];
+				fread(Result, 1, Length, File);
+				fclose(File);
+
+				if (addNull)
+					Result[Length] = '\0';
+
+				CB_CORE_INFO("Loaded file at path \"{0}\"", path);
+				return Result;
+			}
+		}
 
 		CB_CORE_ERROR("Could not open file at path \"{0}\"!", path);
 		return nullptr;

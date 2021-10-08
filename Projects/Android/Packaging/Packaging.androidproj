@@ -20,13 +20,13 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <AndroidBuildType>Gradle</AndroidBuildType>
-    <RootNamespace>Launcher</RootNamespace>
-	<AndroidPackageFormat>aab</AndroidPackageFormat>
+    <RootNamespace>Fineer</RootNamespace>
+    <AndroidPackageFormat>aab</AndroidPackageFormat>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ProjectVersion>1.0</ProjectVersion>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <ProjectGuid>{f8317474-a145-4211-8f2a-608cc66cb428}</ProjectGuid>
-    <LaunchActivity Condition="'$(LaunchActivity)' == ''">com.appuil.Launcher.MainActivity</LaunchActivity>
+    <LaunchActivity Condition="'$(LaunchActivity)' == ''">com.appuil.Fineer.MainActivity</LaunchActivity>
     <JavaSourceRoots>src\main\java</JavaSourceRoots>
   </PropertyGroup>
   <Import Project="$(AndroidTargetsPath)\Android.Default.props" />
@@ -118,7 +118,7 @@
       <ApplicationName>com.appuil.$(TargetName)</ApplicationName>
       <ApkFileName>
       </ApkFileName>
-      <GradlePlugin>gradle:4.2.0</GradlePlugin>
+      <GradlePlugin>gradle:7.0.1</GradlePlugin>
       <GradleVersion>7.1</GradleVersion>
     </GradlePackage>
   </ItemDefinitionGroup>
@@ -133,7 +133,7 @@
     <GradleTemplate Include="gradle\wrapper\gradle-wrapper.properties.template" />
   </ItemGroup>
   <ItemGroup>
-    <JavaCompile Include="app\src\main\java\com\appuil\Launcher\MainActivity.java" />
+    <JavaCompile Include="app\src\main\java\com\appuil\Fineer\MainActivity.java" />
     <JavaCompile Include="app\src\main\java\com\appuil\Launcher\NativeLibrary.java" />
   </ItemGroup>
   <ItemGroup>

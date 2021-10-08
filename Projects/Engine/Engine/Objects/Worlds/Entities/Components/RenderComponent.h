@@ -80,6 +80,11 @@ namespace Engine
 			return m_Transform;
 		}
 
+		bool IsVisible() const override
+		{
+			return GetEntity().GetVisibility() == Entity::E_VISIBLE;
+		}
+
 	private:
 		void OnTransformation(const Transform<T, S>& Old, const Transform<T, S>& New)
 		{

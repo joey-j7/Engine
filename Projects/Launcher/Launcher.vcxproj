@@ -417,7 +417,10 @@
     <ClCompile Include="Views\LineView.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="PhotoEntity.cpp" />
+    <ClCompile Include="Views\MirrorView.cpp" />
     <ClCompile Include="Views\PhotoView.cpp" />
+    <ClCompile Include="Views\StretchView.cpp" />
+    <ClCompile Include="Views\SubView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
@@ -429,7 +432,10 @@
     <ClInclude Include="Views\ListView.h" />
     <ClInclude Include="Views\LineView.h" />
     <ClInclude Include="PhotoEntity.h" />
+    <ClInclude Include="Views\MirrorView.h" />
     <ClInclude Include="Views\PhotoView.h" />
+    <ClInclude Include="Views\StretchView.h" />
+    <ClInclude Include="Views\SubView.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
