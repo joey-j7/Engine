@@ -30,12 +30,12 @@ android {
             minifyEnabled false
             proguardFiles.add(file('proguard-rules.txt'))
 
-            debuggable true
+            debuggable false
 
-            signingConfig signingConfigs.config
+            // signingConfig signingConfigs.config
         }
         debug {
-            signingConfig signingConfigs.config
+            // signingConfig signingConfigs.config
         }
     }
 

@@ -32,6 +32,7 @@ private:
 
 	Engine::json m_ConfigFile;
 	uint32_t MirrorCount = 0;
+	uint32_t LineCount = 0;
 
 	Engine::UIButton* m_EditButton = nullptr;
 	Engine::UIButton* m_DeleteButton = nullptr;

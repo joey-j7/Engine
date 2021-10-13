@@ -16,45 +16,72 @@ PhotoView::PhotoView(const String& FilePath, const String& Name) : SubView(FileP
 	ClickableComponent* Clickable = m_Photo->AddComponent<ClickableComponent>();
 	Clickable->OnClickedEvent.Bind(this, &PhotoView::ToggleButtons);
 
+	// Camera
 	m_CameraImage->SetShader(
 		"uniform shader Element;"
 
 		"uniform float2 imageSize;"
 		"uniform float2 screenSize;"
 
-		"uniform float2 top0;"
-		"uniform float2 btm0;"
-		"uniform float2 top1;"
-		"uniform float2 btm1;"
+		"uniform float2 orig_top_1;"
+		"uniform float2 orig_btm_1;"
+
+		"uniform float2 orig_top_2;"
+		"uniform float2 orig_btm_2;"
+
+		"uniform float2 tar_top_1;"
+		"uniform float2 tar_btm_1;"
+
+		"uniform float2 tar_top_2;"
+		"uniform float2 tar_btm_2;"
 
 		"uniform int mirrorCount;"
+		"uniform int lineCount;"
+
+		"float2 findIntersection(float2 top, float2 btm) {"
+		"  float m = (top.y - btm.y) / (top.x - btm.x);"
+		"  float c = top.y - m * top.x;"
+		"  return float2((sk_FragCoord.y - c) / m, sk_FragCoord.x * m + c);"
+		"}"
 
 		"half4 main(float2 Coord) {"
-		"  float2 Coords = sk_FragCoord.xy;"
 		"  float2 ImgCoords = Coord.xy;"
 
-		"  float m = (top0.y - btm0.y) / (top0.x - btm0.x);"
-		"  float c = top0.y - m * top0.x;"
-		"  float2 line1 = float2((Coords.y - c) / m, Coords.x * m + c);"
+		// Find intersections
+		"  float2 orig1 = findIntersection(orig_top_1, orig_btm_1);"
+		"  float2 orig2 = findIntersection(orig_top_2, orig_btm_2);"
 
-		"  m = (top1.y - btm1.y) / (top1.x - btm1.x);"
-		"  c = top1.y - m * top1.x;"
-		"  float2 line2 = float2((Coords.y - c) / m, Coords.x * m + c);"
+		"  float2 tar1 = findIntersection(tar_top_1, tar_btm_1);"
+		"  float2 tar2 = findIntersection(tar_top_2, tar_btm_2);"
+		"  float2 tarNorm1 = tar1 / screenSize;"
+		"  float2 tarNorm2 = tar2 / screenSize;"
 
-		"  if ((Coords.x >= line1.x && top0.y >= btm0.y) || "
-		"      (Coords.x < line1.x && top0.y < btm0.y)) {"
+		"  if (sk_FragCoord.x < tar1.x)"
+		"     ImgCoords.x = mix(0.0, orig1.x, ImgCoords.x / screenSize.x / tarNorm1.x);"
+		"  else if (lineCount == 1)"
+		"     ImgCoords.x = mix(orig1.x, screenSize.x, (sk_FragCoord.x - tar1.x) / (screenSize.x - tar1.x)) / screenSize.x * imageSize.x;"
+		"  else {"
+		"     if (sk_FragCoord.x < tar2.x)"
+		"       ImgCoords.x = mix(orig1.x, orig2.x, (sk_FragCoord.x - tar1.x) / (tar2.x - tar1.x)) / screenSize.x * imageSize.x;"
+		"     else"
+		"       ImgCoords.x = mix(orig2.x, screenSize.x, (sk_FragCoord.x - tar2.x) / (screenSize.x - tar2.x)) / screenSize.x * imageSize.x;"
+		"  }"
+
+		// Mirror
+		"  if (sk_FragCoord.x < tar1.x) {"
 		"      if (mirrorCount >= 1) "
-		"        ImgCoords.x = line1.x * 2.0 / screenSize.x * imageSize.x - ImgCoords.x; }"
+		"        ImgCoords.x = orig1.x * 2.0 / screenSize.x * imageSize.x - ImgCoords.x; }"
 
-		"  else if ((Coords.x < line2.x && top0.y >= btm0.y) || "
-		"      (Coords.x >= line2.x && top0.y < btm0.y)) {"
+		"  else if (sk_FragCoord.x >= tar2.x) {"
 		"      if (mirrorCount >= 2) "
-		"        ImgCoords.x = line2.x * 2.0 / screenSize.x * imageSize.x - ImgCoords.x; }"
+		"        ImgCoords.x = orig2.x * 2.0 / screenSize.x * imageSize.x - ImgCoords.x; }"
 
+		// Outside image
 		"  if (ImgCoords.x < 0.0 || ImgCoords.x > imageSize.x ||"
 		"		ImgCoords.y < 0.0 || ImgCoords.y > imageSize.y)"
 		"  return half4(0.0, 0.0, 0.0, 1.0);"
 
+		// Return result
 		"  return Element.eval(ImgCoords.xy);"
 		"}"
 	);
@@ -115,6 +142,10 @@ void PhotoView::RetrieveUserData()
 		return;
 
 	m_ConfigFile = json::from_bson(File);
+	fclose(File);
+
+	// Line count
+	LineCount = m_ConfigFile["lineCount"].get<int>();
 
 	// Mirror
 	bool HasMirror = m_ConfigFile.contains("mirrorCount");
@@ -149,40 +180,101 @@ void PhotoView::UpdateCameraUniforms()
 
 	const float Scale = Window.GetScale();
 
-	// Line 1
+	bool HasStretch = m_ConfigFile.contains("tar_x1_1");
+
+	// First line
+	Vector2 StartOrig1 = Vector2(0.f);
+	Vector2 EndOrig1 = Vector2(0.01f, 1.f);
+
+	if (m_ConfigFile.contains("orig_x1_1"))
+	{
+		StartOrig1.x = m_ConfigFile["orig_x1_1"].get<float>();
+		StartOrig1.y = m_ConfigFile["orig_y1_1"].get<float>();
+
+		EndOrig1.x = m_ConfigFile["orig_x1_2"].get<float>();
+		EndOrig1.y = m_ConfigFile["orig_y1_2"].get<float>();
+	}
+
 	Vector2 Start = NormToAbs(Vector2(
-		m_ConfigFile["tar_x1_1"],
-		m_ConfigFile["tar_y1_1"]
+		HasStretch ? m_ConfigFile["tar_x1_1"].get<float>() : StartOrig1.x,
+		HasStretch ? m_ConfigFile["tar_y1_1"].get<float>() : StartOrig1.y
 	)) * Scale;
 
 	Vector2 End = NormToAbs(Vector2(
-		m_ConfigFile["tar_x1_2"],
-		m_ConfigFile["tar_y1_2"]
+		HasStretch ? m_ConfigFile["tar_x1_2"].get<float>() : EndOrig1.x,
+		HasStretch ? m_ConfigFile["tar_y1_2"].get<float>() : EndOrig1.y
 	)) * Scale;
 
-	SkV2 Top = SkV2{ Start.x, Start.y };
-	m_CameraImage->SetShaderUniform("top0", Top);
+	SkV2 Top = SkV2{ Start.y >= End.y ? Start.x : End.x, Start.y >= End.y ? Start.y : End.y };
+	m_CameraImage->SetShaderUniform("tar_top_1", Top);
 
-	SkV2 Btm = SkV2{ End.x, End.y };
-	m_CameraImage->SetShaderUniform("btm0", Btm);
+	SkV2 Btm = SkV2{ Start.y >= End.y ? End.x : Start.x, Start.y >= End.y ? End.y : Start.y };
+	m_CameraImage->SetShaderUniform("tar_btm_1", Btm);
+
+	// Orig
+	Vector2 StartOrig = NormToAbs(Vector2(
+		StartOrig1.x,
+		StartOrig1.y
+	)) * Scale;
+
+	Vector2 EndOrig = NormToAbs(Vector2(
+		EndOrig1.x,
+		EndOrig1.y
+	)) * Scale;
+
+	Top = SkV2{ StartOrig.x, StartOrig.y };
+	m_CameraImage->SetShaderUniform("orig_top_1", Top);
+
+	Btm = SkV2{ EndOrig.x, EndOrig.y };
+	m_CameraImage->SetShaderUniform("orig_btm_1", Btm);
 
 	// Line 2
-	Vector2 Start1 = NormToAbs(Vector2(
-		m_ConfigFile["tar_x2_1"],
-		m_ConfigFile["tar_y2_1"]
+	Vector2 StartOrig2 = Vector2(1.f, 0.f);
+	Vector2 EndOrig2 = Vector2(0.99f, 1.f);
+
+	if (m_ConfigFile.contains("orig_x2_1"))
+	{
+		StartOrig2.x = m_ConfigFile["orig_x2_1"].get<float>();
+		StartOrig2.y = m_ConfigFile["orig_y2_1"].get<float>();
+
+		EndOrig2.x = m_ConfigFile["orig_x2_2"].get<float>();
+		EndOrig2.y = m_ConfigFile["orig_y2_2"].get<float>();
+	}
+
+	Vector2 Start2 = NormToAbs(Vector2(
+		HasStretch ? m_ConfigFile["tar_x2_1"].get<float>() : StartOrig2.x,
+		HasStretch ? m_ConfigFile["tar_y2_1"].get<float>() : StartOrig2.y
 	)) * Scale;
 
-	Vector2 End1 = NormToAbs(Vector2(
-		m_ConfigFile["tar_x2_2"],
-		m_ConfigFile["tar_y2_2"]
+	Vector2 End2 = NormToAbs(Vector2(
+		HasStretch ? m_ConfigFile["tar_x2_2"].get<float>() : EndOrig2.x,
+		HasStretch ? m_ConfigFile["tar_y2_2"].get<float>() : EndOrig2.y
 	)) * Scale;
 
-	SkV2 Top1 = SkV2{ Start1.x, Start1.y };
-	m_CameraImage->SetShaderUniform("top1", Top1);
+	SkV2 Top2 = SkV2{ Start2.y >= End2.y ? Start2.x : End2.x, Start2.y >= End2.y ? Start2.y : End2.y };
+	m_CameraImage->SetShaderUniform("tar_top_2", Top2);
 
-	SkV2 Btm1 = SkV2{ End1.x, End1.y };
-	m_CameraImage->SetShaderUniform("btm1", Btm1);
+	SkV2 Btm2 = SkV2{ Start2.y >= End2.y ? End2.x : Start2.x, Start2.y >= End2.y ? End2.y : Start2.y };
+	m_CameraImage->SetShaderUniform("tar_btm_2", Btm2);
 
+	// Orig
+	StartOrig = NormToAbs(Vector2(
+		StartOrig2.x,
+		StartOrig2.y
+	)) * Scale;
+
+	EndOrig = NormToAbs(Vector2(
+		EndOrig2.x,
+		EndOrig2.y
+	)) * Scale;
+
+	Top = SkV2{ StartOrig.x, StartOrig.y };
+	m_CameraImage->SetShaderUniform("orig_top_2", Top);
+
+	Btm = SkV2{ EndOrig.x, EndOrig.y };
+	m_CameraImage->SetShaderUniform("orig_btm_2", Btm);
+
+	// Dimensions
 	const float Width = m_CameraImage->GetWidth();
 	const float Height = m_CameraImage->GetHeight();
 
@@ -190,6 +282,7 @@ void PhotoView::UpdateCameraUniforms()
 	m_CameraImage->SetShaderUniform("screenSize", SkV2{ (float)Window.GetWidth(), (float)Window.GetHeight() });
 
 	m_CameraImage->SetShaderUniform("mirrorCount", static_cast<int32_t>(MirrorCount));
+	m_CameraImage->SetShaderUniform("lineCount", static_cast<int32_t>(LineCount));
 }
 
 void PhotoView::OnLineView()

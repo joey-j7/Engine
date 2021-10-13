@@ -52,7 +52,7 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 	Line1 = LineEntity1->AddComponent<UILine>();
 
 	Line1->SetStartPosition(Vector2(0.f, 0.f));
-	Line1->SetEndPosition(Vector2(0.f, Window.GetHeight() * 0.8f * InvScale));
+	Line1->SetEndPosition(Vector2(0.1f, Window.GetHeight() * 0.8f * InvScale));
 	Line1->SetColor(Color(1.f, 0.f, 0.f));
 	Line1->SetThickness(10);
 
@@ -111,7 +111,7 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 	Line2 = LineEntity2->AddComponent<UILine>();
 
 	Line2->SetStartPosition(Vector2(0.f, 0.f));
-	Line2->SetEndPosition(Vector2(0.f, Window.GetHeight() * 0.8f * InvScale));
+	Line2->SetEndPosition(Vector2(0.1f, Window.GetHeight() * 0.8f * InvScale));
 	Line2->SetColor(Color(0.f, 0.f, 1.f));
 	Line2->SetThickness(10);
 
@@ -204,9 +204,6 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 
 void LineView::SetStartPosition(const DVector2& Delta, UILine& Line, UIButton& StartOval, UIButton& EndOval)
 {
-	if (!Window::IsMouseInView())
-		return;
-
 	Window& Window = Application::Get().GetRenderContext().GetWindow();
 
 	const float InvScale = 1.f / Window.GetScale();
@@ -248,9 +245,6 @@ void LineView::SetStartPosition(const DVector2& Delta, UILine& Line, UIButton& S
 
 void LineView::SetEndPosition(const DVector2& Delta, UILine& Line, UIButton& StartOval, UIButton& EndOval)
 {
-	if (!Window::IsMouseInView())
-		return;
-
 	Window& Window = Application::Get().GetRenderContext().GetWindow();
 
 	const float InvScale = 1.f / Window.GetScale();

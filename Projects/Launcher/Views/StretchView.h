@@ -23,16 +23,20 @@ public:
 private:
 	void SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval);
 	void SetEndPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval);
+	
+	void OnMirrorToggle();
 	void OnCameraImageData();
 
 	Vector2 NormToAbs(Vector2 Normalized) const;
 	Vector2 AbsToNorm(Vector2 Absolute) const;
 
 	virtual void OnBack() override;
-	void OnMirrorView();
+	void OnListView();
 
 	void RetrieveUserData();
 	void SaveUserData();
+
+	void ToggleButtons();
 
 	Engine::DrawPass* m_pPass = nullptr;
 
@@ -45,6 +49,13 @@ private:
 	Engine::UILine* Line2 = nullptr;
 	Engine::UIButton* StartOval2 = nullptr;
 	Engine::UIButton* EndOval2 = nullptr;
+
+	uint32_t LineCount = 1;
+	uint32_t MirrorCount = 0;
+	Engine::UIButton* MirrorToggle = nullptr;
+	
+	Engine::UIButton* NextButton = nullptr;
+	Engine::StaticEntity* TextEntity = nullptr;
 
 	Engine::json m_ConfigFile;
 };

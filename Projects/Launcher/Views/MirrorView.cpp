@@ -53,13 +53,11 @@ MirrorView::MirrorView(const String& FilePath, const String& Name) : SubView(Fil
 		"  c = top1.y - m * top1.x;"
 		"  float2 line2 = float2((Coords.y - c) / m, Coords.x * m + c);"
 
-		"  if ((Coords.x >= line1.x && top0.y >= btm0.y) || "
-		"      (Coords.x < line1.x && top0.y < btm0.y)) {"
+		"  if (Coords.x < line1.x) {"
 		"      if (mirrorCount >= 1) "
 		"        ImgCoords.x = line1.x * 2.0 / screenSize.x * imageSize.x - ImgCoords.x; }"
 
-		"  else if ((Coords.x < line2.x && top0.y >= btm0.y) || "
-		"      (Coords.x >= line2.x && top0.y < btm0.y)) {"
+		"  else if (Coords.x >= line2.x) {"
 		"      if (mirrorCount >= 2) "
 		"        ImgCoords.x = line2.x * 2.0 / screenSize.x * imageSize.x - ImgCoords.x; }"
 
@@ -232,20 +230,20 @@ void MirrorView::UpdateCameraUniforms()
 	Vector3 Start = StartOval1->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
 	Vector3 End = EndOval1->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
 
-	SkV2 Top = SkV2{ Start.x, Start.y };
+	SkV2 Top = SkV2{ Start.y >= End.y ? Start.x : End.x, Start.y >= End.y ? Start.y : End.y };
 	m_CameraImage->SetShaderUniform("top0", Top);
 
-	SkV2 Btm = SkV2{ End.x, End.y };
+	SkV2 Btm = SkV2{ Start.y >= End.y ? End.x : Start.x, Start.y >= End.y ? End.y : Start.y };
 	m_CameraImage->SetShaderUniform("btm0", Btm);
 
 	// Line 2
 	Vector3 Start1 = StartOval2->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
 	Vector3 End1 = EndOval2->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
 
-	SkV2 Top1 = SkV2{ Start1.x, Start1.y };
+	SkV2 Top1 = SkV2{ Start1.y >= End1.y ? Start1.x : End1.x, Start1.y >= End1.y ? Start1.y : End1.y };
 	m_CameraImage->SetShaderUniform("top1", Top1);
 
-	SkV2 Btm1 = SkV2{ End1.x, End1.y };
+	SkV2 Btm1 = SkV2{ Start1.y >= End1.y ? End1.x : Start1.x, Start1.y >= End1.y ? End1.y : Start1.y };
 	m_CameraImage->SetShaderUniform("btm1", Btm1);
 
 	const float Width = m_CameraImage->GetWidth();

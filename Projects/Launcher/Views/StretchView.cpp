@@ -17,55 +17,92 @@
 
 #include "../PhotoEntity.h"
 
-#include "MirrorView.h"
 #include "ListView.h"
 
 using namespace Engine;
 
 StretchView::StretchView(const String& FilePath, const String& Name) : SubView(FilePath, Name)
 {
+	ClickableComponent* Clickable = m_Photo->AddComponent<ClickableComponent>();
+	Clickable->OnClickedEvent.Bind(this, &StretchView::ToggleButtons);
+
 	// Camera
-	/*CameraImage->SetShader(
+	m_CameraImage->SetShader(
 		"uniform shader Element;"
+
+		"uniform float2 imageSize;"
 		"uniform float2 screenSize;"
 
-		"uniform float2 top0;"
-		"uniform float2 btm0;"
-		"uniform float2 top1;"
-		"uniform float2 btm1;"
+		"uniform float2 orig_top_1;"
+		"uniform float2 orig_btm_1;"
+
+		"uniform float2 orig_top_2;"
+		"uniform float2 orig_btm_2;"
+
+		"uniform float2 tar_top_1;"
+		"uniform float2 tar_btm_1;"
+
+		"uniform float2 tar_top_2;"
+		"uniform float2 tar_btm_2;"
+
+		"uniform int mirrorCount;"
+		"uniform int lineCount;"
+
+		"float2 findIntersection(float2 top, float2 btm) {"
+		"  float m = (top.y - btm.y) / (top.x - btm.x);"
+		"  float c = top.y - m * top.x;"
+		"  return float2((sk_FragCoord.y - c) / m, sk_FragCoord.x * m + c);"
+		"}"
 
 		"half4 main(float2 Coord) {"
-		"  float2 Coords = sk_FragCoord.xy;"
 		"  float2 ImgCoords = Coord.xy;"
 
-		"  float m = (top0.y - btm0.y) / (top0.x - btm0.x);"
-		"  float c = top0.y - m * top0.x;"
-		"  float2 line1 = float2((Coords.y - c) / m, Coords.x * m + c);"
+		// Find intersections
+		"  float2 orig1 = findIntersection(orig_top_1, orig_btm_1);"
+		"  float2 orig2 = findIntersection(orig_top_2, orig_btm_2);"
 
-		"  m = (top1.y - btm1.y) / (top1.x - btm1.x);"
-		"  c = top1.y - m * top1.x;"
-		"  float2 line2 = float2((Coords.y - c) / m, Coords.x * m + c);"
+		"  float2 tar1 = findIntersection(tar_top_1, tar_btm_1);"
+		"  float2 tar2 = findIntersection(tar_top_2, tar_btm_2);"
+		"  float2 tarNorm1 = tar1 / screenSize;"
+		"  float2 tarNorm2 = tar2 / screenSize;"
 
-		"  if ((Coords.x >= line1.x && top0.y >= btm0.y) || "
-		"      (Coords.x < line1.x && top0.y < btm0.y))"
-		"    ImgCoords.y += (Coords.x - line1.x) * 1.5;"
+		"  if (sk_FragCoord.x < tar1.x)"
+		"     ImgCoords.x = mix(0.0, orig1.x, ImgCoords.x / screenSize.x / tarNorm1.x);"
+		"  else if (lineCount == 1)"
+		"     ImgCoords.x = mix(orig1.x, screenSize.x, (sk_FragCoord.x - tar1.x) / (screenSize.x - tar1.x)) / screenSize.x * imageSize.x;"
+		"  else {"
+		"     if (sk_FragCoord.x < tar2.x)"
+		"       ImgCoords.x = mix(orig1.x, orig2.x, (sk_FragCoord.x - tar1.x) / (tar2.x - tar1.x)) / screenSize.x * imageSize.x;"
+		"     else"
+		"       ImgCoords.x = mix(orig2.x, screenSize.x, (sk_FragCoord.x - tar2.x) / (screenSize.x - tar2.x)) / screenSize.x * imageSize.x;"
+		"  }"
 
-		"  else if ((Coords.x < line2.x && top0.y >= btm0.y) || "
-		"      (Coords.x >= line2.x && top0.y < btm0.y))"
-		"    ImgCoords.y += (Coords.x - line2.x) * 1.5;"
+		// Mirror
+		"  if (sk_FragCoord.x < tar1.x) {"
+		"      if (mirrorCount >= 1) "
+		"        ImgCoords.x = orig1.x * 2.0 / screenSize.x * imageSize.x - ImgCoords.x; }"
 
-		"  half4 col = sample(Element, ImgCoords.xy).rgba;"
-		"  return col;"
+		"  else if (sk_FragCoord.x >= tar2.x) {"
+		"      if (mirrorCount >= 2) "
+		"        ImgCoords.x = orig2.x * 2.0 / screenSize.x * imageSize.x - ImgCoords.x; }"
+
+		// Outside image
+		"  if (ImgCoords.x < 0.0 || ImgCoords.x > imageSize.x ||"
+		"		ImgCoords.y < 0.0 || ImgCoords.y > imageSize.y)"
+		"  return half4(0.0, 0.0, 0.0, 1.0);"
+
+		// Return result
+		"  return Element.eval(ImgCoords.xy);"
 		"}"
-	);*/
+	);
 
 	constexpr float BtnSize = 50.f;
 
 	// Next Button
-	UIButton* NextButton = new UIButton(
-		{ ">", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ ">", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ ">", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+	NextButton = new UIButton(
+		{ "v", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		{ "v", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
+		{ "v", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
 		"Next Button"
 	);
 
@@ -75,7 +112,7 @@ StretchView::StretchView(const String& FilePath, const String& Name) : SubView(F
 	NextButton->GetComponent<Transform2DComponent>()->Translate(Vector2(-20.f, 20.f));
 
 	NextButton->SetOnClickedCallback([&]() {
-		Application::Get().ThreadedCallback.Bind(this, &StretchView::OnMirrorView);
+		Application::Get().ThreadedCallback.Bind(this, &StretchView::OnListView);
 	});
 
 	// Window
@@ -195,10 +232,27 @@ StretchView::StretchView(const String& FilePath, const String& Name) : SubView(F
 	{
 		SetEndPosition(Delta, *Line2, *StartOval2, *EndOval2);
 	});
+	
+	// Mirror toggle button
+	MirrorToggle = new UIButton(
+		{ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		{ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
+		{ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+		"Mirror Toggle Button"
+	);
+	
+	MirrorToggle->SetAnchor(E_ANCH_TOP);
+	MirrorToggle->SetPivot(Vector2(0.5f, 0.0f));
+
+	MirrorToggle->GetComponent<Transform2DComponent>()->Translate(Vector2(0.f, 20.f));
+
+	MirrorToggle->SetOnClickedCallback([&]() {
+		Application::Get().ThreadedCallback.Bind(this, &StretchView::OnMirrorToggle);
+	});
 
 	// Text
-	StaticEntity* TextEntity = new StaticEntity("Text");
-	UIText* Text = TextEntity->AddComponent<UIText>("Uitrekken");
+	TextEntity = new StaticEntity("Text");
+	UIText* Text = TextEntity->AddComponent<UIText>("Uitrekken + spiegelen (tik: UI verbergen)");
 	Text->SetColor(Color(1.f));
 
 	Text->SetAnchor(E_ANCH_BOTTOM);
@@ -223,26 +277,66 @@ void StretchView::UpdateCameraUniforms()
 	Vector3 Start = StartOval1->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
 	Vector3 End = EndOval1->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
 
-	SkV2 Top = SkV2{ Start.x, Start.y };
-	m_CameraImage->SetShaderUniform("top0", Top);
+	SkV2 Top = SkV2{ Start.y >= End.y ? Start.x : End.x, Start.y >= End.y ? Start.y : End.y };
+	m_CameraImage->SetShaderUniform("tar_top_1", Top);
 
-	SkV2 Btm = SkV2{ End.x, End.y };
-	m_CameraImage->SetShaderUniform("btm0", Btm);
+	SkV2 Btm = SkV2{ Start.y >= End.y ? End.x : Start.x, Start.y >= End.y ? End.y : Start.y };
+	m_CameraImage->SetShaderUniform("tar_btm_1", Btm);
+
+	// Orig
+	Vector2 StartOrig = NormToAbs(Vector2(
+		m_ConfigFile["orig_x1_1"],
+		m_ConfigFile["orig_y1_1"]
+	)) * Scale;
+
+	Vector2 EndOrig = NormToAbs(Vector2(
+		m_ConfigFile["orig_x1_2"],
+		m_ConfigFile["orig_y1_2"]
+	)) * Scale;
+
+	Top = SkV2{ StartOrig.x, StartOrig.y };
+	m_CameraImage->SetShaderUniform("orig_top_1", Top);
+
+	Btm = SkV2{ EndOrig.x, EndOrig.y };
+	m_CameraImage->SetShaderUniform("orig_btm_1", Btm);
 
 	// Line 2
-	Vector3 Start1 = StartOval2->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
-	Vector3 End1 = EndOval2->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
+	Vector3 Start2 = StartOval2->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
+	Vector3 End2 = EndOval2->GetComponent<Transform2DComponent>()->GetPosition() * Scale;
 
-	SkV2 Top1 = SkV2{ Start1.x, Start1.y };
-	m_CameraImage->SetShaderUniform("top1", Top1);
+	SkV2 Top2 = SkV2{ Start2.y >= End2.y ? Start2.x : End2.x, Start2.y >= End2.y ? Start2.y : End2.y };
+	m_CameraImage->SetShaderUniform("tar_top_2", Top2);
 
-	SkV2 Btm1 = SkV2{ End1.x, End1.y };
-	m_CameraImage->SetShaderUniform("btm1", Btm1);
+	SkV2 Btm2 = SkV2{ Start2.y >= End2.y ? End2.x : Start2.x, Start2.y >= End2.y ? End2.y : Start2.y };
+	m_CameraImage->SetShaderUniform("tar_btm_2", Btm2);
 
+	// Orig
+	StartOrig = NormToAbs(Vector2(
+		m_ConfigFile["orig_x2_1"],
+		m_ConfigFile["orig_y2_1"]
+	)) * Scale;
+
+	EndOrig = NormToAbs(Vector2(
+		m_ConfigFile["orig_x2_2"],
+		m_ConfigFile["orig_y2_2"]
+	)) * Scale;
+
+
+	Top = SkV2{ StartOrig.x, StartOrig.y };
+	m_CameraImage->SetShaderUniform("orig_top_2", Top);
+
+	Btm = SkV2{ EndOrig.x, EndOrig.y };
+	m_CameraImage->SetShaderUniform("orig_btm_2", Btm);
+
+	// Dimensions
 	const float Width = m_CameraImage->GetWidth();
 	const float Height = m_CameraImage->GetHeight();
 
-	m_CameraImage->SetShaderUniform("screenSize", SkV2{ Width, Height });
+	m_CameraImage->SetShaderUniform("imageSize", SkV2{ Width, Height });
+	m_CameraImage->SetShaderUniform("screenSize", SkV2{ (float)Window.GetWidth(), (float)Window.GetHeight() });
+
+	m_CameraImage->SetShaderUniform("mirrorCount", static_cast<int32_t>(MirrorCount));
+	m_CameraImage->SetShaderUniform("lineCount", static_cast<int32_t>(LineCount));
 }
 
 void StretchView::SetStartPosition(const DVector2& Delta, UILine& Line, UIButton& StartOval, UIButton& EndOval)
@@ -332,6 +426,16 @@ void StretchView::SetEndPosition(const DVector2& Delta, UILine& Line, UIButton& 
 	UpdateCameraUniforms();
 }
 
+void StretchView::OnMirrorToggle()
+{
+	MirrorCount++;
+	MirrorCount %= m_ConfigFile["lineCount"].get<int>() + 1;
+
+	MirrorToggle->SetText(std::to_string(MirrorCount));
+
+	UpdateCameraUniforms();
+}
+
 void StretchView::OnCameraImageData()
 {
 	Window& Window = Application::Get().GetRenderContext().GetWindow();
@@ -396,10 +500,12 @@ void StretchView::OnBack()
 	SubView::OnBack();
 }
 
-void StretchView::OnMirrorView()
+void StretchView::OnListView()
 {
 	SaveUserData();
-	new MirrorView(m_Path);
+
+	// Switch view, discard history
+	Application::Get().GetWorldManager().Clear<ListView>();
 }
 
 void StretchView::RetrieveUserData()
@@ -413,6 +519,7 @@ void StretchView::RetrieveUserData()
 		return;
 
 	m_ConfigFile = json::from_bson(File);
+	fclose(File);
 
 	bool HasStretch = m_ConfigFile.contains("tar_x1_1");
 
@@ -467,7 +574,17 @@ void StretchView::RetrieveUserData()
 		m_ConfigFile["lineCount"] == 2 ? Entity::E_VISIBLE : Entity::E_COLLAPSED
 	);
 
-	fclose(File);
+	// Line count
+	LineCount = m_ConfigFile["lineCount"].get<int>();
+
+	// Mirror
+	bool HasMirror = m_ConfigFile.contains("mirrorCount");
+
+	if (!HasMirror)
+		return;
+
+	MirrorCount = m_ConfigFile["mirrorCount"].get<int>() % (m_ConfigFile["lineCount"].get<int>() + 1);
+	MirrorToggle->SetText(std::to_string(MirrorCount));
 }
 
 void StretchView::SaveUserData()
@@ -492,6 +609,8 @@ void StretchView::SaveUserData()
 	m_ConfigFile["tar_x2_2"] = End2.x;
 	m_ConfigFile["tar_y2_2"] = End2.y;
 
+	m_ConfigFile["mirrorCount"] = MirrorCount;
+
 	std::vector<uint8_t> BSON = nlohmann::json::to_bson(m_ConfigFile);
 
 	// Write to config file
@@ -499,4 +618,26 @@ void StretchView::SaveUserData()
 	const String Name = FileLoader::GetName(m_Path);
 
 	FileLoader::Write("Configs/", Name + ".cfg", (char*)BSON.data(), BSON.size(), true, FileLoader::E_EXTERNAL);
+}
+
+void StretchView::ToggleButtons()
+{
+	bool IsVisible = m_BackButton->GetVisibility() == Entity::E_VISIBLE;
+
+	Entity::Visibility Vis = IsVisible ?
+		Entity::E_COLLAPSED :
+		Entity::E_VISIBLE
+	;
+
+	LineEntity1->SetVisibility(Vis);
+	LineEntity2->SetVisibility(
+		(!IsVisible && m_ConfigFile["lineCount"] == 2) ?
+		Entity::E_VISIBLE : Entity::E_COLLAPSED
+	);
+
+	m_BackButton->SetVisibility(Vis);
+	MirrorToggle->SetVisibility(Vis);
+	NextButton->SetVisibility(Vis);
+
+	TextEntity->SetVisibility(Vis);
 }
