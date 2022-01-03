@@ -82,7 +82,8 @@ namespace Engine
 		// Read apk asset
 		if (type == E_CONTENT)
 		{
-			AAsset* asset = AAssetManager_open(m_AssetManager, (m_WorkingDirectory[type] + filePath).c_str(), AASSET_MODE_STREAMING);
+			String Path = (m_WorkingDirectory[type] + filePath);
+			AAsset* asset = AAssetManager_open(m_AssetManager, Path.c_str(), AASSET_MODE_STREAMING);
 
 			if (!asset)
 			{

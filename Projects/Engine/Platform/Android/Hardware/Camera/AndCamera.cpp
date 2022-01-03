@@ -5,7 +5,7 @@
 
 #include "Engine/Application.h"
 
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
+#include "Engine/Objects/Components/UI/Renderables/UIImage.h"
 
 #include <include/core/SkYUVAPixmaps.h>
 #include <include/core/SkYUVAInfo.h>

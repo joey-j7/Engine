@@ -2,204 +2,131 @@
 #include "World.h"
 
 #include "Engine/Application.h"
-#include "Entities/DynamicEntity.h"
+#include "Rendering/Renderers/Renderer2D.h"
 
 namespace Engine
 {
-	World::World(const String& sName) : LayeredObject(sName)
+	World::World(const String& sName) : Object(sName)
 	{
-		Application::Get().GetWorldManager().Add(this);
+		Application::Get().GetRenderContext().GetAPI().GetRenderer2D()->SetClearColor(SK_ColorTRANSPARENT);
 	}
 
 	World::~World()
 	{
-		while (!m_pObjectsToRemove.empty())
+		// Remove objects
+		for (int32_t i = m_PendingRemoval.size() - 1; i >= 0; --i)
 		{
-			delete m_pObjectsToRemove.back();
-			m_pObjectsToRemove.pop_back();
+			delete m_PendingRemoval[i];
 		}
 
-		while (!m_pWorldObjects.empty())
+		for (Entity* Entity : m_Entities)
 		{
-			delete m_pWorldObjects.front();
+			delete Entity;
 		}
 
-		Application::Get().GetWorldManager().Remove(this);
+		WorldManager::Get().Pop(*this, false);
 	}
 
 	void World::Update(float fDeltaTime)
 	{
 		// Remove objects
-		for (uint32_t i = 0; i < m_pObjectsToRemove.size(); ++i)
+		for (uint32_t i = 0; i < m_PendingRemoval.size(); ++i)
 		{
-			delete m_pObjectsToRemove[i];
+			delete m_PendingRemoval[i];
 		}
 
-		m_pObjectsToRemove.clear();
+		m_PendingRemoval.clear();
 
-		// Add objects
-		for (DynamicEntity* pEntity : m_pObjectsToActivate)
-		{
-			pEntity->Play();
-		}
-
-		m_pObjectsToActivate.clear();
-
-		// Update all objects
-		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
-		{
-			if (!pObject->IsActive())
-				continue;
-
-			pObject->Update(fDeltaTime);
-		}
-
-		// Update layers
-		LayeredObject::Update(fDeltaTime);
+		// Update events
+		OnUpdate(fDeltaTime);
 	}
 
 	void World::FixedUpdate(float fDeltaTime)
 	{
-		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
-		{
-			if (!pObject->IsActive())
-				continue;
-
-			pObject->FixedUpdate(fDeltaTime);
-		}
-
-		// Update layers
-		LayeredObject::FixedUpdate(fDeltaTime);
+		// Fixed update events
+		OnFixedUpdate(fDeltaTime);
 	}
 
 	void World::Draw(float fDeltaTime)
 	{
-		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
-		{
-			if (pObject->IsStopped())
-				continue;
-
-			pObject->Draw(fDeltaTime);
-		}
-
-		// Update layers
-		LayeredObject::Draw(fDeltaTime);
+		// Fixed update events
+		OnDraw(fDeltaTime);
 	}
 
 	void World::LateUpdate(float fDeltaTime)
 	{
-		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
-		{
-			if (!pObject->IsActive())
-				continue;
-
-			pObject->LateUpdate(fDeltaTime);
-		}
-
-		// Update layers
-		LayeredObject::LateUpdate(fDeltaTime);
+		// Fixed update events
+		OnLateUpdate(fDeltaTime);
 	}
 
-	bool World::Pause()
+	void World::OnAttach()
 	{
-		if (!LayeredObject::Pause())
-			return false;
-
-		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
-		{
-			pObject->Pause();
-		}
-
-		return true;
+		m_UpdateHandler = Application::Get().OnUpdate.Bind(this, &World::Update);
+		m_FixedUpdateHandler = Application::Get().OnFixedUpdate.Bind(this, &World::FixedUpdate);
+		m_DrawHandler = Application::Get().OnDraw.Bind(this, &World::Draw);
+		m_LateUpdateHandler = Application::Get().OnLateUpdate.Bind(this, &World::LateUpdate);
 	}
 
-	bool World::Resume()
+	void World::OnDetach()
 	{
-		if (!LayeredObject::Resume())
-			return false;
-
-		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
-		{
-			pObject->Resume();
-		}
-
-		return true;
+		Application::Get().OnUpdate.Unbind(m_UpdateHandler);
+		Application::Get().OnFixedUpdate.Unbind(m_FixedUpdateHandler);
+		Application::Get().OnDraw.Unbind(m_DrawHandler);
+		Application::Get().OnLateUpdate.Unbind(m_LateUpdateHandler);
 	}
 
-	bool World::Stop()
+	bool World::Remove(Entity& Entity)
 	{
-		if (!LayeredObject::Stop())
+		if (&Entity.GetWorld() != this)
 			return false;
 
-		for (DynamicEntity* pObject : m_pDynamicWorldObjects)
-		{
-			pObject->Stop();
-		}
-
-		return true;
-	}
-
-	void World::Add(Entity* pObject)
-	{
-		if (pObject->GetWorld())
-			return;
-
-		if (std::find(m_pObjectsToActivate.begin(), m_pObjectsToActivate.end(), pObject) != m_pObjectsToActivate.end())
-			return;
-
-		if (std::find(m_pWorldObjects.begin(), m_pWorldObjects.end(), pObject) != m_pWorldObjects.end())
-			return;
-
-		m_pWorldObjects.push_back(pObject);
-
-		pObject->m_uiID = m_IDManager.Reserve();
-		pObject->m_pWorld = this;
-
-		if (pObject->GetType() == Entity::E_DYNAMIC)
-		{
-			DynamicEntity* pDynamicObject = static_cast<DynamicEntity*>(pObject);
-			
-			m_pDynamicWorldObjects.push_back(pDynamicObject);
-			m_pObjectsToActivate.push_back(pDynamicObject);
-
-			pDynamicObject->Stop();
-		}
-		
-		pObject->Awake();
-	}
-
-	bool World::Remove(Entity* pObject)
-	{
-		if (pObject->m_pWorld != this)
+		if (std::find(m_PendingRemoval.begin(), m_PendingRemoval.end(), &Entity) != m_PendingRemoval.end())
 			return false;
 
-		if (std::find(m_pObjectsToRemove.begin(), m_pObjectsToRemove.end(), pObject) != m_pObjectsToRemove.end())
-			return false;
-
-		auto it = std::find(m_pWorldObjects.begin(), m_pWorldObjects.end(), pObject);
-		const bool bResult = it != m_pWorldObjects.end();
+		auto it = std::find(m_Entities.begin(), m_Entities.end(), &Entity);
+		const bool bResult = it != m_Entities.end();
 
 		if (bResult)
 		{
-			m_pWorldObjects.erase(it);
-			m_pObjectsToRemove.push_back(pObject);
+			m_Entities.erase(it);
+			m_PendingRemoval.push_back(&Entity);
 
-			// Remove from activation list
-			if (pObject->GetType() == Entity::E_DYNAMIC)
-			{
-				const DynamicEntity* pDynamicObject = static_cast<DynamicEntity*>(pObject);
-				const auto it2 = std::find(m_pObjectsToActivate.begin(), m_pObjectsToActivate.end(), pDynamicObject);
+			m_IDManager.Free(Entity.m_uiID);
 
-				if (it2 != m_pObjectsToActivate.end())
-				{
-					m_pObjectsToActivate.erase(it2);
-					m_pObjectsToRemove.push_back(pObject);
-				}
-			}
-
-			pObject->OnDestroy();
+			// Entity.OnDestroy();
 		}
 
+		return bResult;
+	}
+
+	bool World::Destroy(Entity& Entity)
+	{
+		if (&Entity.GetWorld() != this)
+			return false;
+
+		auto it1 = std::find(m_PendingRemoval.begin(), m_PendingRemoval.end(), &Entity);
+		if (it1 != m_PendingRemoval.end())
+		{
+			m_PendingRemoval.erase(it1);
+			delete &Entity;
+
+			return true;
+		}
+
+		auto it2 = std::find(m_Entities.begin(), m_Entities.end(), &Entity);
+		const bool bResult = it2 != m_Entities.end();
+
+		if (bResult)
+		{
+			m_Entities.erase(it2);
+			m_PendingRemoval.push_back(&Entity);
+
+			m_IDManager.Free(Entity.m_uiID);
+
+			// Entity.OnDestroy();
+		}
+
+		delete &Entity;
 		return bResult;
 	}
 }

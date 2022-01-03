@@ -3,17 +3,15 @@
 
 #include "Engine/Application.h"
 
-#include "Engine/Objects/Worlds/Entities/StaticEntity.h"
-
-#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform2DComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform3DComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/ClickableComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIText.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UILine.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UIRect.h"
-#include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
-#include "Engine/Objects/Worlds/Entities/UI/Camera/UICameraPreview.h"
+#include "Engine/Objects/Components/Transform/Transform2DComponent.h"
+#include "Engine/Objects/Components/Transform/Transform3DComponent.h"
+#include "Engine/Objects/Components/ClickableComponent.h"
+#include "Engine/Objects/Components/UI/Renderables/UIImage.h"
+#include "Engine/Objects/Components/UI/Renderables/UIText.h"
+#include "Engine/Objects/Components/UI/Renderables/Shapes/UILine.h"
+#include "Engine/Objects/Components/UI/Renderables/Shapes/UIRect.h"
+#include "Engine/Objects/Entities/UI/UIButton.h"
+#include "Engine/Objects/Entities/UI/Camera/UICameraPreview.h"
 
 #include "../PhotoEntity.h"
 
@@ -21,7 +19,7 @@
 
 using namespace Engine;
 
-StretchView::StretchView(const String& FilePath, const String& Name) : SubView(FilePath, Name)
+StretchView::StretchView(const String& m_FilePath, const String& Name) : SubView(m_FilePath, Name)
 {
 	ClickableComponent* Clickable = m_Photo->AddComponent<ClickableComponent>();
 	Clickable->OnClickedEvent.Bind(this, &StretchView::ToggleButtons);
@@ -99,12 +97,22 @@ StretchView::StretchView(const String& FilePath, const String& Name) : SubView(F
 	constexpr float BtnSize = 50.f;
 
 	// Next Button
-	NextButton = new UIButton(
-		{ "v", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "v", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "v", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+	const String Icon = "icons/icon_download.png";
+
+	NextButton = Add<UIButton>(
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.f, 0.f, 0.f, 0.5f)
+	},
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(1.f)
+	},
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.882352941f, 0.2f, 0.203921569f)
+	},
 		"Next Button"
 	);
+
+	NextButton->GetForeground()->GetComponent<Transform2DComponent>()->SetScale(Vector2(0.25f));
 
 	NextButton->SetAnchor(E_ANCH_TOP_RIGHT);
 	NextButton->SetPivot(Vector2(1.0f, 0.0f));
@@ -120,20 +128,20 @@ StretchView::StretchView(const String& FilePath, const String& Name) : SubView(F
 	float InvScale = 1.f / Window.GetScale();
 
 	// Line 1
-	LineEntity1 = new StaticEntity("Line");
+	LineEntity1 = Add<Entity>("Line");
 	Line1 = LineEntity1->AddComponent<UILine>();
 
 	Line1->SetStartPosition(Vector2(0.f, 0.f));
 	Line1->SetEndPosition(Vector2(0.f, Window.GetHeight() * 0.8f * InvScale));
-	Line1->SetColor(Color(1.f, 0.f, 0.f));
-	Line1->SetThickness(10);
+	Line1->SetColor(Color(0.882352941f, 0.2f, 0.203921569f));
+	Line1->SetThickness(7);
 
 	constexpr float OvalSize = 40.f;
 
-	StartOval1 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	StartOval1 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"Start Button"
 	);
 
@@ -146,10 +154,10 @@ StretchView::StretchView(const String& FilePath, const String& Name) : SubView(F
 		false
 	);
 
-	EndOval1 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	EndOval1 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"End Button"
 	);
 
@@ -177,20 +185,20 @@ StretchView::StretchView(const String& FilePath, const String& Name) : SubView(F
 	});
 
 	// Line 2
-	LineEntity2 = new StaticEntity("Line");
+	LineEntity2 = Add<Entity>("Line");
 	LineEntity2->SetVisibility(Entity::E_COLLAPSED);
 
 	Line2 = LineEntity2->AddComponent<UILine>();
 
 	Line2->SetStartPosition(Vector2(0.f, 0.f));
 	Line2->SetEndPosition(Vector2(0.f, Window.GetHeight() * 0.8f * InvScale));
-	Line2->SetColor(Color(0.f, 0.f, 1.f));
-	Line2->SetThickness(10);
+	Line2->SetColor(Color(0.247058824f, 0.321568627f, 0.639215686f));
+	Line2->SetThickness(7);
 
-	StartOval2 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	StartOval2 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.247058824f, 0.321568627f, 0.639215686f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"Start Button"
 	);
 
@@ -203,10 +211,11 @@ StretchView::StretchView(const String& FilePath, const String& Name) : SubView(F
 		false
 	);
 
-	EndOval2 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	EndOval2 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.247058824f, 0.321568627f, 0.639215686f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f)
+	},
 		"End Button"
 	);
 
@@ -234,24 +243,24 @@ StretchView::StretchView(const String& FilePath, const String& Name) : SubView(F
 	});
 	
 	// Mirror toggle button
-	MirrorToggle = new UIButton(
-		{ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	MirrorToggle = Add<UIButton>(
+		(ButtonStyle){ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
 		"Mirror Toggle Button"
 	);
 	
 	MirrorToggle->SetAnchor(E_ANCH_TOP);
 	MirrorToggle->SetPivot(Vector2(0.5f, 0.0f));
 
-	MirrorToggle->GetComponent<Transform2DComponent>()->Translate(Vector2(0.f, 20.f));
+	MirrorToggle->GetComponent<Transform2DComponent>()->Translate(Vector2(0.f, 23.f));
 
 	MirrorToggle->SetOnClickedCallback([&]() {
 		Application::Get().ThreadedCallback.Bind(this, &StretchView::OnMirrorToggle);
 	});
 
 	// Text
-	TextEntity = new StaticEntity("Text");
+	TextEntity = Add<Entity>("Text");
 	UIText* Text = TextEntity->AddComponent<UIText>("Uitrekken + spiegelen (tik: UI verbergen)");
 	Text->SetColor(Color(1.f));
 
@@ -505,15 +514,15 @@ void StretchView::OnListView()
 	SaveUserData();
 
 	// Switch view, discard history
-	Application::Get().GetWorldManager().Clear<ListView>();
+	WorldManager::Get().ClearAndReplace<ListView>();
 }
 
 void StretchView::RetrieveUserData()
 {
 	const String Name = FileLoader::GetName(m_Path);
 
-	String FilePath = FileLoader::GetAbsolutePath("Configs/" + Name + ".cfg", FileLoader::E_EXTERNAL);
-	FILE* File = std::fopen(FilePath.c_str(), "r");
+	String m_FilePath = FileLoader::GetAbsolutePath("Configs/" + Name + ".cfg", FileLoader::E_EXTERNAL);
+	FILE* File = std::fopen(m_FilePath.c_str(), "r");
 
 	if (!File)
 		return;

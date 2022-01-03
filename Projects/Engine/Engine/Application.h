@@ -5,15 +5,16 @@
 #include "Rendering/RenderContext.h"
 #include "Platform/Hardware/HardwareContext.h"
 
-#include "Engine/Layers/World/WorldManagerLayer.h"
+#include "Engine/Objects/Worlds/WorldManager.h"
 
-#include "Objects/LayeredObject.h"
+#include "Engine/Objects/Layers/Layerable.h"
 
 namespace Engine
 {
-	class Engine_API Application : public LayeredObject
+	class Engine_API Application : public Object, Layerable<>
 	{
 		friend class Window;
+		friend class World;
 
 	public:
 		Application(const String& sName = "Application");
@@ -26,19 +27,21 @@ namespace Engine
 		RenderContext& GetRenderContext() const { return *m_RenderContext; }
 		
 		FileDatabase& GetFileDatabase() const { return *m_Database; }
-		
-		static Application& Get() { return *s_Instance; }
+		WorldManager& GetWorldManager() const { return *m_WorldManager; }
 
-		WorldManagerLayer& GetWorldManager() const { return *m_WorldManagerLayer; }
+		static Application& Get() { return *s_Instance; }
 
 		void Exit() { m_bRunning = false; }
 
 		Event<void> ThreadedCallback = Event<void>("Application::ThreadedCallback");
-		
-		Event<void, float> OnUpdate = Event<void, float>("Application::OnUpdate");
 		Event<void, bool> OnPauseChanged = Event<void, bool>("Application::OnPauseChanged");
 
 	private:
+		Event<void, float> OnUpdate = Event<void, float>("Application::OnUpdate");
+		Event<void, float> OnFixedUpdate = Event<void, float>("Application::OnFixedUpdate");
+		Event<void, float> OnLateUpdate = Event<void, float>("Application::OnLateUpdate");
+		Event<void, float> OnDraw = Event<void, float>("Application::OnDraw");
+
 		void SetPaused(bool Paused);
 
 		void OnWindowMinimize(const bool Minimized);
@@ -55,8 +58,8 @@ namespace Engine
 
 		std::unique_ptr<FileDatabase> m_Database = nullptr;
 
-		// Managed by LayerStack
-		WorldManagerLayer* m_WorldManagerLayer = nullptr;
+		// Managed by layerable
+		WorldManager* m_WorldManager = nullptr;
 
 		std::unique_ptr<DeltaTime> m_DeltaTime;
 

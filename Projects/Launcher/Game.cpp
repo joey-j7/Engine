@@ -1,30 +1,13 @@
 #include <Engine.h>
 
-#include "Views/ListView.h"
 #include "Views/CameraView.h"
-
-class ExampleLayer : public Engine::Layer
-{
-public:
-	ExampleLayer()
-		: Layer("Example")
-	{
-	}
-
-	void Update(float fDeltaTime) override
-	{
-		if (Engine::Input::IsKeyPressed(CB_KEY_TAB))
-			CB_TRACE("Tab key is pressed (poll)!");
-	}
-};
 
 class Game : public Engine::Application
 {
 public:
 	Game() : Application(TOSTRING(CB_NAME))
 	{
-		PushLayer(new ExampleLayer());
-		ListView* View = new ListView();
+		Engine::WorldManager::Get().Push<CameraView>();
 	}
 
 	~Game()

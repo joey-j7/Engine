@@ -2,6 +2,10 @@
 
 #include "Platform/Window.h"
 
+// A clickable can be hovered, unhovered, pressed, released and clicked
+// Implementation includes bound, visibility checking, focussability etc.
+// Polls mouse input through events
+
 namespace Engine
 {
 	class Engine_API Clickable

@@ -30,12 +30,12 @@ android {
             minifyEnabled false
             proguardFiles.add(file('proguard-rules.txt'))
 
-            debuggable false
+            debuggable true
 
-            // signingConfig signingConfigs.config
+            signingConfig signingConfigs.config
         }
         debug {
-            // signingConfig signingConfigs.config
+            signingConfig signingConfigs.config
         }
     }
 
@@ -69,6 +69,7 @@ android {
 
     sourceSets {
         main {
+            assets.srcDirs = ['src/main/assets']
             jniLibs.srcDirs = ['src/main/jniLibs']
         }
     }
@@ -78,5 +79,6 @@ dependencies {
     def appcompat_version = "1.2.0"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     
 }

@@ -412,6 +412,7 @@
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="PhotoListItem.cpp" />
     <ClCompile Include="Views\CameraView.cpp" />
     <ClCompile Include="Views\ListView.cpp" />
     <ClCompile Include="Views\LineView.cpp" />
@@ -428,6 +429,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PhotoListItem.h" />
     <ClInclude Include="Views\CameraView.h" />
     <ClInclude Include="Views\ListView.h" />
     <ClInclude Include="Views\LineView.h" />

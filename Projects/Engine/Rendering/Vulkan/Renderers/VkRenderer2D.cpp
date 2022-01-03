@@ -94,7 +94,7 @@ namespace Engine
 		GrBackendRenderTarget backendRT = m_Surface->getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
 		backendRT.setVkImageLayout(m_pAPI->SwapchainCtx.Textures[m_pAPI->SwapchainCtx.ImageIndex].GetLayout());
 
-		m_Canvas->clear(SK_ColorTRANSPARENT);
+		m_Canvas->clear(m_ClearColor);
 	}
 	
 	bool VkRenderer2D::IsSupported(SkColorType color) const

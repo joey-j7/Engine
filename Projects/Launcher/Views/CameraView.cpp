@@ -6,28 +6,35 @@
 
 #include "Engine/Application.h"
 
-#include "Engine/Objects/Worlds/Entities/UI/Camera/UICameraPreview.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
-#include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
+#include "Engine/Objects/Entities/UI/Camera/UICameraPreview.h"
+#include "Engine/Objects/Components/UI/Renderables/UIImage.h"
+#include "Engine/Objects/Entities/UI/UIButton.h"
 
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UILine.h"
+#include "Engine/Objects/Components/UI/Renderables/Shapes/UILine.h"
 
 using namespace Engine;
 
-CameraView::CameraView(const String& Name) : SubView(Name)
+CameraView::CameraView(const String& Name)
 {
-	UICameraPreview* CameraPreview = new UICameraPreview();
+	UICameraPreview* CameraPreview = Add<UICameraPreview>();
 	CameraImage = CameraPreview->GetComponent<UIImage>();
 
 	uint32_t m_ImageDataEventID = CameraImage->OnImageDataReceived.Bind(this, &CameraView::OnCameraImageData);
 	Application::Get().GetHardwareContext().GetCamera().OnPhotoTakenCallback.Bind(this, &CameraView::OnPhotoTaken);
 
-	float BtnSize = 80.f;
+	float BtnSize = 90.f;
 
-	UIButton* Button = new UIButton(
-		{ "Foto", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "Foto", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "Foto", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+	// Camera button
+	UIButton* Button = Add<UIButton>(
+		(ButtonStyle){ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f),
+		UIRenderable::Gradient(), 5, Color(1.f), false
+	},
+		(ButtonStyle){ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f, 0.5f),
+		UIRenderable::Gradient(), 5, Color(1.f), false
+	},
+		(ButtonStyle){ "", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f),
+		UIRenderable::Gradient(), 5, Color(0.882352941f, 0.2f, 0.203921569f), false
+	},
 		"Camera Button"
 	);
 
@@ -39,6 +46,65 @@ CameraView::CameraView(const String& Name) : SubView(Name)
 	Button->SetOnClickedCallback([]() {
 		Application::Get().GetHardwareContext().GetCamera().TakePhoto();
 	});
+
+	// List view button
+	BtnSize = 70.f;
+
+	Button = Add<UIButton>(
+		(ButtonStyle){ "", BtnSize * 2.f, Vector4(BtnSize), "", "icons/icon_gallery.png", Color(0.f, 0.f, 0.f, 0.5f)
+	},
+		(ButtonStyle){ "", BtnSize * 2.f, Vector4(BtnSize), "", "icons/icon_gallery.png", Color(1.f, 1.f, 0.f, 0.5f)
+	},
+		(ButtonStyle){ "", BtnSize * 2.f, Vector4(BtnSize), "", "icons/icon_gallery.png", Color(0.882352941f, 0.2f, 0.203921569f, 0.5f)
+	},
+		"List View Button"
+	);
+
+	Button->SetAnchor(E_ANCH_BOTTOM);
+	Button->SetPivot(Vector2(0.5f, 0.5f));
+
+	Button->GetForeground()->GetComponent<Transform2DComponent>()->SetScale(0.25f);
+
+	Button->GetComponent<Transform2DComponent>()->Translate(Vector2(-110.f, -80.f));
+
+	Button->SetOnClickedCallback([this]() {
+		Application::Get().ThreadedCallback.Bind(this, &CameraView::OnListView);
+	});
+
+	// Ask for read/write storage permissions
+	bool Permission = PermissionManager::Get().HasPermission(PermissionManager::E_READ_EXTERNAL_STORAGE);
+
+	if (Permission)
+		Permission = PermissionManager::Get().HasPermission(PermissionManager::E_WRITE_EXTERNAL_STORAGE);
+
+	if (!Permission)
+	{
+		PermissionManager::Get().RequestPermissions(
+			{ PermissionManager::E_READ_EXTERNAL_STORAGE, PermissionManager::E_WRITE_EXTERNAL_STORAGE }
+		);
+	}
+
+	// Trash view button
+	/*Button = Add<UIButton>(
+		(ButtonStyle){ "", BtnSize * 2.f, Vector4(BtnSize), "", "icons/icon_trash.png", Color(0.f, 0.f, 0.f, 0.5f)
+	},
+		(ButtonStyle){ "", BtnSize * 2.f, Vector4(BtnSize), "", "icons/icon_trash.png", Color(1.f, 1.f, 0.f, 0.5f)
+	},
+		(ButtonStyle){ "", BtnSize * 2.f, Vector4(BtnSize), "", "icons/icon_trash.png", Color(0.882352941f, 0.2f, 0.203921569f, 0.5f)
+	},
+		"Trash View Button"
+	);
+
+	Button->GetForeground()->GetComponent<Transform2DComponent>()->SetScale(0.25f);
+
+	Button->SetAnchor(E_ANCH_BOTTOM);
+	Button->SetPivot(Vector2(0.5f, 0.5f));
+
+	Button->GetComponent<Transform2DComponent>()->Translate(Vector2(110.f, -80.f));
+
+	Button->SetOnClickedCallback([this]() {
+		Application::Get().ThreadedCallback.Bind(this, &CameraView::OnTrashView);
+	});*/
 }
 
 CameraView::~CameraView()
@@ -71,11 +137,23 @@ void CameraView::OnCameraImageData()
 
 void CameraView::OnLineView(const String& Path)
 {
-	if (Application::Get().GetWorldManager().GetActive() == this)
-		new LineView(Path);
+	if (WorldManager::Get().GetLayer() == this)
+		WorldManager::Get().Push<LineView>(Path);
 }
 
-void CameraView::OnPhotoTaken(const String& FilePath)
+void CameraView::OnListView()
 {
-	OnLineView(FilePath);
+	// Switch view, discard history
+	WorldManager::Get().ClearAndReplace<ListView>();
+}
+
+void CameraView::OnTrashView()
+{
+	// Switch view, discard history
+	WorldManager::Get().ClearAndReplace<ListView>();
+}
+
+void CameraView::OnPhotoTaken(const String& m_FilePath)
+{
+	OnLineView(m_FilePath);
 }

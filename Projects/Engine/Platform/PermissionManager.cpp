@@ -42,6 +42,7 @@ namespace Engine
 		if (!HasPermission(Permission))
 		{
 			m_GrantedPermissions.push_back(Permission);
+			OnPermission({ "" }, {1});
 		}
 
 		return true;
@@ -49,13 +50,21 @@ namespace Engine
 
 	bool PermissionManager::RequestPermissions(const std::vector<Type>& Permissions)
 	{
+		std::vector<String> PermissionStrings;
+		std::vector<int32_t> Granted;
+
 		for (auto Permission : Permissions)
 		{
 			if (!HasPermission(Permission))
 			{
 				m_GrantedPermissions.push_back(Permission);
+
+				PermissionStrings.push_back("");
+				Granted.push_back(1);
 			}
 		}
+
+		OnPermission(PermissionStrings, Granted);
 
 		return true;
 	}

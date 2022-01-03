@@ -2,45 +2,66 @@
 
 #include <vector>
 
-#include "Entities/EntityComponent.h"
-#include "Entities/DynamicEntity.h"
+#include "Engine/Objects/Entities/EntityComponent.h"
 
 #include "Engine/Managers/IDManager.h"
-#include "Engine/Objects/LayeredObject.h"
+#include "Engine/Objects/Layers/Layerable.h"
 
 namespace Engine
 {
-	class Engine_API World : public LayeredObject
+	class Engine_API World : public Object, public Layer
 	{
-		friend class WorldManagerLayer;
+		template <class T>
+		friend class Layerable;
+
+		friend class WorldManager;
 		friend class Entity;
 
 	public:
-		World(const String& sName = "World");
 		virtual ~World();
 
-		void Add(Entity* pObject);
-		bool Remove(Entity* pObject);
+		Event<void, float> OnUpdate = Event<void, float>("World::OnUpdate");
+		Event<void, float> OnFixedUpdate = Event<void, float>("World::OnFixedUpdate");
+		Event<void, float> OnLateUpdate = Event<void, float>("World::OnLateUpdate");
+		Event<void, float> OnDraw = Event<void, float>("World::OnDraw");
+
+		template <class T, class... Args>
+		T* Add(Args... Arguments)
+		{
+			T* Object = new T(*this, Arguments...);
+			m_Entities.push_back(Object);
+
+			Object->m_uiID = m_IDManager.Reserve();
+			Object->Awake();
+
+			return Object;
+		}
+
+		virtual bool Destroy(Entity& Layer);
 
 	protected:
-		virtual void Update(float fDeltaTime) override;
-		virtual void FixedUpdate(float fDeltaTime) override;
+		World(const String& sName = "World");
 
-		virtual void Draw(float fDeltaTime) override;
-		virtual void LateUpdate(float fDeltaTime) override;
+		virtual void Update(float fDeltaTime);
+		virtual void FixedUpdate(float fDeltaTime);
 
-		virtual bool Pause() override;
-		virtual bool Resume() override;
-		virtual bool Stop() override;
+		virtual void Draw(float fDeltaTime);
+		virtual void LateUpdate(float fDeltaTime);
+
+		virtual void OnAttach() override;
+		virtual void OnDetach() override;
 
 	private:
+		virtual bool Remove(Entity& Layer);
+
 		IDManager m_IDManager;
 
-		std::vector<Entity*> m_pWorldObjects;
-		
-		std::vector<DynamicEntity*> m_pDynamicWorldObjects;
-		std::vector<DynamicEntity*> m_pObjectsToActivate;
+		std::vector<Entity*> m_Entities;
+		std::vector<Entity*> m_PendingRemoval;
 
-		std::vector<Entity*> m_pObjectsToRemove;
+		uint32_t m_UpdateHandler = UINT_MAX;
+		uint32_t m_FixedUpdateHandler = UINT_MAX;
+		uint32_t m_DrawHandler = UINT_MAX;
+		uint32_t m_LateUpdateHandler = UINT_MAX;
 	};
 }

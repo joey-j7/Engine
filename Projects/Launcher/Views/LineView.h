@@ -8,7 +8,7 @@ namespace Engine
 	class UIButton;
 	class UIImage;
 	class UILine;
-	class StaticEntity;
+	class Entity;
 }
 
 using namespace Engine;
@@ -16,7 +16,7 @@ using namespace Engine;
 class LineView : public SubView
 {
 public:
-	LineView(const String& FilePath, const String& Name = "Line View");
+	LineView(const String& m_FilePath, const String& Name = "Line View");
 	
 private:
 	void SetStartPosition(const Engine::DVector2& Delta, Engine::UILine& Line, Engine::UIButton& StartOval, Engine::UIButton& EndOval);
@@ -35,12 +35,12 @@ private:
 
 	Engine::DrawPass* m_pPass = nullptr;
 
-	Engine::StaticEntity* LineEntity1 = nullptr;
+	Engine::Entity* LineEntity1 = nullptr;
 	Engine::UILine* Line1 = nullptr;
 	Engine::UIButton* StartOval1 = nullptr;
 	Engine::UIButton* EndOval1 = nullptr;
 
-	Engine::StaticEntity* LineEntity2 = nullptr;
+	Engine::Entity* LineEntity2 = nullptr;
 	Engine::UILine* Line2 = nullptr;
 	Engine::UIButton* StartOval2 = nullptr;
 	Engine::UIButton* EndOval2 = nullptr;

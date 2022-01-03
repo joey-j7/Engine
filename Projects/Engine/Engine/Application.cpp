@@ -14,7 +14,7 @@ namespace Engine
 
 	Application* Application::s_Instance = nullptr;
 
-	Application::Application(const String& sName) : LayeredObject(sName)
+	Application::Application(const String& sName) : Object(sName)
 	{
 		CB_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
@@ -30,8 +30,7 @@ namespace Engine
 
 		m_pScreenEngine = m_RenderContext->GetAPI().GetCommandEngine("Screen");
 
-		m_WorldManagerLayer = new WorldManagerLayer();
-		PushOverlay(m_WorldManagerLayer);
+		m_WorldManager = Push<WorldManager>();
 
 		m_DeltaTime = std::make_unique<DeltaTime>();
 		
@@ -68,23 +67,21 @@ namespace Engine
 			m_DeltaTime->Update();
 			const float fDeltaTime = m_DeltaTime->Get();
 
-			OnUpdate(fDeltaTime);
-			
 			// Update layers
-			Update(fDeltaTime);
+			OnUpdate(fDeltaTime);
 
 			if (m_DeltaTime->IsFixed())
 			{
 				// Update layers
 				const float fFixedDeltaTime = m_DeltaTime->GetFixed();
-				FixedUpdate(fFixedDeltaTime);
+				OnFixedUpdate(fFixedDeltaTime);
 			}
 
 			// Update layers
-			LateUpdate(fDeltaTime);
+			OnLateUpdate(fDeltaTime);
 
 			// Draw layers
-			Draw(fDeltaTime);
+			OnDraw(fDeltaTime);
 			
 			// Reset rendering for new frame
 			m_RenderContext->GetAPI().Present();

@@ -6,92 +6,121 @@
 
 #include "Engine/Application.h"
 
-#include "Engine/Objects/Worlds/Entities/StaticEntity.h"
-
-#include "Engine/Objects/Worlds/Entities/Components/UI/Layouts/Canvas/UIGridPanel.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UIOval.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIText.h"
+#include "Engine/Objects/Components/UI/Layouts/Canvas/UIGridPanel.h"
+#include "Engine/Objects/Components/UI/Renderables/Shapes/UIOval.h"
+#include "Engine/Objects/Components/UI/Renderables/UIText.h"
 
 #include "PhotoView.h"
 
 #include "Platform/PermissionManager.h"
+#include "Rendering/Renderers/Renderer2D.h"
 
 using namespace Engine;
 
+float ListView::m_ScrollPosition = 0.f;
+
 ListView::ListView(const String& Name) : World(Name)
 {
+	// Set background color
+	Application::Get().GetRenderContext().GetAPI().GetRenderer2D()->SetClearColor(
+		Color(
+			0.929411765f,
+			0.937254902f,
+			0.933333333f
+		)
+	);
+
 	// Generate list
-	m_Canvas = new StaticEntity("Canvas");
+	m_Canvas = Add<Entity>("Canvas");
+
+	m_Layout = m_Canvas->AddComponent<UIGridPanel>();
 	
-	UILayout* Layout = m_Canvas->AddComponent<UIGridPanel>();
-	Layout->SetElementCount(1, true);
-	Layout->SetFitElements(true, false);
+	m_Canvas->GetComponent<Transform2DComponent>()->SetPosition(Vector2(0.f, 50.f));
 
-	auto& Window = Application::Get().GetRenderContext().GetWindow();
-	
-	AABB Bounds = Layout->GetBounds();
-
-	float Width = Bounds.width() / Window.GetScale();
-	float Height = 100.f;// (Bounds.fBottom - Bounds.fTop) * 0.2f / Window.GetScale();
-
-	// Take photo item
-	Color BgColor = (
-		Color(1.f, 1.f, 1.f)
-	);
-
-	// New photo button
-	UIButton* Item = new UIButton(
-		{ "Nieuwe foto maken", 0.f, Vector4(80.f), "", "", BgColor },
-		{ "Nieuwe foto maken", 0.f, Vector4(80.f), "", "", Color(1.f, 1.f, 0.f) },
-		{ "Nieuwe foto maken", 0.f, Vector4(80.f), "", "", Color(1.f, 0.f, 0.f) },
-		"Item Header"
-	);
-
-	Item->SetAnchor(E_ANCH_TOP_FILL);
-	Item->SetPivot(Vector2(0.5f, 0.f));
-
-	Item->SetParent(m_Canvas);
-
-	Item->SetOnClickedCallback([&] {
-		Application::Get().ThreadedCallback.Bind(this, &ListView::OnCameraClick);
-	});
+	m_Layout->SetGridCount(4, 0);
+	m_Layout->AlignElementsToGrid(true, false);
 
 	// Set default image path
 	m_FolderPath = "/storage/emulated/0/DCIM/Appuil/" + Application::Get().GetName() + "/";
 
-	// Gather permissions
-	bool Permission = PermissionManager::Get().HasPermission(PermissionManager::E_READ_EXTERNAL_STORAGE);
+	PopulateList();
+	CreateHeader();
 
-	if (Permission)
-		Permission = PermissionManager::Get().HasPermission(PermissionManager::E_WRITE_EXTERNAL_STORAGE);
+	m_Layout->SetScrollPosition(Vector2(0.f, m_ScrollPosition));
+}
 
-	if (!Permission)
-	{
-		PermissionManager::Get().OnPermissionEvent.Bind(this, &ListView::OnPermission);
-		PermissionManager::Get().RequestPermissions(
-			{ PermissionManager::E_READ_EXTERNAL_STORAGE, PermissionManager::E_WRITE_EXTERNAL_STORAGE }
-		);
-	}
-	else
-	{
-		PopulateList();
-	}
+bool ListView::Play()
+{
+	if (!World::Play())
+		return false;
+
+	// Set background color
+	Application::Get().GetRenderContext().GetAPI().GetRenderer2D()->SetClearColor(
+		Color(
+			0.929411765f,
+			0.937254902f,
+			0.933333333f
+		)
+	);
+
+	return true;
 }
 
 void ListView::OnCameraClick()
 {
-	new CameraView();
+	m_ScrollPosition = 0.f;
+	WorldManager::Get().Push<CameraView>();
 }
 
 void ListView::OnPhotoView()
 {
+	m_ScrollPosition = m_Layout->GetScrollPosition().y;
+
 	// Store because this object will soon be destroyed
 	String Path = m_ImagePath;
-	new PhotoView(Path);
+	WorldManager::Get().Push<PhotoView>(Path);
+}
+
+void ListView::CreateHeader()
+{
+	const String Icon = "icons/icon_back.png";
+
+	// New photo button
+	UIButton* BackButton = Add<UIButton>(
+		(ButtonStyle) {
+		"", 0.f, Vector4(50.f), "", Icon, Color(
+			0.929411765f,
+			0.937254902f,
+			0.933333333f
+		)
+	},
+		(ButtonStyle) {
+		"", 0.f, Vector4(50.f), "", Icon, Color(1.f)
+	},
+		(ButtonStyle) {
+		"", 0.f, Vector4(50.f), "", Icon, Color(0.882352941f, 0.2f, 0.203921569f)
+	},
+		"Back Button"
+	);
+
+	BackButton->GetForeground()->GetComponent<Transform2DComponent>()->SetScale(Vector2(0.75f));
+
+	BackButton->SetAnchor(E_ANCH_TOP_LEFT);
+	BackButton->SetPivot(Vector2(0.f, 0.f));
+
+	BackButton->SetOnClickedCallback([&] {
+		Application::Get().ThreadedCallback.Bind(this, &ListView::OnCameraClick);
+	});
+
+	BackButton->GetForeground()->GetComponent<Transform2DComponent>()->SetScale(Vector2(0.75f));
 }
 
 void ListView::PopulateList()
 {
+	Color BgColor = (
+		Color(1.f, 1.f, 1.f)
+	);
+
 	// Clear old items
 	for (auto ListItem : m_ListItems)
 	{
@@ -103,11 +132,6 @@ void ListView::PopulateList()
 	// Populate new items
 	std::vector<String> Filenames;
 
-	Color BgColor = (
-		Color(1.f, 1.f, 1.f)
-	);
-
-
 #ifdef CB_PLATFORM_WINDOWS
 	Filenames = {
 		"Item 0.jpg", "Item 1.jpg", "Item 2.jpg", "Item 3.jpg", "Item 4.jpg",
@@ -117,30 +141,29 @@ void ListView::PopulateList()
 	Filenames = FileLoader::GetFilenames(m_FolderPath, { "jpg" }, FileLoader::E_ROOT);
 #endif
 
+	Window& Window = Application::Get().GetRenderContext().GetWindow();
+	const float Width = Window.GetWidth() / Window.GetScale();
+
 	// Items
 	uint32_t Num = Filenames.size();
 	for (uint32_t i = 0; i < Num; ++i)
 	{
-		BgColor = (
-			//glm::mod(glm::floor((i + 1) * 0.5), 2.0) == 0.0 ?
-			i % 2 == 0.0 ?
-			Color(0.95f, 0.95f, 0.95f) :
-			Color(1.f, 1.f, 1.f)
-		);
-
-		UIButton* Item = new UIButton(
-			{ Filenames[i], 0.f, Vector4(80.f), "", "", BgColor },
-			{ Filenames[i], 0.f, Vector4(80.f), "", "", Color(1.f, 1.f, 0.f) },
-			{ Filenames[i], 0.f, Vector4(80.f), "", "", Color(1.f, 0.f, 0.f) },
-			"Item " + std::to_string(i)
-		);
+		BgColor = Color(1.f, 1.f, 1.f, 0.f);
+		String Fullpath = m_FolderPath + Filenames[i];
+		
+		PhotoListItem* Item = Add<PhotoListItem>(
+			(String)Fullpath,
+			(ButtonStyle) {
+			"", 0.f, Vector4(Width * 0.25f), "", "", BgColor
+		},
+			(ButtonStyle) {
+			"", 0.f, Vector4(Width * 0.25f), "", "", Color(1.f)
+		},
+			(ButtonStyle) {
+			"", 0.f, Vector4(Width * 0.25f), "", "", Color(0.882352941f, 0.2f, 0.203921569f)
+		});
 
 		Item->SetParent(m_Canvas);
-
-		Item->SetAnchor(E_ANCH_TOP_FILL);
-		Item->SetPivot(Vector2(0.5f, 0.f));
-
-		String Fullpath = m_FolderPath + Filenames[i];
 
 		Item->SetOnClickedCallback([this, Fullpath] {
 			m_ImagePath = Fullpath; // m_FolderPath + Item->GetDefaultStyle().m_Text;
@@ -149,17 +172,6 @@ void ListView::PopulateList()
 
 		m_ListItems.push_back(Item);
 	}
-}
-
-void ListView::OnPermission(const std::vector<String>& Permissions, const std::vector<int32_t>& Granted)
-{
-	if (!PermissionManager::Get().HasPermissions({
-		PermissionManager::E_READ_EXTERNAL_STORAGE,
-		PermissionManager::E_WRITE_EXTERNAL_STORAGE
-	}))
-		return;
-
-	Application::Get().ThreadedCallback.Bind(this, &ListView::PopulateList);
 }
 
 void ListView::Draw(float fDeltaTime)

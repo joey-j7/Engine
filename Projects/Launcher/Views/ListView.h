@@ -3,11 +3,11 @@
 #include "Engine/Objects/Worlds/World.h"
 #include "Rendering/Passes/DrawPass.h"
 
-#include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
+#include "../PhotoListItem.h"
 
 namespace Engine
 {
-	class StaticEntity;
+	class Entity;
 }
 
 using namespace Engine;
@@ -18,17 +18,23 @@ public:
 	ListView(const String& Name = "List View");
 
 protected:
+	virtual bool Play() override;
+
 	void OnCameraClick();
 	void OnPhotoView();
 
+	void CreateHeader();
 	void PopulateList();
-	void OnPermission(const std::vector<String>& Permissions, const std::vector<int32_t>& Granted);
-
+	
 	virtual void Draw(float fDeltaTime) override;
 	
-	StaticEntity* m_Canvas = nullptr;
-	std::vector<UIButton*> m_ListItems;
+	Entity* m_Canvas = nullptr;
+	UILayout* m_Layout = nullptr;
+
+	std::vector<PhotoListItem*> m_ListItems;
 
 	String m_ImagePath = "";
 	String m_FolderPath = "";
+
+	static float m_ScrollPosition;
 };

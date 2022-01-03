@@ -3,17 +3,15 @@
 
 #include "Engine/Application.h"
 
-#include "Engine/Objects/Worlds/Entities/StaticEntity.h"
-
-#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform2DComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform3DComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/ClickableComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIText.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UILine.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UIRect.h"
-#include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
-#include "Engine/Objects/Worlds/Entities/UI/Camera/UICameraPreview.h"
+#include "Engine/Objects/Components/Transform/Transform2DComponent.h"
+#include "Engine/Objects/Components/Transform/Transform3DComponent.h"
+#include "Engine/Objects/Components/ClickableComponent.h"
+#include "Engine/Objects/Components/UI/Renderables/UIImage.h"
+#include "Engine/Objects/Components/UI/Renderables/UIText.h"
+#include "Engine/Objects/Components/UI/Renderables/Shapes/UILine.h"
+#include "Engine/Objects/Components/UI/Renderables/Shapes/UIRect.h"
+#include "Engine/Objects/Entities/UI/UIButton.h"
+#include "Engine/Objects/Entities/UI/Camera/UICameraPreview.h"
 
 #include "../PhotoEntity.h"
 
@@ -22,17 +20,27 @@
 
 using namespace Engine;
 
-LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePath, Name)
+LineView::LineView(const String& m_FilePath, const String& Name) : SubView(m_FilePath, Name)
 {
 	constexpr float BtnSize = 50.f;
 
 	// Next Button
-	UIButton* NextButton = new UIButton(
-		{ ">", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ ">", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ ">", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+	String Icon = "icons/icon_next_w.png";
+
+	UIButton* NextButton = Add<UIButton>(
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.f, 0.f, 0.f, 0.5f)
+	},
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.f, 0.f, 0.f, 0.5f)
+	},
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.882352941f, 0.2f, 0.203921569f)
+	},
 		"Next Button"
 	);
+
+	NextButton->GetForeground()->GetComponent<Transform2DComponent>()->SetScale(Vector2(0.75f));
 
 	NextButton->SetAnchor(E_ANCH_TOP_RIGHT);
 	NextButton->SetPivot(Vector2(1.0f, 0.0f));
@@ -48,20 +56,20 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 	float InvScale = 1.f / Window.GetScale();
 
 	// Line 1
-	LineEntity1 = new StaticEntity("Line");
+	LineEntity1 = Add<Entity>("Line");
 	Line1 = LineEntity1->AddComponent<UILine>();
 
 	Line1->SetStartPosition(Vector2(0.f, 0.f));
 	Line1->SetEndPosition(Vector2(0.1f, Window.GetHeight() * 0.8f * InvScale));
-	Line1->SetColor(Color(1.f, 0.f, 0.f));
-	Line1->SetThickness(10);
+	Line1->SetColor(Color(0.882352941f, 0.2f, 0.203921569f));
+	Line1->SetThickness(7);
 
 	constexpr float OvalSize = 40.f;
 
-	StartOval1 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	StartOval1 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"Start Button"
 	);
 
@@ -74,10 +82,10 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 		false
 	);
 
-	EndOval1 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	EndOval1 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"End Button"
 	);
 
@@ -105,20 +113,20 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 	});
 
 	// Line 2
-	LineEntity2 = new StaticEntity("Line");
+	LineEntity2 = Add<Entity>("Line");
 	LineEntity2->SetVisibility(Entity::E_COLLAPSED);
 
 	Line2 = LineEntity2->AddComponent<UILine>();
 
 	Line2->SetStartPosition(Vector2(0.f, 0.f));
 	Line2->SetEndPosition(Vector2(0.1f, Window.GetHeight() * 0.8f * InvScale));
-	Line2->SetColor(Color(0.f, 0.f, 1.f));
-	Line2->SetThickness(10);
+	Line2->SetColor(Color(0.247058824f, 0.321568627f, 0.639215686f));
+	Line2->SetThickness(7);
 
-	StartOval2 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	StartOval2 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.247058824f, 0.321568627f, 0.639215686f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"Start Button"
 	);
 
@@ -131,10 +139,10 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 		false
 	);
 
-	EndOval2 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	EndOval2 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.247058824f, 0.321568627f, 0.639215686f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"End Button"
 	);
 
@@ -162,24 +170,24 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 	});
 
 	// Line toggle button
-	LineToggle = new UIButton(
-		{ "2", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "2", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "2", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	LineToggle = Add<UIButton>(
+		(ButtonStyle){ "2", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "2", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "2", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
 		"Line Toggle Button"
 	);
 	
 	LineToggle->SetAnchor(E_ANCH_TOP);
 	LineToggle->SetPivot(Vector2(0.5f, 0.0f));
 
-	LineToggle->GetComponent<Transform2DComponent>()->Translate(Vector2(0.f, 20.f));
+	LineToggle->GetComponent<Transform2DComponent>()->Translate(Vector2(0.f, 23.f));
 
 	LineToggle->SetOnClickedCallback([&]() {
 		Application::Get().ThreadedCallback.Bind(this, &LineView::OnLineToggle);
 	});
 
 	// Text
-	StaticEntity* TextEntity = new StaticEntity("Text");
+	Entity* TextEntity = Add<Entity>("Text");
 	UIText* Text = TextEntity->AddComponent<UIText>("Sleep de lijn(en) over de naden");
 	Text->SetColor(Color(1.f));
 
@@ -191,14 +199,28 @@ LineView::LineView(const String& FilePath, const String& Name) : SubView(FilePat
 	// Retrieve potential user data
 	RetrieveUserData();
 
-	// Set back button to camera
-	auto Worlds = Application::Get().GetWorldManager().GetWorlds();
-	
-	if (Worlds.size() > 1 && dynamic_cast<CameraView*>(Worlds[Worlds.size() - 2]))
+	// Check if we're coming from camera view
+	if (WorldManager::Get().Has<CameraView>())
 	{
 		m_BackButton->SetOnClickedCallback([&]() {
 			Application::Get().ThreadedCallback.Bind(this, &LineView::OnCameraView);
 		});
+
+		Icon = "icons/icon_trash.png";
+
+		ButtonStyle Default = m_BackButton->GetDefaultStyle();
+		Default.m_ForegroundImagePath = Icon;
+		m_BackButton->SetDefaultStyle(Default);
+
+		ButtonStyle Hover = m_BackButton->GetHoverStyle();
+		Hover.m_ForegroundImagePath = Icon;
+		m_BackButton->SetHoverStyle(Hover);
+
+		ButtonStyle Press = m_BackButton->GetPressStyle();
+		Press.m_ForegroundImagePath = Icon;
+		m_BackButton->SetPressStyle(Press);
+
+		m_BackButton->GetForeground()->GetComponent<Transform2DComponent>()->SetScale(Vector2(0.25f));
 	}
 }
 
@@ -340,7 +362,7 @@ Vector2 LineView::AbsToNorm(Vector2 Absolute) const
 void LineView::OnLineToggle()
 {
 	m_LineToggled = !m_LineToggled;
-	LineToggle->SetText(m_LineToggled ? "2" : "1");
+	LineToggle->SetText(m_LineToggled ? "1" : "2");
 	
 	LineEntity2->SetVisibility(
 		m_LineToggled ? Entity::E_VISIBLE : Entity::E_COLLAPSED
@@ -362,15 +384,15 @@ void LineView::OnCameraView()
 void LineView::OnStretchView()
 {
 	SaveUserData();
-	new StretchView(m_Path);
+	WorldManager::Get().Push<StretchView>(m_Path);
 }
 
 void LineView::RetrieveUserData()
 {
 	const String Name = FileLoader::GetName(m_Path);
 
-	String FilePath = FileLoader::GetAbsolutePath("Configs/" + Name + ".cfg", FileLoader::E_EXTERNAL);
-	FILE* File = std::fopen(FilePath.c_str(), "r");
+	String m_FilePath = FileLoader::GetAbsolutePath("Configs/" + Name + ".cfg", FileLoader::E_EXTERNAL);
+	FILE* File = std::fopen(m_FilePath.c_str(), "r");
 
 	if (!File)
 		return;
@@ -411,7 +433,7 @@ void LineView::RetrieveUserData()
 	);
 
 	// Line toggle
-	LineToggle->SetText(m_LineToggled ? "2" : "1");
+	LineToggle->SetText(m_LineToggled ? "1" : "2");
 	LineEntity2->SetVisibility(
 		m_LineToggled ? Entity::E_VISIBLE : Entity::E_COLLAPSED
 	);

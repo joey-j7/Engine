@@ -32,6 +32,9 @@ namespace Engine
 		GrDirectContext* GetContext() const { return m_Context.get(); }
 		SkCanvas* GetCanvas() const { return m_Canvas; }
 
+		const SkColor& GetClearColor() const { return m_ClearColor; }
+		void SetClearColor(const SkColor& Color) { m_ClearColor = Color; }
+
 	protected:
 		sk_sp<GrDirectContext> m_Context = nullptr;
 		sk_sp<SkSurface> m_Surface = nullptr;
@@ -39,6 +42,7 @@ namespace Engine
 		SkColorType m_SkColorType;
 		sk_sp<SkColorSpace> m_SkColorSpace;
 		
+		SkColor m_ClearColor = SK_ColorTRANSPARENT;
 		SkCanvas* m_Canvas = nullptr;
 		
 		bool m_Initialized = false;

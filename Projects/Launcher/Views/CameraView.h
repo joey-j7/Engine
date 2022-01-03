@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SubView.h"
+#include "Engine/Objects/Worlds/World.h"
 #include "Rendering/Passes/DrawPass.h"
 
 namespace Engine
@@ -8,10 +8,10 @@ namespace Engine
 	class UIButton;
 	class UIImage;
 	class UILine;
-	class StaticEntity;
+	class Entity;
 }
 
-class CameraView : public SubView
+class CameraView : public Engine::World
 {
 public:
 	CameraView(const String& Name = "Camera View");
@@ -21,7 +21,10 @@ private:
 	void OnCameraImageData();
 	void OnLineView(const String& Path);
 	
-	void OnPhotoTaken(const String& FilePath);
+	void OnListView();
+	void OnTrashView();
+	
+	void OnPhotoTaken(const String& m_FilePath);
 
 	uint32_t m_ImageDataEventID = 0;
 

@@ -25,7 +25,7 @@ namespace Engine
 		std::vector<String> Filenames;
 
 		// Retrieve full absolute path
-		String path = GetPath(folderPath, type);
+		String path = GetAbsolutePath(folderPath, type);
 
 		if (!std::filesystem::exists(path))
 			return Filenames;
@@ -59,7 +59,7 @@ namespace Engine
 	bool FileLoader::Exists(const String& filePath, Type type /*= E_CONTENT*/)
 	{
 		// Retrieve full absolute path
-		String path = GetPath(filePath, type);
+		String path = GetAbsolutePath(filePath, type);
 
 		struct stat buffer;
 		return (stat(path.c_str(), &buffer) == 0);

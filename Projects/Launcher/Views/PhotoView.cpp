@@ -4,14 +4,14 @@
 #include "LineView.h"
 #include "ListView.h"
 
-#include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
+#include "Engine/Objects/Entities/UI/UIButton.h"
+#include "Engine/Objects/Components/UI/Renderables/UIImage.h"
 
 #include "../PhotoEntity.h"
 
 using namespace Engine;
 
-PhotoView::PhotoView(const String& FilePath, const String& Name) : SubView(FilePath, Name)
+PhotoView::PhotoView(const String& m_FilePath, const String& Name) : SubView(m_FilePath, Name)
 {
 	ClickableComponent* Clickable = m_Photo->AddComponent<ClickableComponent>();
 	Clickable->OnClickedEvent.Bind(this, &PhotoView::ToggleButtons);
@@ -89,10 +89,18 @@ PhotoView::PhotoView(const String& FilePath, const String& Name) : SubView(FileP
 	constexpr float BtnSize = 50.f;
 
 	// Edit button
-	m_EditButton = new UIButton(
-		{ "*", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "*", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "*", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+	String Icon = "icons/icon_edit.png";
+
+	m_EditButton = Add<UIButton>(
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.f, 0.f, 0.f, 0.5f)
+	},
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.f, 0.f, 0.f, 0.5f)
+	},
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.882352941f, 0.2f, 0.203921569f)
+	},
 		"Edit Button"
 	);
 
@@ -105,13 +113,25 @@ PhotoView::PhotoView(const String& FilePath, const String& Name) : SubView(FileP
 		Application::Get().ThreadedCallback.Bind(this, &PhotoView::OnLineView);
 	});
 
+	m_EditButton->GetForeground()->GetComponent<Transform2DComponent>()->SetScale(Vector2(0.25f));
+
 	// Delete button
-	m_DeleteButton = new UIButton(
-		{ "x", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "x", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "x", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+	Icon = "icons/icon_trash.png";
+
+	m_DeleteButton = Add<UIButton>(
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.f, 0.f, 0.f, 0.5f)
+	},
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.f, 0.f, 0.f, 0.5f)
+	},
+		(ButtonStyle) {
+		"", 5.f, Vector4(45.f), "", Icon, Color(0.882352941f, 0.2f, 0.203921569f)
+	},
 		"Delete Button"
 	);
+
+	m_DeleteButton->GetForeground()->GetComponent<Transform2DComponent>()->SetScale(Vector2(0.25f));
 
 	m_DeleteButton->SetAnchor(E_ANCH_TOP_RIGHT);
 	m_DeleteButton->SetPivot(Vector2(1.0f, 0.0f));
@@ -135,8 +155,8 @@ void PhotoView::RetrieveUserData()
 {
 	const String Name = FileLoader::GetName(m_Path);
 
-	String FilePath = FileLoader::GetAbsolutePath("Configs/" + Name + ".cfg", FileLoader::E_EXTERNAL);
-	FILE* File = std::fopen(FilePath.c_str(), "r");
+	String m_FilePath = FileLoader::GetAbsolutePath("Configs/" + Name + ".cfg", FileLoader::E_EXTERNAL);
+	FILE* File = std::fopen(m_FilePath.c_str(), "r");
 
 	if (!File)
 		return;
@@ -287,7 +307,7 @@ void PhotoView::UpdateCameraUniforms()
 
 void PhotoView::OnLineView()
 {
-	new LineView(m_Path);
+	WorldManager::Get().Push<LineView>(m_Path);
 }
 
 void PhotoView::OnDelete()
@@ -298,9 +318,10 @@ void PhotoView::OnDelete()
 
 	FileLoader::Delete(Path, Name + "." + Extension, FileLoader::Type::E_ROOT);
 	FileLoader::Delete("Configs/", Name + ".cfg", FileLoader::Type::E_EXTERNAL);
+	FileLoader::Delete(".cache/thumbs/", Name + ".jpg", FileLoader::Type::E_EXTERNAL);
 
 	// Switch view, discard history
-	Application::Get().GetWorldManager().Clear<ListView>();
+	WorldManager::Get().ClearAndReplace<ListView>();
 }
 
 void PhotoView::ToggleButtons()

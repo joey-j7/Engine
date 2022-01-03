@@ -3,17 +3,15 @@
 
 #include "Engine/Application.h"
 
-#include "Engine/Objects/Worlds/Entities/StaticEntity.h"
-
-#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform2DComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/Transform/Transform3DComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/ClickableComponent.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIImage.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/UIText.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UILine.h"
-#include "Engine/Objects/Worlds/Entities/Components/UI/Renderables/Shapes/UIRect.h"
-#include "Engine/Objects/Worlds/Entities/UI/UIButton.h"
-#include "Engine/Objects/Worlds/Entities/UI/Camera/UICameraPreview.h"
+#include "Engine/Objects/Components/Transform/Transform2DComponent.h"
+#include "Engine/Objects/Components/Transform/Transform3DComponent.h"
+#include "Engine/Objects/Components/ClickableComponent.h"
+#include "Engine/Objects/Components/UI/Renderables/UIImage.h"
+#include "Engine/Objects/Components/UI/Renderables/UIText.h"
+#include "Engine/Objects/Components/UI/Renderables/Shapes/UILine.h"
+#include "Engine/Objects/Components/UI/Renderables/Shapes/UIRect.h"
+#include "Engine/Objects/Entities/UI/UIButton.h"
+#include "Engine/Objects/Entities/UI/Camera/UICameraPreview.h"
 
 #include "../PhotoEntity.h"
 
@@ -22,7 +20,7 @@
 
 using namespace Engine;
 
-MirrorView::MirrorView(const String& FilePath, const String& Name) : SubView(FilePath, Name)
+MirrorView::MirrorView(const String& m_FilePath, const String& Name) : SubView(m_FilePath, Name)
 {
 	ClickableComponent* Clickable = m_Photo->AddComponent<ClickableComponent>();
 	Clickable->OnClickedEvent.Bind(this, &MirrorView::ToggleButtons);
@@ -72,10 +70,10 @@ MirrorView::MirrorView(const String& FilePath, const String& Name) : SubView(Fil
 	constexpr float BtnSize = 50.f;
 
 	// Next Button
-	NextButton = new UIButton(
-		{ "V", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
-		{ "V", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "V", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f, 0.f, 0.f) },
+	NextButton = Add<UIButton>(
+		(ButtonStyle){ "V", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		(ButtonStyle){ "V", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(1.f) },
+		(ButtonStyle){ "V", BtnSize * 2.f, Vector4(BtnSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
 		"Next Button"
 	);
 
@@ -93,20 +91,20 @@ MirrorView::MirrorView(const String& FilePath, const String& Name) : SubView(Fil
 	float InvScale = 1.f / Window.GetScale();
 
 	// Line 1
-	LineEntity1 = new StaticEntity("Line");
+	LineEntity1 = Add<Entity>("Line");
 	Line1 = LineEntity1->AddComponent<UILine>();
 
 	Line1->SetStartPosition(Vector2(0.f, 0.f));
 	Line1->SetEndPosition(Vector2(0.f, Window.GetHeight() * 0.8f * InvScale));
-	Line1->SetColor(Color(1.f, 0.f, 0.f));
+	Line1->SetColor(Color(0.882352941f, 0.2f, 0.203921569f));
 	Line1->SetThickness(10);
 
 	constexpr float OvalSize = 40.f;
 
-	StartOval1 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	StartOval1 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"Start Button"
 	);
 
@@ -119,10 +117,10 @@ MirrorView::MirrorView(const String& FilePath, const String& Name) : SubView(Fil
 		false
 	);
 
-	EndOval1 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	EndOval1 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"End Button"
 	);
 
@@ -140,7 +138,7 @@ MirrorView::MirrorView(const String& FilePath, const String& Name) : SubView(Fil
 	);
 
 	// Line 2
-	LineEntity2 = new StaticEntity("Line");
+	LineEntity2 = Add<Entity>("Line");
 	LineEntity2->SetVisibility(Entity::E_COLLAPSED);
 
 	Line2 = LineEntity2->AddComponent<UILine>();
@@ -150,10 +148,10 @@ MirrorView::MirrorView(const String& FilePath, const String& Name) : SubView(Fil
 	Line2->SetColor(Color(0.f, 0.f, 1.f));
 	Line2->SetThickness(10);
 
-	StartOval2 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	StartOval2 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.247058824f, 0.321568627f, 0.639215686f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"Start Button"
 	);
 
@@ -166,10 +164,10 @@ MirrorView::MirrorView(const String& FilePath, const String& Name) : SubView(Fil
 		false
 	);
 
-	EndOval2 = new UIButton(
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	EndOval2 = Add<UIButton>(
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.247058824f, 0.321568627f, 0.639215686f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
 		"End Button"
 	);
 
@@ -187,24 +185,24 @@ MirrorView::MirrorView(const String& FilePath, const String& Name) : SubView(Fil
 	);
 
 	// Mirror toggle button
-	MirrorToggle = new UIButton(
-		{ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
-		{ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 1.f, 0.f) },
-		{ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f, 0.f, 0.f) },
+	MirrorToggle = Add<UIButton>(
+		(ButtonStyle){ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(1.f) },
+		(ButtonStyle){ "0", OvalSize * 2.f, Vector2(OvalSize), "", "", Color(0.882352941f, 0.2f, 0.203921569f) },
 		"Mirror Toggle Button"
 	);
 	
 	MirrorToggle->SetAnchor(E_ANCH_TOP);
 	MirrorToggle->SetPivot(Vector2(0.5f, 0.0f));
 
-	MirrorToggle->GetComponent<Transform2DComponent>()->Translate(Vector2(0.f, 20.f));
+	MirrorToggle->GetComponent<Transform2DComponent>()->Translate(Vector2(0.f, 23.f));
 
 	MirrorToggle->SetOnClickedCallback([&]() {
 		Application::Get().ThreadedCallback.Bind(this, &MirrorView::OnMirrorToggle);
 	});
 
 	// Text
-	TextEntity = new StaticEntity("Text");
+	TextEntity = Add<Entity>("Text");
 	UIText* Text = TextEntity->AddComponent<UIText>("Spiegelen (tik om UI te verbergen)");
 	Text->SetColor(Color(1.f));
 
@@ -324,7 +322,7 @@ void MirrorView::OnListView()
 	SaveUserData();
 
 	// Switch view, discard history
-	Application::Get().GetWorldManager().Clear<ListView>();
+	WorldManager::Get().ClearAndReplace<ListView>();
 }
 
 void MirrorView::OnMirrorToggle()
@@ -341,8 +339,8 @@ void MirrorView::RetrieveUserData()
 {
 	const String Name = FileLoader::GetName(m_Path);
 
-	String FilePath = FileLoader::GetAbsolutePath("Configs/" + Name + ".cfg", FileLoader::E_EXTERNAL);
-	FILE* File = std::fopen(FilePath.c_str(), "r");
+	String m_FilePath = FileLoader::GetAbsolutePath("Configs/" + Name + ".cfg", FileLoader::E_EXTERNAL);
+	FILE* File = std::fopen(m_FilePath.c_str(), "r");
 
 	if (!File)
 		return;

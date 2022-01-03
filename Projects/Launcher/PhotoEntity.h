@@ -1,19 +1,17 @@
 #pragma once
 
-#include "Engine/Objects/Worlds/Entities/StaticEntity.h"
-
 namespace Engine
 {
 	class UIImage;
 }
 
-class PhotoEntity : public Engine::StaticEntity
+class PhotoEntity : public Engine::Entity
 {
 public:
-	PhotoEntity(const String& FilePath, const String& Name = "Photo Entity");
+	PhotoEntity(Engine::World& World, const String& m_FilePath, const String& Name = "Photo Entity");
 
-	Engine::UIImage* GetPhoto() const { return Photo; }
+	Engine::UIImage* GetPhoto() const { return m_Photo; }
 
 protected:
-	Engine::UIImage* Photo = nullptr;
+	Engine::UIImage* m_Photo = nullptr;
 };

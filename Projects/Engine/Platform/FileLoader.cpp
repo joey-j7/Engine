@@ -80,7 +80,7 @@ namespace Engine {
 		// Retrieve full absolute path
 		String path = GetAbsolutePath(filePath, type);
 
-		auto ifs = std::ifstream(filePath.c_str(), std::ios::in | std::ios::binary);
+		auto ifs = std::ifstream(path.c_str(), std::ios::in | std::ios::binary);
 		
 		if (ifs.is_open())
 		{

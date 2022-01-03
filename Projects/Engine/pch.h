@@ -35,7 +35,8 @@ namespace Engine
 #include "Engine/General/Math.h"
 #include "Engine/General/Collision.h"
 
-#include "Engine/Objects/Worlds/Entities/EntityComponent.h"
+#include "Engine/Objects/Entities/EntityComponent.h"
+#include "Engine/Objects/Worlds/World.h"
 
 #include "Engine/Logger/Log.h"
 #include "Engine/Timer.h"

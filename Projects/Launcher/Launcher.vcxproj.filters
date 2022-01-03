@@ -11,6 +11,7 @@
     <ClCompile Include="Views\SubView.cpp" />
     <ClCompile Include="Views\StretchView.cpp" />
     <ClCompile Include="Views\MirrorView.cpp" />
+    <ClCompile Include="PhotoListItem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Views\ListView.h" />
@@ -21,5 +22,6 @@
     <ClInclude Include="Views\SubView.h" />
     <ClInclude Include="Views\StretchView.h" />
     <ClInclude Include="Views\MirrorView.h" />
+    <ClInclude Include="PhotoListItem.h" />
   </ItemGroup>
 </Project>

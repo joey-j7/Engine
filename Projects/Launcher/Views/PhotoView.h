@@ -8,7 +8,7 @@ namespace Engine
 	class UIButton;
 	class UIImage;
 	class UILine;
-	class StaticEntity;
+	class Entity;
 }
 
 class PhotoEntity;
@@ -16,7 +16,7 @@ class PhotoEntity;
 class PhotoView : public SubView
 {
 public:
-	PhotoView(const String& FilePath, const String& Name = "Photo View");
+	PhotoView(const String& m_FilePath, const String& Name = "Photo View");
 	~PhotoView();
 
 private:
